@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.auth.views import LoginView as BaseLoginView
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.generic import TemplateView, CreateView
 from django.views.generic.list import ListView
@@ -27,7 +27,15 @@ class ProjectView(LoginRequiredMixin, TemplateView):
 
     def get_template_names(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        return [project.get_template_name()]
+        return project.get_template_name()
+
+    def get_text(self, request):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        #result = classify(request.GET.get('text'))
+        d = {
+            'text': 'hi'
+        }
+        return render(request, project.get_template_name(), d)
 
 class ProjectForm(forms.ModelForm):
     class Meta:
