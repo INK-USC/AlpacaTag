@@ -27,8 +27,7 @@ DEBUG = True
 if os.environ.get('DEBUG') == 'False':
     DEBUG = False
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
