@@ -83,3 +83,8 @@ Superuser created successfully.
 python manage.py runserver
 ```
 Now, open a Web browser and go to <http://127.0.0.1:8000>.
+If you run on your own server, use this command.
+
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
