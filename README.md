@@ -16,6 +16,7 @@ MIT License
 * django 2.0.5+
 * Google Chrome(highly recommended)
 
+
 ## Installation
 
 **Setup Python environment**
@@ -23,6 +24,8 @@ MIT License
 First we need to install the dependencies. Run the following commands:
 
 ```bash
+conda create -n alonea python==3.6
+source activate alonea
 pip install -r requirements.txt
 cd ALONEA
 ```
