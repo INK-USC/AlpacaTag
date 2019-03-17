@@ -9,9 +9,18 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Project, Label, Document
+from .models import Project, Label, Document, SequenceRecommendation
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
 from .serializers import ProjectSerializer, LabelSerializer
+
+import anago
+from anago.utils import download
+import tensorflow as tf
+url = 'https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/public/conll2003_en.zip'
+weights, params, preprocessor = download(url)
+graph = tf.get_default_graph()
+with graph.as_default():
+    model = anago.Sequence.load(weights, params, preprocessor)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -132,7 +141,6 @@ class AnnotationList(generics.ListCreateAPIView):
         doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
         serializer.save(document=doc, user=self.request.user)
 
-
 class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, IsProjectUser, IsOwnAnnotation)
 
@@ -145,6 +153,85 @@ class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         document = get_object_or_404(Document, pk=self.kwargs['doc_id'])
         self.queryset = document.get_annotations()
+
+        return self.queryset
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset, pk=self.kwargs['annotation_id'])
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+
+class RecommendationList(generics.ListCreateAPIView):
+    pagination_class = None
+    permission_classes = (IsAuthenticated, )
+
+    def get_serializer_class(self):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        self.serializer_class = project.get_recommendation_serializer()
+
+        return self.serializer_class
+
+    def get_queryset(self):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        document = project.documents.get(id=self.kwargs['doc_id'])
+        self.queryset = document.get_recommendations()
+        self.queryset = self.queryset.filter(user=self.request.user) ##useless trimming needs
+
+        return self.queryset
+
+    def perform_create(self, serializer):
+        doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
+        serializer.save(document=doc, user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        document = project.documents.get(id=self.kwargs['doc_id'])
+        serializer = self.get_serializer_class()
+        with graph.as_default():
+            response = model.analyze(document.text)
+
+        entities = response['entities']
+        words = response['words']
+        res = []
+        for i in range(len(entities)):
+            startOffset = 0
+
+            for j in range(entities[i]['beginOffset']):
+                startOffset = startOffset + len(words[j])
+                startOffset = startOffset + 1
+
+            endOffset = startOffset
+
+            for j in range(entities[i]['beginOffset'],entities[i]['endOffset']):
+                endOffset = endOffset + len(words[j])
+                endOffset = endOffset + 1
+
+            endOffset = endOffset - 1
+
+            recommend = {'document':self.kwargs['doc_id'], 'label':entities[i]['type'], 'start_offset': startOffset,'end_offset': endOffset}
+            res.append(recommend)
+        serializer = serializer(data=res, many=True)
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(response)
+
+
+class RecommendationDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = (IsAuthenticated, IsOwnAnnotation)
+
+    def get_serializer_class(self):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        self.serializer_class = project.get_recommendation_serializer()
+
+        return self.serializer_class
+
+    def get_queryset(self):
+        document = get_object_or_404(Document, pk=self.kwargs['doc_id'])
+        self.queryset = document.get_recommendations()
 
         return self.queryset
 

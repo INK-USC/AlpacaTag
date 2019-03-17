@@ -29,14 +29,6 @@ class ProjectView(LoginRequiredMixin, TemplateView):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         return project.get_template_name()
 
-    def get_text(self, request):
-        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        #result = classify(request.GET.get('text'))
-        d = {
-            'text': 'hi'
-        }
-        return render(request, project.get_template_name(), d)
-
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project

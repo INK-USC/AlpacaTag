@@ -56,6 +56,7 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
+
         migrations.AddField(
             model_name='label',
             name='project',
@@ -70,6 +71,7 @@ class Migration(migrations.Migration):
             name='sequenceannotation',
             unique_together={('document', 'user', 'label', 'start_offset', 'end_offset')},
         ),
+
         migrations.AlterUniqueTogether(
             name='label',
             unique_together={('project', 'text'), ('project', 'shortcut')},

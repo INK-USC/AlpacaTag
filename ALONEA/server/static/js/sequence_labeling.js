@@ -15,7 +15,7 @@ Vue.component('annotator', {
                          v-for="r in chunks"\
                          v-if="id2label[r.label]"\
                          v-bind:class="{tag: id2label[r.label].text_color}"\
-                         v-bind:style="{ color: id2label[r.label].text_color, backgroundColor: id2label[r.label].background_color }"\
+                         v-bind:style="{ color: id2label[r.label].text_color, backgroundColor: id2label[r.label].background_color, textDecoration: id2label[r.label].text_decoration}"\
                     >{{ text.slice(r.start_offset, r.end_offset) }}<button class="delete is-small"\
                                          v-if="id2label[r.label].text_color"\
                                          @click="removeLabel(r)"></button></span>\
@@ -24,6 +24,7 @@ Vue.component('annotator', {
     labels: Array, // [{id: Integer, color: String, text: String}]
     text: String,
     entityPositions: Array, // [{'startOffset': 10, 'endOffset': 15, 'label_id': 1}]
+    recommendPositions: Array,
   },
   data() {
     return {
@@ -149,10 +150,115 @@ Vue.component('annotator', {
       id2label[-1] = {
         text_color: '',
         background_color: '',
+        text_decoration: '',
       };
+
+      id2label[-2] = {
+        text_color: 'white',
+        background_color: 'black',
+        text_decoration: 'underline',
+      };
+
       for (let i = 0; i < this.labels.length; i++) {
         const label = this.labels[i];
+        label.text_decoration = '';
         id2label[label.id] = label;
+      }
+      return id2label;
+    },
+  },
+});
+
+Vue.component('recommender', {
+  template: '<div @click="setSelectedRange">\
+                    <span class="text-sequence"\
+                         v-for="r in chunks"\
+                         v-if="id2label[r.label]"\
+                         v-bind:class="{tag: id2label[r.label].text_color}"\
+                         v-bind:style="{textDecoration: id2label[r.label].text_decoration}"\
+                    >{{ text.slice(r.start_offset, r.end_offset) }}</span>\
+               </div>',
+  props: {
+    labels: Array, // [{id: Integer, color: String, text: String}]
+    text: String,
+    recommendPositions: Array,
+  },
+  data() {
+    return {
+      startOffset: 0,
+      endOffset: 0,
+    };
+  },
+
+  methods: {
+    setSelectedRange(e) {
+      let start;
+      let end;
+      if (window.getSelection) {
+        const range = window.getSelection().getRangeAt(0);
+        const preSelectionRange = range.cloneRange();
+        preSelectionRange.selectNodeContents(this.$el);
+        preSelectionRange.setEnd(range.startContainer, range.startOffset);
+        start = preSelectionRange.toString().length;
+        end = start + range.toString().length;
+      } else if (document.selection && document.selection.type !== 'Control') {
+        const selectedTextRange = document.selection.createRange();
+        const preSelectionTextRange = document.body.createTextRange();
+        preSelectionTextRange.moveToElementText(this.$el);
+        preSelectionTextRange.setEndPoint('EndToStart', selectedTextRange);
+        start = preSelectionTextRange.text.length;
+        end = start + selectedTextRange.text.length;
+      }
+      this.startOffset = start;
+      this.endOffset = end;
+      console.log(start, end);
+    },
+
+    makeLabel(startOffset, endOffset) {
+      const label = {
+        id: 0,
+        label: -1,
+        start_offset: startOffset,
+        end_offset: endOffset,
+      };
+      return label;
+    },
+  },
+
+  computed: {
+    sortedRecommendPositions() {
+      this.recommendPositions = this.recommendPositions.sort((a, b) => a.start_offset - b.start_offset);
+      return this.recommendPositions;
+    },
+
+    chunks() {
+      const res = [];
+      let left = 0;
+      for (let i = 0; i < this.sortedRecommendPositions.length; i++) {
+        const e = this.sortedRecommendPositions[i];
+        const l = this.makeLabel(left, e.start_offset);
+        res.push(l);
+        res.push(e);
+        left = e.end_offset;
+      }
+      const l = this.makeLabel(left, this.text.length);
+      res.push(l);
+
+      return res;
+    },
+
+    id2label() {
+      let id2label = {};
+      // default value;
+      id2label[-1] = {
+        text_decoration: '',
+      };
+
+      for (let i = 0; i < this.recommendPositions.length; i++) {
+        const label = this.recommendPositions[i].label;
+        id2label[label] = {
+          text_decoration: 'underline',
+        };
       }
       return id2label;
     },

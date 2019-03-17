@@ -23,8 +23,15 @@
         @remove-label="removeLabel" @add-label="addLabel"></annotator>
     </div>
   </div>
+  <div class="card-content">
+    <div class="content" v-if="docs[pageNumber] && recommendations[pageNumber]">
+      <recommender ref="recommender" v-bind:labels="labels" v-bind:text="docs[pageNumber].text"
+        v-bind:recommend-positions="recommendations[pageNumber]" @remove-label="removeLabel" @add-label="addLabel"></recommender>
+    </div>
+  </div>
 </div>
 {% endblock %}
+
 {% block footer %}
 <script src="{% static 'bundle/sequence_labeling.js' %}"></script>
 {% endblock %}

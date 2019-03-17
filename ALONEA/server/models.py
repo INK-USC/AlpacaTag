@@ -55,6 +55,13 @@ class Project(models.Model):
     def get_annotation_class(self):
         return SequenceAnnotation
 
+    def get_recommendation_serializer(self):
+        from .serializers import SequenceRecommendationSerializer
+        return SequenceRecommendationSerializer
+
+    def get_recommendation_class(self):
+        return SequenceRecommendation
+
     def __str__(self):
         return self.name
 
@@ -85,6 +92,9 @@ class Document(models.Model):
 
     def get_annotations(self):
         return self.seq_annotations.all()
+
+    def get_recommendations(self):
+        return self.seq_recommendations.all()
 
     def to_csv(self):
         return self.make_dataset()
@@ -123,13 +133,13 @@ class Document(models.Model):
 class Annotation(models.Model):
     prob = models.FloatField(default=0.0)
     manual = models.BooleanField(default=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 
 class SequenceAnnotation(Annotation):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     document = models.ForeignKey(Document, related_name='seq_annotations', on_delete=models.CASCADE)
     label = models.ForeignKey(Label, on_delete=models.CASCADE)
     start_offset = models.IntegerField()
@@ -141,3 +151,17 @@ class SequenceAnnotation(Annotation):
 
     class Meta:
         unique_together = ('document', 'user', 'label', 'start_offset', 'end_offset')
+
+
+class SequenceRecommendation(Annotation):
+    document = models.ForeignKey(Document, related_name='seq_recommendations', on_delete=models.CASCADE,null=True, blank=True)
+    label = models.CharField(max_length=50) # foreign key..?
+    start_offset = models.IntegerField()
+    end_offset = models.IntegerField()
+
+    def clean(self):
+        if self.start_offset >= self.end_offset:
+            raise ValidationError('start_offset is after end_offset')
+
+    class Meta:
+        unique_together = ('document', 'label', 'start_offset', 'end_offset')

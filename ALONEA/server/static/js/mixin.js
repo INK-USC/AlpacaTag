@@ -1,4 +1,7 @@
 import HTTP from './http';
+import axios from 'axios';
+axios.defaults.xsrfCookieName = 'csrftoken';
+axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
 const getOffsetFromUrl = function(url) {
   const offsetMatch = url.match(/[?#].*offset=(\d+)/);
@@ -38,6 +41,7 @@ const annotationMixin = {
       pageNumber: 0,
       docs: [],
       annotations: [],
+      recommendations: [],
       labels: [],
       guideline: '',
       total: 0,
@@ -85,9 +89,14 @@ const annotationMixin = {
         this.prev = response.data.previous;
         this.count = response.data.count;
         this.annotations = [];
+        this.recommendations = [];
         for (let i = 0; i < this.docs.length; i++) {
           const doc = this.docs[i];
           this.annotations.push(doc.annotations);
+        }
+        for (let i = 0; i < this.docs.length; i++) {
+          const doc = this.docs[i];
+          this.recommendations.push(doc.recommendations);
         }
         this.offset = getOffsetFromUrl(this.url);
       });
@@ -107,7 +116,15 @@ const annotationMixin = {
       const state = this.getState();
       this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}`;
       await this.search();
+      await this.getRecommendation();
       this.pageNumber = 0;
+    },
+
+    async getRecommendation() {
+      const docId = this.docs[this.pageNumber].id;
+      await HTTP.get(`docs/${docId}/recommendations/`).then((response) => {
+        console.log(response.data);
+      });
     },
 
     removeLabel(annotation) {
