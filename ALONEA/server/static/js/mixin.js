@@ -116,14 +116,14 @@ const annotationMixin = {
       const state = this.getState();
       this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}`;
       await this.search();
-      await this.getRecommendation();
       this.pageNumber = 0;
     },
 
-    async getRecommendation() {
+    getRecommendation() {
       const docId = this.docs[this.pageNumber].id;
-      await HTTP.get(`docs/${docId}/recommendations/`).then((response) => {
+      HTTP.get(`docs/${docId}/recommendations/`).then((response) => {
         console.log(response.data);
+        console.log(response.data.entities);
       });
     },
 
@@ -155,6 +155,10 @@ const annotationMixin = {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
       });
+    },
+
+    recommendations() {
+      this.getRecommendation();
     },
 
     offset() {
