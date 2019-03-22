@@ -81,25 +81,31 @@ const annotationMixin = {
         }
       }
     },
-
+    async process_data(response) {
+      this.docs = response.data.results;
+      this.next = response.data.next;
+      this.prev = response.data.previous;
+      this.count = response.data.count;
+      this.annotations = [];
+      this.recommendations = [];
+      for (let i = 0; i < this.docs.length; i++) {
+        const doc = this.docs[i];
+        this.annotations.push(doc.annotations);
+      }
+      for (let i = 0; i < this.docs.length; i++) {
+        const doc = this.docs[i];
+        // this.getRecommendation(this.docs[i].id);
+        await HTTP.get(`docs/${this.docs[i].id}/recommendations/`).then((recomm_response) => {
+          console.log(response.data);
+          console.log(response.data.entities);
+          const rec = recomm_response.data.recommendation;
+          this.recommendations.push(rec);
+        });
+      }
+      this.offset = getOffsetFromUrl(this.url);
+    },
     async search() {
-      await HTTP.get(this.url).then((response) => {
-        this.docs = response.data.results;
-        this.next = response.data.next;
-        this.prev = response.data.previous;
-        this.count = response.data.count;
-        this.annotations = [];
-        this.recommendations = [];
-        for (let i = 0; i < this.docs.length; i++) {
-          const doc = this.docs[i];
-          this.annotations.push(doc.annotations);
-        }
-        for (let i = 0; i < this.docs.length; i++) {
-          const doc = this.docs[i];
-          this.recommendations.push(doc.recommendations);
-        }
-        this.offset = getOffsetFromUrl(this.url);
-      });
+      await HTTP.get(this.url).then((response) => this.process_data(response));
     },
 
     getState() {
@@ -119,9 +125,9 @@ const annotationMixin = {
       this.pageNumber = 0;
     },
 
-    getRecommendation() {
-      const docId = this.docs[this.pageNumber].id;
-      HTTP.get(`docs/${docId}/recommendations/`).then((response) => {
+    async getRecommendation(docid) {
+      // const docId = this.docs[this.pageNumber].id;
+      await HTTP.get(`docs/${docid}/recommendations/`).then((response) => {
         console.log(response.data);
         console.log(response.data.entities);
       });
@@ -155,10 +161,6 @@ const annotationMixin = {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
       });
-    },
-
-    recommendations() {
-      this.getRecommendation();
     },
 
     offset() {
