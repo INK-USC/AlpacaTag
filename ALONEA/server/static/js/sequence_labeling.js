@@ -1,4 +1,7 @@
 import Vue from 'vue';
+import VTooltip from 'v-tooltip'
+
+Vue.use(VTooltip);
 import annotationMixin from './mixin';
 import HTTP from './http';
 import simpleShortcut from './filter';
@@ -171,12 +174,25 @@ Vue.component('annotator', {
 
 Vue.component('recommender', {
   template: '<div @click="setSelectedRange">\
-                    <span class="text-sequence"\
-                         v-for="r in chunks"\
-                         v-if="id2label[r.label]"\
+                 <template v-for="r in chunks">\
+                 <v-popover style="display: inline" offset="10" v-if="id2label[r.label].text_decoration">\
+                    <span class="text-sequence tooltip-target"\
                          v-bind:class="{tag: id2label[r.label].text_color}"\
                          v-bind:style="{textDecoration: id2label[r.label].text_decoration}"\
-                    >{{ text.slice(r.start_offset, r.end_offset) }}</span>\
+                    >\
+                    {{ text.slice(r.start_offset, r.end_offset) }}</span>\
+                    <template slot="popover">\
+                      <p>\
+                        test tooltip\
+                      </p>\
+                      <a v-close-popover>Close</a>\
+                    </template>\
+                  </v-popover>\
+                  <span v-else class="text-sequence" \
+                  v-bind:class="{tag: id2label[r.label].text_color}"\
+                  v-bind:style="{textDecoration: id2label[r.label].text_decoration}">\
+                  {{ text.slice(r.start_offset, r.end_offset) }}</span>\
+               </template>\
                </div>',
   props: {
     labels: Array, // [{id: Integer, color: String, text: String}]
@@ -243,7 +259,7 @@ Vue.component('recommender', {
       }
       const l = this.makeLabel(left, this.text.length);
       res.push(l);
-
+      console.log(res);
       return res;
     },
 
