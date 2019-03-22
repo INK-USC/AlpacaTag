@@ -216,8 +216,7 @@ class RecommendationList(generics.ListCreateAPIView):
         serializer = serializer(data=res, many=True)
         if serializer.is_valid():
             serializer.save()
-
-        return Response(response)
+        return Response({"recommendation":res})
 
 
 class RecommendationDetail(generics.RetrieveUpdateDestroyAPIView):
