@@ -7,7 +7,7 @@ from torch.nn import init
 from torch.autograd import Variable
 from .utils import *
 import codecs
-import _pickle as cPickle
+import pickle as cPickle
 import itertools
 
 class Loader(object):
@@ -110,12 +110,14 @@ class Loader(object):
         dev_sentences = self.load_conll_sentences(dev_path, lower, zeros)
         test_sentences = self.load_conll_sentences(test_path, lower, zeros)
         test_train_sentences = self.load_conll_sentences(test_train_path, lower, zeros)
+
         
         self.update_tag_scheme(train_sentences, tag_scheme)
         self.update_tag_scheme(dev_sentences, tag_scheme)
         self.update_tag_scheme(test_sentences, tag_scheme)
         self.update_tag_scheme(test_train_sentences, tag_scheme)
-        
+
+
         dico_words_train = self.word_mapping(train_sentences, lower)[0]
         
         all_embedding = 1
@@ -133,6 +135,7 @@ class Loader(object):
         dev_data = prepare_dataset(dev_sentences, word_to_id, char_to_id, tag_to_id, lower)
         test_data = prepare_dataset(test_sentences, word_to_id, char_to_id, tag_to_id, lower)
         test_train_data = prepare_dataset(test_train_sentences, word_to_id, char_to_id, tag_to_id, lower)
+
         
         print("%i / %i / %i sentences in train / dev / test." % (
               len(train_data), len(dev_data), len(test_data)))
@@ -244,4 +247,105 @@ class Loader(object):
             mappings = cPickle.load(open(mapping_file,'rb'))
             
         return train_data, dev_data, test_data, mappings
+
+
+    def load_twitter_sentences(self, path, lower, zeros):
+        
+        sentences = []
+        sentence = []
+        for line in codecs.open(path, 'r', 'utf-8'):
+            line = zero_digits(line.rstrip()) if zeros else line.rstrip()
+            if not line:
+                if len(sentence) > 0:
+                    if 'DOCSTART' not in sentence[0][0]:
+                        sentences.append(sentence)
+                    sentence = []
+            else:
+                word = line.split()
+                assert len(word) >= 2
+                sentence.append(word)
+        if len(sentence) > 0:
+            if 'DOCSTART' not in sentence[0][0]:
+                sentences.append(sentence)
+        return sentences
+
+
+    def load_twitter(self, dataset ,parameters):
+        
+        zeros = parameters['zeros']
+        lower = parameters['lower']
+        word_dim = parameters['wrdim']
+        pretrained = parameters['ptrnd']
+        tag_scheme = parameters['tgsch']
+        
+        train_path = os.path.join(dataset,'TwitterTrainBIO.tsv')
+        dev_path = os.path.join(dataset,'TwitterTestBIO.tsv')
+        test_path = os.path.join(dataset,'TwitterTestBIO.tsv')
+        test_train_path = os.path.join(dataset,'TwitterTestBIO.tsv')
+        
+        train_sentences = self.load_twitter_sentences(train_path, lower, zeros)
+        dev_sentences = self.load_twitter_sentences(dev_path, lower, zeros)
+        test_sentences = self.load_twitter_sentences(test_path, lower, zeros)
+        test_train_sentences = self.load_twitter_sentences(test_train_path, lower, zeros)
+        
+        self.update_tag_scheme(train_sentences, tag_scheme)
+        self.update_tag_scheme(dev_sentences, tag_scheme)
+        self.update_tag_scheme(test_sentences, tag_scheme)
+        self.update_tag_scheme(test_train_sentences, tag_scheme)
+        
+        dico_words_train = self.word_mapping(train_sentences, lower)[0]
+        
+        all_embedding = 1
+        dico_words, word_to_id, id_to_word = augment_with_pretrained(
+                dico_words_train.copy(),
+                pretrained,
+                list(itertools.chain.from_iterable(
+                    [[w[0] for w in s] for s in dev_sentences + test_sentences])
+                ) if not all_embedding else None)
+
+        dico_chars, char_to_id, id_to_char = char_mapping(train_sentences)
+        dico_tags, tag_to_id, id_to_tag = tag_mapping(train_sentences)
+        
+        train_data = prepare_dataset(train_sentences, word_to_id, char_to_id, tag_to_id, lower)
+        dev_data = prepare_dataset(dev_sentences, word_to_id, char_to_id, tag_to_id, lower)
+        test_data = prepare_dataset(test_sentences, word_to_id, char_to_id, tag_to_id, lower)
+        test_train_data = prepare_dataset(test_train_sentences, word_to_id, char_to_id, tag_to_id, lower)
+        
+        print("%i / %i / %i sentences in train / dev / test." % (
+              len(train_data), len(dev_data), len(test_data)))
+        
+        mapping_file = os.path.join(dataset,'mapping_'+ str(tag_scheme) +'.pkl')
+        
+        if not os.path.isfile(mapping_file):
+            all_word_embeds = {}
+            for i, line in enumerate(codecs.open(pretrained, 'r', 'utf-8')):
+                s = line.strip().split()
+                if len(s) == word_dim + 1:
+                    all_word_embeds[s[0]] = np.array([float(i) for i in s[1:]])
+
+            word_embeds = np.random.uniform(-np.sqrt(0.06), np.sqrt(0.06), (len(word_to_id), word_dim))
+
+            for w in word_to_id:
+                if w in all_word_embeds:
+                    word_embeds[word_to_id[w]] = all_word_embeds[w]
+                elif w.lower() in all_word_embeds:
+                    word_embeds[word_to_id[w]] = all_word_embeds[w.lower()]
+
+            print('Loaded %i pretrained embeddings.' % len(all_word_embeds))
+
+            with open(mapping_file, 'wb') as f:
+                mappings = {
+                    'word_to_id': word_to_id,
+                    'tag_to_id': tag_to_id,
+                    'id_to_tag': id_to_tag,
+                    'char_to_id': char_to_id,
+                    'parameters': parameters,
+                    'word_embeds': word_embeds
+                }
+                cPickle.dump(mappings, f)
+        else:
+            mappings = cPickle.load(open(mapping_file,'rb'))
+            
+        return train_data, dev_data, test_data, test_train_data, mappings
+        
         

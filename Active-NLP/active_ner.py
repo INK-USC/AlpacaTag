@@ -12,7 +12,7 @@ from neural_ner.models import CNN_CNN_LSTM_BB
 import matplotlib.pyplot as plt
 import torch
 from active_learning import Acquisition
-import _pickle as pkl
+import pickle as pkl
 import numpy as np
 
 import argparse
@@ -178,6 +178,8 @@ if not os.path.exists(os.path.join(result_path, model_name, 'active_checkpoint',
 
 if opt.dataset == 'conll':
     train_data, dev_data, test_data, test_train_data, mappings = loader.load_conll(dataset_path, parameters)
+elif opt.dataset == 'twitter':
+    train_data, dev_data, test_data, test_train_data, mappings = loader.load_twitter(dataset_path, parameters)
 elif opt.dataset == 'ontonotes':
     train_data, dev_data, test_data, mappings = loader.load_ontonotes(dataset_path, parameters)
     test_train_data = train_data[-10000:]
@@ -309,7 +311,7 @@ for acquire_percent in acquisition_strat:
     acq_plot_every = max(len(acquisition_function.train_index)/(5*parameters['batch_size']),1)
     losses, all_F = trainer.train_model(opt.num_epochs, active_train_data, dev_data, test_train_data, test_data,
                                         learning_rate = learning_rate, checkpoint_folder = checkpoint_folder,
-                                        batch_size = min(parameters['batch_size'],len(acquisition_function.train_index)/100),
+                                        batch_size = min(parameters['batch_size'],int(len(acquisition_function.train_index)/100)),
                                         eval_test_train=False, plot_every = acq_plot_every, lr_decay = 0.05)
     
     pkl.dump(acquisition_function, open(os.path.join(checkpoint_path,'acquisition1.p'),'wb'))

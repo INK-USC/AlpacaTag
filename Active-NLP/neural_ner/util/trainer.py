@@ -10,7 +10,6 @@ import torch
 import torch.nn as nn
 from .utils import *
 
-
 class Trainer(object):
     
     def __init__(self, model, optimizer, result_path, model_name, usedataset, mappings, 
@@ -74,10 +73,9 @@ class Trainer(object):
                 wordslen = data['wordslen']
                 charslen = data['charslen']
                 
-                score = self.model(words, tags, chars, caps, wordslen, charslen, mask, n_batches,
-                                         usecuda=self.usecuda)
+                score = self.model(words, tags, chars, caps, wordslen, charslen, mask, n_batches)
                 
-                loss += score.data[0]/np.sum(data['wordslen'])
+                loss += score.item()/np.sum(data['wordslen'])
                 score.backward()
                 
                 nn.utils.clip_grad_norm(self.model.parameters(), 5.0)

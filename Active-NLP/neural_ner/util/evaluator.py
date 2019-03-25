@@ -70,7 +70,6 @@ class Evaluator(object):
         eval_lines = [l.rstrip() for l in codecs.open(scoref, 'r', 'utf8')]
 
         for i, line in enumerate(eval_lines):
-            print(line)
             if i == 1:
                 new_F = float(line.strip().split()[-1])
                 if new_F > best_F:

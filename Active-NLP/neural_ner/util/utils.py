@@ -291,6 +291,7 @@ def prepare_dataset(sentences, word_to_id, char_to_id, tag_to_id, lower=True):
             'tags': tags,
         })
     return data
+    print(data[:10])    
 
 
 def augment_with_pretrained(dictionary, ext_emb_path, words):
