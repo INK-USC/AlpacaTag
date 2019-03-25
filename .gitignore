@@ -4,3 +4,4 @@
 ALONEA/db.sqlite3
 ALONEA/server/static/bundle/*
 Active-NLP/wordvectors/*
+Active-NLP/datasets/conll/mapping_iobes.pkl
