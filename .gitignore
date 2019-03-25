@@ -3,3 +3,4 @@
 *pycache*
 ALONEA/db.sqlite3
 ALONEA/server/static/bundle/*
+Active-NLP/wordvectors/*
