@@ -15,7 +15,7 @@ MIT License
 * Python 3.6+
 * django 2.0.5+
 * Google Chrome(highly recommended)
-
+* Pytorch 0.3.1
 
 ## Installation
 
