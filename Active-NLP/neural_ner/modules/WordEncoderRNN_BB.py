@@ -8,7 +8,7 @@ from neural_ner.util.utils import *
 from torch.nn.utils.rnn import PackedSequence
 from torch.nn.parameter import Parameter
 from torch.nn import _VF
-from torch._jit_internal import weak_module, weak_script_method, weak_script, _parameter_list
+from torch._jit_internal import weak_module, weak_script_method, weak_script
 
 _rnn_impls = {
     'GRU': _VF.gru,
@@ -131,7 +131,6 @@ class RNNBase_BB(nn.Module):
         for logvar in self.logvars:
             logvar.data.fill_(logvar_init)
 
-    @_parameter_list
     def get_flat_weights(self):
         return self._flat_weights
 
