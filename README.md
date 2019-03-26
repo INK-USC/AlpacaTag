@@ -16,7 +16,9 @@ MIT License
 * django 2.0.5+
 * Google Chrome(highly recommended)
 * Pytorch 0.3.1
-
+```bash
+pip install https://download.pytorch.org/whl/cu90/torch-0.3.1-cp36-cp36m-linux_x86_64.whl
+```
 ## Installation
 
 **Setup Python environment**
