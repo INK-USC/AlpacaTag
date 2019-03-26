@@ -11,21 +11,21 @@ import torch.nn as nn
 from .utils import *
 
 class Trainer(object):
-    
-    def __init__(self, model, optimizer, result_path, model_name, usedataset, mappings, 
+
+    def __init__(self, model, optimizer, result_path, model_name, usedataset, mappings,
                  eval_every=1, usecuda = True):
         self.model = model
         self.optimizer = optimizer
         self.eval_every = eval_every
         self.model_name = os.path.join(result_path, model_name)
         self.usecuda = usecuda
-        
+
         self.evaluator = Evaluator(result_path, model_name, mappings).evaluate_conll
-    
+
     def adjust_learning_rate(self, optimizer, lr):
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
-            
+
     def train_model(self, num_epochs, train_data, dev_data, test_train_data, test_data, learning_rate,
                     checkpoint_folder='.', eval_test_train=True, plot_every=50, adjust_lr=True,
                     batch_size = 16, lr_decay = 0.05):
@@ -38,16 +38,16 @@ class Trainer(object):
         all_F=[[0,0,0]]
         count = 0
         word_count = 0
-        
+
         self.model.train(True)
         for epoch in range(1, num_epochs+1):
             t=time.time()
-            
+
             train_batches = create_batches(train_data, batch_size= batch_size, order='random')
             n_batches = len(train_batches)
-            
-            for i, index in enumerate(np.random.permutation(len(train_batches))): 
-                
+
+            for i, index in enumerate(np.random.permutation(len(train_batches))):
+
                 data = train_batches[index]
                 self.model.zero_grad()
 
@@ -56,7 +56,7 @@ class Trainer(object):
                 chars = data['chars']
                 caps = data['caps']
                 mask = data['tagsmask']
-                
+
                 if self.usecuda:
                     words = Variable(torch.LongTensor(words)).cuda()
                     chars = Variable(torch.LongTensor(chars)).cuda()
@@ -69,21 +69,21 @@ class Trainer(object):
                     caps = Variable(torch.LongTensor(caps))
                     mask = Variable(torch.LongTensor(mask))
                     tags = Variable(torch.LongTensor(tags))
-                
+
                 wordslen = data['wordslen']
                 charslen = data['charslen']
-                
+
                 score = self.model(words, tags, chars, caps, wordslen, charslen, mask, n_batches)
-                
-                loss += score.item()/np.sum(data['wordslen'])
+
+                loss += score.data[0]/np.sum(data['wordslen'])
                 score.backward()
-                
+
                 nn.utils.clip_grad_norm(self.model.parameters(), 5.0)
                 self.optimizer.step()
-                
+
                 count += 1
                 word_count += batch_size
-                
+
                 if count % plot_every == 0:
                     loss /= plot_every
                     print(word_count, ': ', loss)
@@ -91,16 +91,16 @@ class Trainer(object):
                         losses.append(loss)
                     losses.append(loss)
                     loss = 0.0
-                                        
+
             if adjust_lr:
                 self.adjust_learning_rate(self.optimizer, lr=learning_rate/(1+lr_decay*float(word_count)/len(train_data)))
-            
+
             if epoch%self.eval_every==0:
-                
+
                 self.model.train(False)
-                
+
                 if eval_test_train:
-                    best_train_F, new_train_F, _ = self.evaluator(self.model, test_train_data, best_train_F, 
+                    best_train_F, new_train_F, _ = self.evaluator(self.model, test_train_data, best_train_F,
                                                                   checkpoint_folder=checkpoint_folder)
                 else:
                     best_train_F, new_train_F, _ = 0, 0, 0
@@ -113,7 +113,7 @@ class Trainer(object):
                 sys.stdout.flush()
 
                 all_F.append([new_train_F, new_dev_F, new_test_F])
-                
+
                 self.model.train(True)
 
             print('*'*80)
