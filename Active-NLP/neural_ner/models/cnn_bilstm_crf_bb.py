@@ -78,7 +78,7 @@ class CNN_BiLSTM_CRF_BB(nn.Module):
         batch_size, max_len = words.size()
         s_log_pw, s_log_qw, s_log_likelihood = 0., 0., 0.
         
-        for _ in xrange(n_samples):
+        for _ in range(n_samples):
             sample_log_likelihood = -1. * self.forward_pass(words, tags, chars, caps, wordslen, charslen, 
                                                             tagsmask, usecuda = usecuda)
             sample_log_pw, sample_log_qw = self.word_encoder.get_lpw_lqw()
