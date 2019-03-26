@@ -5,7 +5,7 @@ import math
 from torch.autograd import Variable
 import neural_ner
 from neural_ner.util.utils import *
-from torch.nn.utils.rnn import PackedSequence, get_packed_sequence
+from torch.nn.utils.rnn import PackedSequence
 from torch.nn.parameter import Parameter
 from torch.nn import _VF
 from torch._jit_internal import weak_module, weak_script_method, weak_script, _parameter_list
@@ -115,7 +115,7 @@ class RNNBase_BB(nn.Module):
                 # NB: this is an INPLACE function on all_weights, that's why the
                 # no_grad() is necessary.
                 torch._cudnn_rnn_flatten_weight(
-                    all_weights, (4 if self.bias else 2),
+                    all_weights, (8),
                     self.input_size, rnn.get_cudnn_mode(self.mode), self.hidden_size, self.num_layers,
                     self.batch_first, bool(self.bidirectional))
 
@@ -361,7 +361,7 @@ class LSTM_BB(RNNBase_BB):
 
         output, hidden = self.forward_impl(input, hx, batch_sizes, max_batch_size, sorted_indices)
 
-        output = get_packed_sequence(output, batch_sizes, sorted_indices, unsorted_indices)
+        output = PackedSequence(output, batch_sizes, sorted_indices, unsorted_indices)
         return output, self.permute_hidden(hidden, unsorted_indices)
 
     def forward(self, input, hx=None):
