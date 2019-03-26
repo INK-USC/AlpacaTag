@@ -9,15 +9,14 @@ from torch.nn.utils.rnn import PackedSequence
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 
-
 class RNNBase_BB(nn.Module):
 
     def __init__(self, mode, input_size, hidden_size, sigma_prior,
                  num_layers=1, batch_first=False,
                  dropout=0, bidirectional=True):
-
+        
         super(RNNBase_BB, self).__init__()
-
+        
         self.mode = mode
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -37,37 +36,35 @@ class RNNBase_BB(nn.Module):
             gate_size = 3 * hidden_size
         else:
             gate_size = hidden_size
-
+        
         self.means = []
         self.logvars = []
-        self._all_weights = []
-
+                
         for layer in range(num_layers):
             for direction in range(num_directions):
                 layer_input_size = input_size if layer == 0 else hidden_size * num_directions
 
                 w_ih_mu = Parameter(torch.Tensor(gate_size, layer_input_size))
-                w_hh_mu = Parameter(torch.Tensor(gate_size, hidden_size))
+                w_hh_mu = Parameter(torch.Tensor(gate_size, hidden_size))                
                 w_ih_logvar = Parameter(torch.Tensor(gate_size, layer_input_size))
                 w_hh_logvar = Parameter(torch.Tensor(gate_size, hidden_size))
-
+                                
                 b_ih_mu = Parameter(torch.Tensor(gate_size))
                 b_hh_mu = Parameter(torch.Tensor(gate_size))
                 b_ih_logvar = Parameter(torch.Tensor(gate_size))
                 b_hh_logvar = Parameter(torch.Tensor(gate_size))
-
+                
                 self.means += [w_ih_mu, w_hh_mu, b_ih_mu, b_hh_mu]
                 self.logvars += [w_ih_logvar, w_hh_logvar, b_ih_logvar, b_hh_logvar]
-
-                layer_params = (w_ih_mu, w_ih_logvar, w_hh_mu, w_hh_logvar, b_ih_mu, b_ih_logvar, b_hh_mu, b_hh_logvar)
+                
+                layer_params = (w_ih_mu,  w_ih_logvar, w_hh_mu, w_hh_logvar, b_ih_mu, b_ih_logvar, b_hh_mu, b_hh_logvar)
 
                 suffix = '_reverse' if direction == 1 else ''
-                param_names = ['weight_ih_l_mu{}{}', 'weight_ih_l_logvar{}{}', 'weight_hh_l_mu{}{}',
-                               'weight_hh_l_logvar{}{}']
+                param_names = ['weight_ih_l_mu{}{}', 'weight_ih_l_logvar{}{}', 'weight_hh_l_mu{}{}', 'weight_hh_l_logvar{}{}']
                 param_names += ['bias_ih_l_mu{}{}', 'bias_ih_l_logvar{}{}', 'bias_hh_l_mu{}{}', 'bias_hh_l_logvar{}{}']
-
+                
                 param_names = [x.format(layer, suffix) for x in param_names]
-                self._all_weights += [param_names]
+
                 for name, param in zip(param_names, layer_params):
                     setattr(self, name, param)
 
@@ -86,41 +83,23 @@ class RNNBase_BB(nn.Module):
             mean.data.uniform_(-stdv, stdv)
         for logvar in self.logvars:
             logvar.data.fill_(logvar_init)
-
-    def __repr__(self):
-        s = '{name}({input_size}, {hidden_size}'
-        if self.num_layers != 1:
-            s += ', num_layers={num_layers}'
-        if self.bias is not True:
-            s += ', bias={bias}'
-        if self.batch_first is not False:
-            s += ', batch_first={batch_first}'
-        if self.dropout != 0:
-            s += ', dropout={dropout}'
-        if self.bidirectional is not False:
-            s += ', bidirectional={bidirectional}'
-        s += ')'
-        return s.format(name=self.__class__.__name__, **self.__dict__)
-
-    def __setstate__(self, d):
-        self.__dict__.update(d)
-        if 'all_weights' in d:
-            self._all_weights = d['all_weights']
-        if isinstance(self._all_weights[0][0], str):
-            return
-        self._all_weights = []
+            
+    def get_all_weights(self, weights):
+        
+        start = 0
+        all_weights = []
         for layer in range(self.num_layers):
             for direction in range(self.num_directions):
-                suffix = '_reverse' if direction == 1 else ''
-                weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}', 'bias_ih_l{}{}', 'bias_hh_l{}{}']
-                weights = [x.format(layer, suffix) for x in weights]
-                self._all_weights += [weights]
+                w_ih = weights[start]
+                w_hh = weights[start+1]
+                b_ih = weights[start+2]
+                b_hh = weights[start+3]
+                start += 4
+                all_weights.append([w_ih, w_hh, b_ih, b_hh])
 
-    @property
-    def all_weights(self):
-        return [[getattr(self, weight) for weight in weights] for weights in self._all_weights]
-
-    def sample(self, usecuda=True):
+        return all_weights
+    
+    def sample(self, usecuda = True):
         self.sampled_weights = []
         for i in range(len(self.means)):
             mean = self.means[i]
@@ -133,28 +112,30 @@ class RNNBase_BB(nn.Module):
             std = logvar.mul(0.5).exp()
             weight = mean + Variable(eps) * std
             self.sampled_weights.append(weight)
-
+            
     def _calculate_prior(self, weights):
         lpw = 0.
         for w in weights:
             lpw += log_gaussian(w, 0, self.sigma_prior).sum()
         return lpw
-
+    
     def _calculate_posterior(self, weights):
         lqw = 0.
-        for i, w in enumerate(weights):
-            lqw += log_gaussian_logsigma(w, self.means[i], 0.5 * self.logvars[i]).sum()
+        for i,w in enumerate(weights):
+            lqw += log_gaussian_logsigma(w, self.means[i], 0.5*self.logvars[i]).sum()
         return lqw
 
-    def forward(self, input, hx=None, usecuda=True):
+    def forward(self, input, hx=None, usecuda = True):
         if self.training:
-            self.sample(usecuda=usecuda)
+            self.sample(usecuda = usecuda)
             weights = self.sampled_weights
             self.lpw = self._calculate_prior(weights)
             self.lqw = self._calculate_posterior(weights)
         else:
             weights = self.means
 
+        self.all_weights = self.get_all_weights(weights)
+        
         is_packed = isinstance(input, PackedSequence)
         if is_packed:
             input, batch_sizes = input
@@ -197,22 +178,21 @@ class LSTM_BB(RNNBase_BB):
     def __init__(self, *args, **kwargs):
         super(LSTM_BB, self).__init__('LSTM', *args, **kwargs)
 
-
 class baseRNN_BB(nn.Module):
 
-    def __init__(self, vocab_size, hidden_size, input_dropout_p, output_dropout_p, n_layers, rnn_cell,
+    def __init__(self, vocab_size, hidden_size, input_dropout_p, output_dropout_p, n_layers, rnn_cell, 
                  max_len=25):
-
+        
         super(baseRNN_BB, self).__init__()
-
+        
         self.vocab_size = vocab_size
         self.hidden_size = hidden_size
         self.n_layers = n_layers
         self.max_len = max_len
-
+        
         self.input_dropout_p = input_dropout_p
         self.output_dropout_p = output_dropout_p
-
+        
         if rnn_cell.lower() == 'lstm':
             self.rnn_cell = LSTM_BB
         else:
@@ -223,39 +203,38 @@ class baseRNN_BB(nn.Module):
     def forward(self, *args, **kwargs):
         raise NotImplementedError()
 
-
 class WordEncoderRNN_BB(baseRNN_BB):
 
-    def __init__(self, vocab_size, embedding_size, hidden_size, char_size, cap_size, sigma_prior, input_dropout_p=0.5,
+    def __init__(self, vocab_size, embedding_size ,hidden_size, char_size, cap_size, sigma_prior, input_dropout_p=0.5, 
                  output_dropout_p=0, n_layers=1, bidirectional=True, rnn_cell='lstm'):
-
-        super(WordEncoderRNN_BB, self).__init__(vocab_size, hidden_size, input_dropout_p,
-                                                output_dropout_p, n_layers, rnn_cell)
+        
+        super(WordEncoderRNN_BB, self).__init__(vocab_size, hidden_size, input_dropout_p, 
+                                             output_dropout_p, n_layers, rnn_cell)
 
         self.embedding = nn.Embedding(vocab_size, embedding_size)
-
+        
         augmented_embedding_size = embedding_size + char_size + cap_size
         self.rnn = self.rnn_cell(augmented_embedding_size, hidden_size, n_layers,
                                  bidirectional=bidirectional, dropout=output_dropout_p,
                                  batch_first=True)
 
     def forward(self, words, char_embedding, cap_embedding, input_lengths):
-
+        
         embedded = self.embedding(words)
         if cap_embedding is not None:
-            embedded = torch.cat((embedded, char_embedding, cap_embedding), 2)
+            embedded = torch.cat((embedded,char_embedding,cap_embedding),2)  
         else:
-            embedded = torch.cat((embedded, char_embedding), 2)
-
+            embedded = torch.cat((embedded,char_embedding),2)
+    
         embedded = self.input_dropout(embedded)
-        embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths, batch_first=True)
+        embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths, batch_first= True)
         output, _ = self.rnn(embedded)
-        output, _ = nn.utils.rnn.pad_packed_sequence(output, batch_first=True)
-
+        output, _ = nn.utils.rnn.pad_packed_sequence(output, batch_first= True)
+        
         return output
-
+    
     def get_lpw_lqw(self):
-
+        
         lpw = self.rnn.lpw
         lqw = self.rnn.lqw
         return lpw, lqw
