@@ -5,12 +5,25 @@ import math
 from torch.autograd import Variable
 import neural_ner
 from neural_ner.util.utils import *
-from torch.nn.utils.rnn import PackedSequence
+from torch.nn.utils.rnn import PackedSequence, get_packed_sequence
 from torch.nn.parameter import Parameter
-import torch.nn.functional as F
+from torch.nn import _VF
+from torch._jit_internal import weak_module, weak_script_method, weak_script, _parameter_list
 
+_rnn_impls = {
+    'GRU': _VF.gru,
+    'RNN_TANH': _VF.rnn_tanh,
+    'RNN_RELU': _VF.rnn_relu,
+}
+
+@weak_script
+def apply_permutation(tensor, permutation, dim=1):
+    # type: (Tensor, Tensor, int) -> Tensor
+    return tensor.index_select(dim, permutation)
 
 class RNNBase_BB(nn.Module):
+    __constants__ = ['mode', 'input_size', 'hidden_size', 'num_layers', 'bias',
+                     'batch_first', 'dropout', 'bidirectional', '_flat_parameters']
 
     def __init__(self, mode, input_size, hidden_size, sigma_prior,
                  num_layers=1, batch_first=False,
@@ -41,7 +54,6 @@ class RNNBase_BB(nn.Module):
         self.means = []
         self.logvars = []
         self._all_weights = []
-
         for layer in range(num_layers):
             for direction in range(num_directions):
                 layer_input_size = input_size if layer == 0 else hidden_size * num_directions
@@ -67,13 +79,45 @@ class RNNBase_BB(nn.Module):
                 param_names += ['bias_ih_l_mu{}{}', 'bias_ih_l_logvar{}{}', 'bias_hh_l_mu{}{}', 'bias_hh_l_logvar{}{}']
 
                 param_names = [x.format(layer, suffix) for x in param_names]
-                self._all_weights += [param_names]
                 for name, param in zip(param_names, layer_params):
                     setattr(self, name, param)
+                self._all_weights.append(param_names)
 
+        self.flatten_parameters()
         self.reset_parameters()
         self.lpw = 0
         self.lqw = 0
+
+    def flatten_parameters(self):
+        """Resets parameter data pointer so that they can use faster code paths.
+        Right now, this works only if the module is on the GPU and cuDNN is enabled.
+        Otherwise, it's a no-op.
+        """
+        any_param = next(self.parameters()).data
+        if not any_param.is_cuda or not torch.backends.cudnn.is_acceptable(any_param):
+            return
+
+        # If any parameters alias, we fall back to the slower, copying code path. This is
+        # a sufficient check, because overlapping parameter buffers that don't completely
+        # alias would break the assumptions of the uniqueness check in
+        # Module.named_parameters().
+        all_weights = self._flat_weights
+        unique_data_ptrs = set(p.data_ptr() for p in all_weights)
+        if len(unique_data_ptrs) != len(all_weights):
+            return
+
+        with torch.cuda.device_of(any_param):
+            import torch.backends.cudnn.rnn as rnn
+
+            # NB: This is a temporary hack while we still don't have Tensor
+            # bindings for ATen functions
+            with torch.no_grad():
+                # NB: this is an INPLACE function on all_weights, that's why the
+                # no_grad() is necessary.
+                torch._cudnn_rnn_flatten_weight(
+                    all_weights, (4 if self.bias else 2),
+                    self.input_size, rnn.get_cudnn_mode(self.mode), self.hidden_size, self.num_layers,
+                    self.batch_first, bool(self.bidirectional))
 
     def _apply(self, fn):
         ret = super(RNNBase_BB, self)._apply(fn)
@@ -87,38 +131,52 @@ class RNNBase_BB(nn.Module):
         for logvar in self.logvars:
             logvar.data.fill_(logvar_init)
 
-    def __repr__(self):
-        s = '{name}({input_size}, {hidden_size}'
-        if self.num_layers != 1:
-            s += ', num_layers={num_layers}'
-        if self.bias is not True:
-            s += ', bias={bias}'
-        if self.batch_first is not False:
-            s += ', batch_first={batch_first}'
-        if self.dropout != 0:
-            s += ', dropout={dropout}'
-        if self.bidirectional is not False:
-            s += ', bidirectional={bidirectional}'
-        s += ')'
-        return s.format(name=self.__class__.__name__, **self.__dict__)
+    @_parameter_list
+    def get_flat_weights(self):
+        return self._flat_weights
 
-    def __setstate__(self, d):
-        self.__dict__.update(d)
-        if 'all_weights' in d:
-            self._all_weights = d['all_weights']
-        if isinstance(self._all_weights[0][0], str):
-            return
-        self._all_weights = []
-        for layer in range(self.num_layers):
-            for direction in range(self.num_directions):
-                suffix = '_reverse' if direction == 1 else ''
-                weights = ['weight_ih_l{}{}', 'weight_hh_l{}{}', 'bias_ih_l{}{}', 'bias_hh_l{}{}']
-                weights = [x.format(layer, suffix) for x in weights]
-                self._all_weights += [weights]
+    @weak_script_method
+    def check_input(self, input, batch_sizes):
+        # type: (Tensor, Optional[Tensor]) -> None
+        expected_input_dim = 2 if batch_sizes is not None else 3
+        if input.dim() != expected_input_dim:
+            raise RuntimeError(
+                'input must have {} dimensions, got {}'.format(
+                    expected_input_dim, input.dim()))
+        if self.input_size != input.size(-1):
+            raise RuntimeError(
+                'input.size(-1) must be equal to input_size. Expected {}, got {}'.format(
+                    self.input_size, input.size(-1)))
 
-    @property
-    def all_weights(self):
-        return [[getattr(self, weight) for weight in weights] for weights in self._all_weights]
+    @weak_script_method
+    def get_expected_hidden_size(self, input, batch_sizes):
+        # type: (Tensor, Optional[Tensor]) -> Tuple[int, int, int]
+        if batch_sizes is not None:
+            mini_batch = batch_sizes[0]
+            mini_batch = int(mini_batch)
+        else:
+            mini_batch = input.size(0) if self.batch_first else input.size(1)
+        num_directions = 2 if self.bidirectional else 1
+        expected_hidden_size = (self.num_layers * num_directions,
+                                mini_batch, self.hidden_size)
+        return expected_hidden_size
+
+    @weak_script_method
+    def check_hidden_size(self, hx, expected_hidden_size, msg='Expected hidden size {}, got {}'):
+        # type: (Tensor, Tuple[int, int, int], str) -> None
+        if hx.size() != expected_hidden_size:
+            raise RuntimeError(msg.format(expected_hidden_size, tuple(hx.size())))
+
+    def check_forward_args(self, input, hidden, batch_sizes):
+        self.check_input(input, batch_sizes)
+        expected_hidden_size = self.get_expected_hidden_size(input, batch_sizes)
+
+        self.check_hidden_size(hidden, expected_hidden_size)
+
+    def permute_hidden(self, hx, permutation):
+        if permutation is None:
+            return hx
+        return apply_permutation(hx, permutation)
 
     def sample(self, usecuda=True):
         self.sampled_weights = []
@@ -159,44 +217,158 @@ class RNNBase_BB(nn.Module):
         if is_packed:
             input, batch_sizes = input
             max_batch_size = batch_sizes[0]
+            max_batch_size = int(max_batch_size)
         else:
             batch_sizes = None
             max_batch_size = input.size(0) if self.batch_first else input.size(1)
+            sorted_indices = None
+            unsorted_indices = None
 
         if hx is None:
             num_directions = 2 if self.bidirectional else 1
-            hx = torch.autograd.Variable(input.data.new(self.num_layers *
-                                                        num_directions,
-                                                        max_batch_size,
-                                                        self.hidden_size).zero_(), requires_grad=False)
+            hx = torch.zeros(self.num_layers * num_directions,max_batch_size,
+                             self.hidden_size,dtype=input.dtype, device=input.device)
             if self.mode == 'LSTM':
                 hx = (hx, hx)
+        else:
+            # Each batch of the hidden state should match the input sequence that
+            # the user believes he/she is passing in.
+            hx = self.permute_hidden(hx, sorted_indices)
 
-        func = self._backend.RNN(
-            self.mode,
-            self.input_size,
-            self.hidden_size,
-            num_layers=self.num_layers,
-            batch_first=self.batch_first,
-            dropout=self.dropout,
-            train=self.training,
-            bidirectional=self.bidirectional,
-            batch_sizes=batch_sizes,
-            dropout_state=self.dropout_state,
-            flat_weight=None
-        )
-        # change this line
-        output, hidden = func(input, self.all_weights, hx)
+        self.check_forward_args(input, hx, batch_sizes)
+        _impl = _rnn_impls[self.mode]
+        if batch_sizes is None:
+            result = _impl(input, hx, self.get_flat_weights(), self.bias, self.num_layers,
+                           self.dropout, self.training, self.bidirectional, self.batch_first)
+        else:
+            result = _impl(input, batch_sizes, hx, self.get_flat_weights(), self.bias,
+                           self.num_layers, self.dropout, self.training, self.bidirectional)
+        output = result[0]
+        hidden = result[1]
+
         if is_packed:
-            output = PackedSequence(output, batch_sizes)
-        return output, hidden
+            output = PackedSequence(output, batch_sizes, sorted_indices, unsorted_indices)
+        return output, self.permute_hidden(hidden, unsorted_indices)
 
+    def extra_repr(self):
+        s = '{input_size}, {hidden_size}'
+        if self.num_layers != 1:
+            s += ', num_layers={num_layers}'
+        if self.bias is not True:
+            s += ', bias={bias}'
+        if self.batch_first is not False:
+            s += ', batch_first={batch_first}'
+        if self.dropout != 0:
+            s += ', dropout={dropout}'
+        if self.bidirectional is not False:
+            s += ', bidirectional={bidirectional}'
+        return s.format(**self.__dict__)
+
+    def __setstate__(self, d):
+        super(RNNBase_BB, self).__setstate__(d)
+        if 'all_weights' in d:
+            self._all_weights = d['all_weights']
+        if isinstance(self._all_weights[0][0], str):
+            return
+        num_layers = self.num_layers
+        num_directions = 2 if self.bidirectional else 1
+        self._all_weights = []
+        for layer in range(num_layers):
+            for direction in range(num_directions):
+                suffix = '_reverse' if direction == 1 else ''
+                param_names = ['weight_ih_l_mu{}{}', 'weight_ih_l_logvar{}{}', 'weight_hh_l_mu{}{}',
+                               'weight_hh_l_logvar{}{}']
+                param_names += ['bias_ih_l_mu{}{}', 'bias_ih_l_logvar{}{}', 'bias_hh_l_mu{}{}', 'bias_hh_l_logvar{}{}']
+
+                param_names = [x.format(layer, suffix) for x in param_names]
+                self._all_weights += [param_names]
+
+    @property
+    def _flat_weights(self):
+        return [p for layerparams in self.all_weights for p in layerparams]
+
+    @property
+    def all_weights(self):
+        return [[getattr(self, weight) for weight in weights] for weights in self._all_weights]
 
 class LSTM_BB(RNNBase_BB):
 
     def __init__(self, *args, **kwargs):
         super(LSTM_BB, self).__init__('LSTM', *args, **kwargs)
 
+    @weak_script_method
+    def check_forward_args(self, input, hidden, batch_sizes):
+        # type: (Tensor, Tuple[Tensor, Tensor], Optional[Tensor]) -> None
+        self.check_input(input, batch_sizes)
+        expected_hidden_size = self.get_expected_hidden_size(input, batch_sizes)
+
+        self.check_hidden_size(hidden[0], expected_hidden_size,
+                               'Expected hidden[0] size {}, got {}')
+        self.check_hidden_size(hidden[1], expected_hidden_size,
+                               'Expected hidden[1] size {}, got {}')
+
+    @weak_script_method
+    def permute_hidden(self, hx, permutation):
+        # type: (Tuple[Tensor, Tensor], Optional[Tensor]) -> Tuple[Tensor, Tensor]
+        if permutation is None:
+            return hx
+        return apply_permutation(hx[0], permutation), apply_permutation(hx[1], permutation)
+
+    @weak_script_method
+    def forward_impl(self, input, hx, batch_sizes, max_batch_size, sorted_indices):
+        # type: (Tensor, Optional[Tuple[Tensor, Tensor]], Optional[Tensor], int, Optional[Tensor]) -> Tuple[Tensor, Tuple[Tensor, Tensor]]  # noqa
+        if hx is None:
+            num_directions = 2 if self.bidirectional else 1
+            zeros = torch.zeros(self.num_layers * num_directions,
+                                max_batch_size, self.hidden_size,
+                                dtype=input.dtype, device=input.device)
+            hx = (zeros, zeros)
+        else:
+            # Each batch of the hidden state should match the input sequence that
+            # the user believes he/she is passing in.
+            hx = self.permute_hidden(hx, sorted_indices)
+
+        self.check_forward_args(input, hx, batch_sizes)
+        if batch_sizes is None:
+            result = _VF.lstm(input, hx, self.get_flat_weights(), self.bias, self.num_layers,
+                              self.dropout, self.training, self.bidirectional, self.batch_first)
+        else:
+            result = _VF.lstm(input, batch_sizes, hx, self.get_flat_weights(), self.bias,
+                              self.num_layers, self.dropout, self.training, self.bidirectional)
+        output = result[0]
+        hidden = result[1:]
+
+        return output, hidden
+
+    @weak_script_method
+    def forward_tensor(self, input, hx=None):
+        # type: (Tensor, Optional[Tuple[Tensor, Tensor]]) -> Tuple[Tensor, Tuple[Tensor, Tensor]]
+        batch_sizes = None
+        max_batch_size = input.size(0) if self.batch_first else input.size(1)
+        sorted_indices = None
+        unsorted_indices = None
+
+        output, hidden = self.forward_impl(input, hx, batch_sizes, max_batch_size, sorted_indices)
+
+        return output, self.permute_hidden(hidden, unsorted_indices)
+
+    @weak_script_method
+    def forward_packed(self, input, hx=None):
+        # type: (Tuple[Tensor, Tensor, Optional[Tensor], Optional[Tensor]], Optional[Tuple[Tensor, Tensor]]) -> Tuple[Tuple[Tensor, Tensor, Optional[Tensor], Optional[Tensor]], Tuple[Tensor, Tensor]]  # noqa
+        input, batch_sizes, sorted_indices, unsorted_indices = input
+        max_batch_size = batch_sizes[0]
+        max_batch_size = int(max_batch_size)
+
+        output, hidden = self.forward_impl(input, hx, batch_sizes, max_batch_size, sorted_indices)
+
+        output = get_packed_sequence(output, batch_sizes, sorted_indices, unsorted_indices)
+        return output, self.permute_hidden(hidden, unsorted_indices)
+
+    def forward(self, input, hx=None):
+        if isinstance(input, PackedSequence):
+            return self.forward_packed(input, hx)
+        else:
+            return self.forward_tensor(input, hx)
 
 class baseRNN_BB(nn.Module):
 
@@ -219,9 +391,6 @@ class baseRNN_BB(nn.Module):
             raise ValueError("Unsupported RNN Cell: {0}".format(rnn_cell))
 
         self.input_dropout = nn.Dropout(p=input_dropout_p)
-
-    def forward(self, *args, **kwargs):
-        raise NotImplementedError()
 
 
 class WordEncoderRNN_BB(baseRNN_BB):
