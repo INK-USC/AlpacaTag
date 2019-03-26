@@ -1,4 +1,7 @@
 import Vue from 'vue';
+import VTooltip from 'v-tooltip'
+
+Vue.use(VTooltip);
 import annotationMixin from './mixin';
 import HTTP from './http';
 import simpleShortcut from './filter';
@@ -171,12 +174,23 @@ Vue.component('annotator', {
 
 Vue.component('recommender', {
   template: '<div @click="setSelectedRange">\
-                    <span class="text-sequence"\
-                         v-for="r in chunks"\
-                         v-if="id2label[r.label]"\
+                 <template v-for="r in chunks">\
+                 <v-popover style="display: inline" offset="6" v-if="id2label[r.label].text_decoration">\
+                    <span class="text-sequence tooltip-target"\
                          v-bind:class="{tag: id2label[r.label].text_color}"\
                          v-bind:style="{textDecoration: id2label[r.label].text_decoration}"\
                     >{{ text.slice(r.start_offset, r.end_offset) }}</span>\
+                    <template slot="popover">\
+                      <p>\
+                        test tooltip\
+                      </p>\
+                      <a v-close-popover>Close</a>\
+                    </template>\
+                  </v-popover>\
+                  <span v-else class="text-sequence" \
+                  v-bind:class="{tag: id2label[r.label].text_color}"\
+                  v-bind:style="{textDecoration: id2label[r.label].text_decoration}">{{ text.slice(r.start_offset, r.end_offset) }}</span>\
+               </template>\
                </div>',
   props: {
     labels: Array, // [{id: Integer, color: String, text: String}]
@@ -192,26 +206,26 @@ Vue.component('recommender', {
 
   methods: {
     setSelectedRange(e) {
-      let start;
-      let end;
+      let start_rec;
+      let end_rec;
       if (window.getSelection) {
         const range = window.getSelection().getRangeAt(0);
         const preSelectionRange = range.cloneRange();
         preSelectionRange.selectNodeContents(this.$el);
         preSelectionRange.setEnd(range.startContainer, range.startOffset);
-        start = preSelectionRange.toString().length;
-        end = start + range.toString().length;
+        start_rec = preSelectionRange.toString().length;
+        end_rec = start_rec + range.toString().length;
       } else if (document.selection && document.selection.type !== 'Control') {
         const selectedTextRange = document.selection.createRange();
         const preSelectionTextRange = document.body.createTextRange();
         preSelectionTextRange.moveToElementText(this.$el);
         preSelectionTextRange.setEndPoint('EndToStart', selectedTextRange);
-        start = preSelectionTextRange.text.length;
-        end = start + selectedTextRange.text.length;
+        start_rec = preSelectionTextRange.text.length;
+        end_rec = start_rec + selectedTextRange.text.length;
       }
-      this.startOffset = start;
-      this.endOffset = end;
-      console.log(start, end);
+      this.startOffset = start_rec;
+      this.endOffset = end_rec;
+      console.log(start_rec, end_rec);
     },
 
     makeLabel(startOffset, endOffset) {
@@ -243,7 +257,7 @@ Vue.component('recommender', {
       }
       const l = this.makeLabel(left, this.text.length);
       res.push(l);
-
+      console.log(res);
       return res;
     },
 
