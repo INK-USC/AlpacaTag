@@ -15,7 +15,7 @@ class CNN_CNN_LSTM_MC(nn.Module):
     
     def __init__(self, word_vocab_size, word_embedding_dim, word_out_channels, char_vocab_size, 
                  char_embedding_dim, char_out_channels, decoder_hidden_units, tag_to_id, cap_input_dim=4, 
-                 cap_embedding_dim=0, pretrained=None):
+                 cap_embedding_dim=0, pretrained=None,usecuda=True):
         
         super(CNN_CNN_LSTM_MC, self).__init__()
         
