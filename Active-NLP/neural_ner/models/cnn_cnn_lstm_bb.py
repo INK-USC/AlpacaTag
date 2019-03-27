@@ -38,6 +38,7 @@ class CNN_CNN_LSTM_BB(nn.Module):
         
         self.initializer = Initializer()
         self.loader = Loader()
+        self.usecuda = usecuda
         
         if self.cap_input_dim and self.cap_embedding_dim:
             self.cap_embedder = nn.Embedding(self.cap_input_dim, self.cap_embedding_dim)
@@ -72,7 +73,7 @@ class CNN_CNN_LSTM_BB(nn.Module):
         word_features, word_input_feats = self.word_encoder(words, char_features, cap_features)
         
         new_word_features = torch.cat((word_features,word_input_feats),2)
-        loss = self.decoder(new_word_features, tags, tagsmask, usecuda=usecuda)
+        loss = self.decoder(new_word_features, tags, tagsmask, usecuda=self.usecuda)
         
         return loss
     
@@ -82,7 +83,7 @@ class CNN_CNN_LSTM_BB(nn.Module):
         
         for _ in range(n_samples):
             sample_log_likelihood = -1. * self.forward_pass(words, tags, chars, caps, wordslen, charslen, tagsmask, 
-                                                            usecuda = usecuda)
+                                                            usecuda = self.usecuda)
             sample_log_pw, sample_log_qw = self.word_encoder.get_lpw_lqw()
             s_log_pw += sample_log_pw
             s_log_qw += sample_log_qw
@@ -108,8 +109,8 @@ class CNN_CNN_LSTM_BB(nn.Module):
         new_word_features = torch.cat((word_features,word_input_feats),2)
         
         if score_only:
-            score, _ = self.decoder.decode(new_word_features, tagsmask, wordslen, usecuda=usecuda)
+            score, _ = self.decoder.decode(new_word_features, tagsmask, wordslen, usecuda=self.usecuda)
             return score
         
-        score, tag_seq = self.decoder.decode(new_word_features, tagsmask, wordslen, usecuda=usecuda)
+        score, tag_seq = self.decoder.decode(new_word_features, tagsmask, wordslen, usecuda=self.usecuda)
         return score, tag_seq
