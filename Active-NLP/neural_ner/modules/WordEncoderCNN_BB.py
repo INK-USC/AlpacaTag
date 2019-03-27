@@ -11,7 +11,7 @@ from neural_ner.util.utils import *
 class bb_ConvNd(nn.Module):
 
     def __init__(self, in_channels, out_channels, kernel_size, stride,
-                 padding, dilation, transposed, output_padding, groups, bias):
+                 padding, dilation, transposed, output_padding, groups, bias,usecuda):
         super(bb_ConvNd, self).__init__()
         if in_channels % groups != 0:
             raise ValueError('in_channels must be divisible by groups')
@@ -26,6 +26,7 @@ class bb_ConvNd(nn.Module):
         self.transposed = transposed
         self.output_padding = output_padding
         self.groups = groups
+        self.usecuda = usecuda
         if transposed:
             self.W_mu = Parameter(torch.Tensor(
                 in_channels, out_channels // groups, *kernel_size).normal_(0, 0.01))
@@ -62,7 +63,7 @@ class bb_Conv1d(bb_ConvNd):
             return F.conv1d(input, self.W_mu, self.b_mu, self.stride,
                             self.padding, self.dilation, self.groups)
         if self.transposed:
-            if usecuda:
+            if self.usecuda:
                 epsilon_W = Variable(torch.Tensor(
                     self.in_channels, self.out_channels // self.groups, *self.kernel_size).normal_(0, self.sigma_prior)).cuda()
                 epsilon_b = Variable(torch.Tensor(self.out_channels).normal_(0, self.sigma_prior)).cuda()
@@ -71,7 +72,7 @@ class bb_Conv1d(bb_ConvNd):
                     self.in_channels, self.out_channels // self.groups, *self.kernel_size).normal_(0, self.sigma_prior))
                 epsilon_b = Variable(torch.Tensor(self.out_channels).normal_(0, self.sigma_prior))
         else:
-            if usecuda:
+            if self.usecuda:
                 epsilon_W = Variable(torch.Tensor(
                     self.out_channels, self.in_channels // self.groups, *self.kernel_size).normal_(0, self.sigma_prior)).cuda()
                 epsilon_b = Variable(torch.Tensor(self.out_channels).normal_(0, self.sigma_prior)).cuda()
