@@ -13,7 +13,7 @@ class RNNBase_BB(nn.Module):
 
     def __init__(self, mode, input_size, hidden_size, sigma_prior,
                  num_layers=1, batch_first=False,
-                 dropout=0, bidirectional=True):
+                 dropout=0, bidirectional=True, usecuda=True):
         
         super(RNNBase_BB, self).__init__()
         
@@ -29,6 +29,7 @@ class RNNBase_BB(nn.Module):
         self.num_directions = num_directions
         self.sampled_weights = []
         self.sigma_prior = sigma_prior
+        self.usecuda=usecuda
 
         if mode == 'LSTM':
             gate_size = 4 * hidden_size
@@ -105,7 +106,7 @@ class RNNBase_BB(nn.Module):
             mean = self.means[i]
             logvar = self.logvars[i]
             eps = torch.zeros(mean.size())
-            if usecuda:
+            if self.usecuda:
                 eps = eps.cuda()
 
             eps.normal_(0, self.sigma_prior)
@@ -127,7 +128,7 @@ class RNNBase_BB(nn.Module):
 
     def forward(self, input, hx=None, usecuda = True):
         if self.training:
-            self.sample(usecuda = usecuda)
+            self.sample(usecuda = self.usecuda)
             weights = self.sampled_weights
             self.lpw = self._calculate_prior(weights)
             self.lqw = self._calculate_posterior(weights)
