@@ -19,8 +19,14 @@ class Trainer(object):
         self.eval_every = eval_every
         self.model_name = os.path.join(result_path, model_name)
         self.usecuda = usecuda
+<<<<<<< HEAD
         self.evaluator = Evaluator(result_path, model_name, mappings, usecuda=self.usecuda).evaluate_conll
 
+=======
+        
+        self.evaluator = Evaluator(result_path, model_name, mappings).evaluate_conll
+    
+>>>>>>> parent of e775746... usecuda
     def adjust_learning_rate(self, optimizer, lr):
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr

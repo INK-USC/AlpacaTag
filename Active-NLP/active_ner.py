@@ -39,9 +39,9 @@ parser.add_argument('--initdata', default=2, type=int, dest='initdata',
                     help="Percentage of Data to being with")
 parser.add_argument('--acquiremethod', default='random', type=str, dest='acquiremethod',
                     help="Percentage of Data to Acquire from Rest of Training Set")
-parser.add_argument('--usecuda', action='store_true')
 
 parameters = OrderedDict()
+
 opt = parser.parse_args()
 
 parameters['model'] = opt.usemodel
@@ -207,7 +207,7 @@ if (model_name == 'CNN_BiLSTM_CRF'):
     char_out_channels = parameters['cnchl']
 
     model = CNN_BiLSTM_CRF(word_vocab_size, word_embedding_dim, word_hidden_dim, char_vocab_size,
-                           char_embedding_dim, char_out_channels, tag_to_id, pretrained = word_embeds,usecuda=opt.usecuda)
+                           char_embedding_dim, char_out_channels, tag_to_id, pretrained = word_embeds)
 
 elif (model_name == 'CNN_BiLSTM_CRF_MC'):
     print ('CNN_BiLSTM_CRF_MC')
@@ -219,7 +219,7 @@ elif (model_name == 'CNN_BiLSTM_CRF_MC'):
     char_out_channels = parameters['cnchl']
 
     model = CNN_BiLSTM_CRF_MC(word_vocab_size, word_embedding_dim, word_hidden_dim, char_vocab_size,
-                           char_embedding_dim, char_out_channels, tag_to_id, pretrained = word_embeds,usecuda=opt.usecuda)
+                           char_embedding_dim, char_out_channels, tag_to_id, pretrained = word_embeds)
 
 elif (model_name == 'CNN_BiLSTM_CRF_BB'):
         print ('CNN_BiLSTM_CRF_BB')
@@ -233,7 +233,7 @@ elif (model_name == 'CNN_BiLSTM_CRF_BB'):
 
         model = CNN_BiLSTM_CRF_BB(word_vocab_size, word_embedding_dim, word_hidden_dim, char_vocab_size,
                                char_embedding_dim, char_out_channels, tag_to_id, sigma_prior=sigma_prior,
-                                  pretrained = word_embeds,usecuda=opt.usecuda)
+                                  pretrained = word_embeds)
 
 elif (model_name == 'CNN_CNN_LSTM'):
     print ('CNN_CNN_LSTM')
@@ -247,7 +247,7 @@ elif (model_name == 'CNN_CNN_LSTM'):
 
     model = CNN_CNN_LSTM(word_vocab_size, word_embedding_dim, word_out_channels, char_vocab_size, 
                          char_embedding_dim, char_out_channels, decoder_hidden_units,
-                         tag_to_id, pretrained = word_embeds,usecuda=opt.usecuda)
+                         tag_to_id, pretrained = word_embeds)
 
 elif (model_name == 'CNN_CNN_LSTM_MC'):
     print ('CNN_CNN_LSTM_MC')
@@ -261,7 +261,7 @@ elif (model_name == 'CNN_CNN_LSTM_MC'):
 
     model = CNN_CNN_LSTM_MC(word_vocab_size, word_embedding_dim, word_out_channels, char_vocab_size, 
                             char_embedding_dim, char_out_channels, decoder_hidden_units,
-                            tag_to_id, pretrained = word_embeds,usecuda=opt.usecuda)
+                            tag_to_id, pretrained = word_embeds)
     
 elif (model_name == 'CNN_CNN_LSTM_BB'):
         print ('CNN_CNN_LSTM_BB')
@@ -276,7 +276,7 @@ elif (model_name == 'CNN_CNN_LSTM_BB'):
 
         model = CNN_CNN_LSTM_BB(word_vocab_size, word_embedding_dim, word_out_channels, char_vocab_size, 
                                 char_embedding_dim, char_out_channels, decoder_hidden_units,
-                                tag_to_id, sigma_prior = sigma_prior, pretrained = word_embeds,usecuda=opt.usecuda)
+                                tag_to_id, sigma_prior = sigma_prior, pretrained = word_embeds)
 
 if model_load:
     print ('Loading Saved Data points....................................................................')
@@ -287,13 +287,12 @@ if model_load:
 else:       
     acquisition_function = Acquisition(train_data, init_percent=init_percent, seed=0, 
                                            acq_mode = parameters['acqmd'])
-
-if opt.usecuda:
-    model.cuda()
+    
+model.cuda()
 learning_rate = parameters['lrate']
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
-trainer = Trainer(model, optimizer, result_path, model_name, usedataset=opt.dataset, mappings= mappings, usecuda=opt.usecuda)
+trainer = Trainer(model, optimizer, result_path, model_name, usedataset=opt.dataset, mappings= mappings)
 
 active_train_data = [train_data[i] for i in acquisition_function.train_index]
 tokens_acquired = sum([len(x['words']) for x in active_train_data])
