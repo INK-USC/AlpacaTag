@@ -13,12 +13,13 @@ from .utils import *
 class Trainer(object):
 
     def __init__(self, model, optimizer, result_path, model_name, usedataset, mappings,
-                 eval_every=1, usecuda = True):
+                 eval_every=1, usecuda=True):
         self.model = model
         self.optimizer = optimizer
         self.eval_every = eval_every
         self.model_name = os.path.join(result_path, model_name)
         self.usecuda = usecuda
+        print(self.usecuda)
         self.evaluator = Evaluator(result_path, model_name, mappings, usecuda=self.usecuda).evaluate_conll
 
     def adjust_learning_rate(self, optimizer, lr):
