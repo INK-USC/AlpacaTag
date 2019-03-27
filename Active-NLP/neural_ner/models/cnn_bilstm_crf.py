@@ -15,7 +15,7 @@ class CNN_BiLSTM_CRF(nn.Module):
     
     def __init__(self, word_vocab_size, word_embedding_dim, word_hidden_dim, char_vocab_size,
                  char_embedding_dim, char_out_channels, tag_to_id, cap_input_dim=4 ,
-                 cap_embedding_dim=0, pretrained=None, usecuda=True):
+                 cap_embedding_dim=0, pretrained=None,usecuda=True):
         
         super(CNN_BiLSTM_CRF, self).__init__()
         
@@ -35,7 +35,6 @@ class CNN_BiLSTM_CRF(nn.Module):
         
         self.initializer = Initializer()
         self.loader = Loader()
-        self.usecuda = usecuda
         
         if self.cap_embedding_dim:
             self.cap_embedder = nn.Embedding(self.cap_input_dim, self.cap_embedding_dim)
@@ -68,7 +67,7 @@ class CNN_BiLSTM_CRF(nn.Module):
         
         word_features = self.word_encoder(words, char_features, cap_features, wordslen)
         
-        score = self.decoder(word_features, tags, tagsmask, usecuda=self.usecuda)
+        score = self.decoder(word_features, tags, tagsmask, usecuda=usecuda)
         
         return score
     
@@ -85,8 +84,8 @@ class CNN_BiLSTM_CRF(nn.Module):
         word_features = self.word_encoder(words, char_features, cap_features, wordslen)
         
         if score_only:
-            score = self.decoder.decode(word_features, tagsmask, usecuda=self.usecuda,
+            score = self.decoder.decode(word_features, tagsmask, usecuda=usecuda, 
                                         score_only = True)
             return score
-        score, tag_seq = self.decoder.decode(word_features, tagsmask, usecuda=self.usecuda)
+        score, tag_seq = self.decoder.decode(word_features, tagsmask, usecuda=usecuda)
         return score, tag_seq

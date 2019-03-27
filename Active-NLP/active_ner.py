@@ -288,7 +288,6 @@ else:
     acquisition_function = Acquisition(train_data, init_percent=init_percent, seed=0, 
                                            acq_mode = parameters['acqmd'])
 
-print(opt.usecuda)
 if opt.usecuda:
     model.cuda()
 learning_rate = parameters['lrate']
