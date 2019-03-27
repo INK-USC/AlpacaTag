@@ -51,7 +51,7 @@ class CNN_BiLSTM_CRF_BB(nn.Module):
         self.initializer.init_embedding(self.char_encoder.embedding.weight)
         
         self.word_encoder = WordEncoderRNN_BB(word_vocab_size, word_embedding_dim ,word_hidden_dim, 
-                                           char_out_channels, cap_embedding_dim, sigma_prior, input_dropout_p=0.5,usecuda=self.usecuda)
+                                           char_out_channels, cap_embedding_dim, sigma_prior, input_dropout_p=0.5)
         
         if pretrained is not None:
             self.word_encoder.embedding.weight = nn.Parameter(torch.FloatTensor(pretrained))
