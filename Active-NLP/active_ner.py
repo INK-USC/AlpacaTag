@@ -9,7 +9,7 @@ from neural_ner.models import CNN_BiLSTM_CRF_BB
 from neural_ner.models import CNN_CNN_LSTM
 from neural_ner.models import CNN_CNN_LSTM_MC
 from neural_ner.models import CNN_CNN_LSTM_BB
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import torch
 from active_learning import Acquisition
 import pickle as pkl
@@ -39,6 +39,7 @@ parser.add_argument('--initdata', default=2, type=int, dest='initdata',
                     help="Percentage of Data to being with")
 parser.add_argument('--acquiremethod', default='random', type=str, dest='acquiremethod',
                     help="Percentage of Data to Acquire from Rest of Training Set")
+parser.add_argument('--usecuda', action='store_true')
 
 parameters = OrderedDict()
 
@@ -287,12 +288,12 @@ if model_load:
 else:       
     acquisition_function = Acquisition(train_data, init_percent=init_percent, seed=0, 
                                            acq_mode = parameters['acqmd'])
-    
-model.cuda()
+if opt.usecuda:
+    model.cuda()
 learning_rate = parameters['lrate']
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
-trainer = Trainer(model, optimizer, result_path, model_name, usedataset=opt.dataset, mappings= mappings)
+trainer = Trainer(model, optimizer, result_path, model_name, usedataset=opt.dataset, mappings= mappings, usecuda=opt.usecuda)
 
 active_train_data = [train_data[i] for i in acquisition_function.train_index]
 tokens_acquired = sum([len(x['words']) for x in active_train_data])
@@ -330,6 +331,6 @@ for acquire_percent in acquisition_strat:
     active_train_data = [train_data[i] for i in acquisition_function.train_index]
     tokens_acquired = sum([len(x['words']) for x in active_train_data])
     
-    plt.clf()
-    plt.plot(losses)
-    plt.savefig(os.path.join(checkpoint_path,'lossplot.png'))
+    # plt.clf()
+    # plt.plot(losses)
+    # plt.savefig(os.path.join(checkpoint_path,'lossplot.png'))
