@@ -181,9 +181,19 @@ Vue.component('recommender', {
                          v-bind:style="{textDecoration: id2label[r.label].text_decoration}"\
                     >{{ text.slice(r.start_offset, r.end_offset) }}</span>\
                     <template slot="popover">\
-                      <p>\
-                        test tooltip\
-                      </p>\
+                          <div class="card-header-title has-background-royalblue" style="padding:1.5rem;">\
+                            <div class="field is-grouped is-grouped-multiline">\
+                              <div class="control" v-for="label in labels">\
+                                <div class="tags has-addons">\
+                                  <a class="tag is-medium" v-bind:style="{ color: label.text_color, backgroundColor: label.background_color }" v-on:click="annotate(label.id)"\
+                                    v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id)">\
+                                    [[ label.text ]]\
+                                  </a>\
+                                  <span class="tag is-medium"><kbd>[[ label.shortcut | simpleShortcut ]]</kbd></span>\
+                                </div>\
+                              </div>\
+                            </div>\
+                          </div>\
                       <a v-close-popover>Close</a>\
                     </template>\
                   </v-popover>\
@@ -203,7 +213,7 @@ Vue.component('recommender', {
       endOffset: 0,
     };
   },
-
+  mixins: [annotationMixin],
   methods: {
     setSelectedRange(e) {
       let start_rec;
@@ -236,6 +246,11 @@ Vue.component('recommender', {
         end_offset: endOffset,
       };
       return label;
+    },
+
+    annotate(labelId) {
+      console.log(labelId);
+      this.$parent.annotate(labelId);
     },
   },
 
