@@ -1,5 +1,5 @@
-# ALONEA
-Active Learning-based Online Named Entity Annotation 
+# ALPACA
+An Active Learning-based Crowd Annotation\\ Framework for Sequence Tagging 
 
 MIT License
 
