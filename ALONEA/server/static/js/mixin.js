@@ -81,6 +81,7 @@ const annotationMixin = {
         }
       }
     },
+
     async process_data(response) {
       this.docs = response.data.results;
       this.next = response.data.next;
@@ -104,6 +105,7 @@ const annotationMixin = {
       }
       this.offset = getOffsetFromUrl(this.url);
     },
+
     async search() {
       await HTTP.get(this.url).then((response) => this.process_data(response));
     },
@@ -125,11 +127,8 @@ const annotationMixin = {
       this.pageNumber = 0;
     },
 
-    async getRecommendation(docid) {
-      // const docId = this.docs[this.pageNumber].id;
-      await HTTP.get(`docs/${docid}/recommendations/`).then((response) => {
-        console.log(response.data);
-        console.log(response.data.entities);
+    initiatelearning(){
+      return HTTP.get(`learninginitiate`).then((response) => {
       });
     },
 
@@ -175,7 +174,9 @@ const annotationMixin = {
     HTTP.get().then((response) => {
       this.guideline = response.data.guideline;
     });
-    this.submit();
+    this.initiatelearning().then((response) => {
+      this.submit();
+    });
   },
 
   computed: {

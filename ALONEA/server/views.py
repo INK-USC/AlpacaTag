@@ -123,6 +123,8 @@ class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):
             elif import_format == 'json':
                 documents = self.json_to_documents(project, file)
 
+            request.session['dataset'+str(kwargs.get('project_id'))]=documents
+
             IMPORT_BATCH_SIZE = 500
             batch_size = IMPORT_BATCH_SIZE
             while True:

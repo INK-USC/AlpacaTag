@@ -3,7 +3,7 @@ Model API.
 """
 import numpy as np
 from seqeval.metrics.sequence_labeling import get_entities
-
+import re
 
 class Tagger(object):
     """A model API that tags input sentence.
@@ -33,7 +33,7 @@ class Tagger(object):
             Returns the probability of the word for each class in the model,
         """
         assert isinstance(text, str)
-
+        text = re.sub(r"(\w)([.,;])", r"\1 \2", text)
         words = self.tokenizer(text)
         X = self.preprocessor.transform([words])
         y = self.model.predict(X)
@@ -53,6 +53,7 @@ class Tagger(object):
         return tags
 
     def _build_response(self, sent, tags, prob):
+        sent = re.sub(r"(\w)([.,;])", r"\1 \2", sent)
         words = self.tokenizer(sent)
         res = {
             'words': words,

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.storage import staticfiles_storage
 from .utils import get_key_choices
-
+import re
 
 class Project(models.Model):
     SEQUENCE_LABELING = 'SequenceLabeling'
@@ -104,13 +104,26 @@ class Document(models.Model):
 
     def make_dataset_for_sequence_labeling(self):
         annotations = self.get_annotations()
-        dataset = [[self.id, ch, 'O', self.metadata] for ch in self.text]
+        self.text = re.sub(r"(\w)([.,;])", r"\1 \2", self.text)
+        dataset = [[self.id, word, 'O', self.metadata] for word in str.split(self.text)]
+        startoff_map = {}
+        endoff_map = {}
+
+        start_off = 0
+        for word_index, word in enumerate(dataset):
+            if word[1] in ['.',',',';']:
+                start_off = start_off - 1
+            end_off = start_off + len(word[1])
+            startoff_map[start_off] = word_index
+            endoff_map[end_off] = word_index
+            start_off = end_off + 1
+
         for a in annotations:
-            for i in range(a.start_offset, a.end_offset):
-                if i == a.start_offset:
-                    dataset[i][2] = 'B-{}'.format(a.label.text)
-                else:
-                    dataset[i][2] = 'I-{}'.format(a.label.text)
+            if a.start_offset in startoff_map:
+                dataset[startoff_map[a.start_offset]][2] = 'B-{}'.format(a.label.text)
+            if a.end_offset in endoff_map:
+                if endoff_map[a.end_offset] != startoff_map[a.start_offset]:
+                    dataset[endoff_map[a.end_offset]][2] = 'I-{}'.format(a.label.text)
         return dataset
 
     def to_json(self):

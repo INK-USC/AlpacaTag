@@ -13,14 +13,17 @@ from .models import Project, Label, Document, SequenceRecommendation
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
 from .serializers import ProjectSerializer, LabelSerializer
 
-import anago
-from anago.utils import download
+import re
+import time
+import os
+import sys
+sys.path.append("..")
+
 import tensorflow as tf
-url = 'https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/public/conll2003_en.zip'
-weights, params, preprocessor = download(url)
+import active
+session = tf.Session()
 graph = tf.get_default_graph()
-with graph.as_default():
-    model = anago.Sequence.load(weights, params, preprocessor)
+model = active.Sequence()
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -45,7 +48,6 @@ class LabelList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(project=self.kwargs['project_id'])
-
         return queryset
 
     def perform_create(self, serializer):
@@ -141,6 +143,7 @@ class AnnotationList(generics.ListCreateAPIView):
         doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
         serializer.save(document=doc, user=self.request.user)
 
+
 class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, IsProjectUser, IsOwnAnnotation)
 
@@ -190,32 +193,35 @@ class RecommendationList(generics.ListCreateAPIView):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
         serializer = self.get_serializer_class()
-        with graph.as_default():
-            response = model.analyze(document.text)
-
-        entities = response['entities']
-        words = response['words']
+        global session
+        global model
+        global graph
         res = []
-        for i in range(len(entities)):
-            startOffset = 0
+        with session.as_default():
+            with graph.as_default():
+                response = model.analyze(document.text)
+                entities = response['entities']
+                words = response['words']
+                for i in range(len(entities)):
+                    startOffset = 0
+                    for j in range(entities[i]['beginOffset']):
+                        startOffset = startOffset + len(words[j])
+                        startOffset = startOffset + 1
 
-            for j in range(entities[i]['beginOffset']):
-                startOffset = startOffset + len(words[j])
-                startOffset = startOffset + 1
+                    endOffset = startOffset
 
-            endOffset = startOffset
+                    for j in range(entities[i]['beginOffset'], entities[i]['endOffset']):
+                        endOffset = endOffset + len(words[j])
+                        endOffset = endOffset + 1
 
-            for j in range(entities[i]['beginOffset'],entities[i]['endOffset']):
-                endOffset = endOffset + len(words[j])
-                endOffset = endOffset + 1
+                    endOffset = endOffset - 1
 
-            endOffset = endOffset - 1
-
-            recommend = {'document':self.kwargs['doc_id'], 'label':entities[i]['type'], 'start_offset': startOffset,'end_offset': endOffset}
-            res.append(recommend)
-        serializer = serializer(data=res, many=True)
-        if serializer.is_valid():
-            serializer.save()
+                    recommend = {'document': self.kwargs['doc_id'], 'label': entities[i]['type'],
+                                 'start_offset': startOffset, 'end_offset': endOffset}
+                    res.append(recommend)
+                serializer = serializer(data=res, many=True)
+                if serializer.is_valid():
+                    serializer.save()
         return Response({"recommendation":res})
 
 
@@ -240,3 +246,59 @@ class RecommendationDetail(generics.RetrieveUpdateDestroyAPIView):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+
+class LearningInitiate(APIView):
+    pagination_class = None
+    permission_classes = (IsAuthenticated, IsProjectUser,)
+
+    def get(self, request, *args, **kwargs):
+        p = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        labels = [label.text for label in p.labels.all()]
+        predefined_label = []
+        for i in labels:
+            predefined_label.append('B-' + str(i))
+            predefined_label.append('I-' + str(i))
+        predefined_label.append('O')
+        docs = [doc for doc in p.documents.all()]
+        annotations = [[doc.make_dataset_for_sequence_labeling()] for doc in docs]
+        train_docs = [str.split(doc.text) for doc in docs]
+
+        if model.model is None:
+            with session.as_default():
+                with graph.as_default():
+                    model.online_word_build(train_docs, predefined_label)
+
+        response = {'predefined_label': predefined_label,
+                    'docs': train_docs,
+                    'annotations': annotations}
+
+        return Response(response)
+
+
+class OnlineLearning(APIView):
+    pagination_class = None
+    permission_classes = (IsAuthenticated, IsProjectUser)
+
+    def get(self, request, *args, **kwargs):
+        p = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        labels = [label.text for label in p.labels.all()]
+        predefined_label = []
+        for i in labels:
+            predefined_label.append('B-' + str(i))
+            predefined_label.append('I-' + str(i))
+        predefined_label.append('O')
+
+        docs = [doc for doc in p.documents.filter(pk__in=[1,2,3])]
+        annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
+        train_docs = [str.split(doc.text) for doc in docs]
+
+        if model.model is None:
+            with session.as_default():
+                with graph.as_default():
+                    model.online_learning(train_docs, annotations, predefined_label)
+
+        response = {'predefined_label':predefined_label,
+                    'docs':train_docs,
+                    'annotations':annotations}
+        return Response(response)

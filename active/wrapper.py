@@ -153,24 +153,22 @@ class Sequence(object):
         self.p.save(preprocessor_file)
         save_model(self.model, weights_file, params_file)
 
-    @classmethod
-    def load(cls, weights_file, params_file, preprocessor_file):
-        self = cls()
+    def load(self, weights_file, params_file, preprocessor_file):
         self.p = IndexTransformer.load(preprocessor_file)
         self.model = load_model(weights_file, params_file)
 
         return self
 
     # list of sentences into train_sentences [['EU rejects ~~'],[''],..]
-    def online_word_build(self, x_train):
+    def online_word_build(self, x_train, predefined_label):
+        # pretrained_label = ['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']
         # let's make it to text file and add it altogether!
         # x_train = []
         # for sentence in train_sentences:
         #     x_train.append(str.split(sentence))
         self.p = IndexTransformer(initial_vocab=self.initial_vocab, use_char=self.use_char)
-        self.p.label_fit(['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O'])
+        self.p.label_fit(predefined_label)
         self.p.word_fit(x_train)
-        print(self.p._label_vocab.vocab)
         embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
 
         model = BiLSTMCRF(char_vocab_size=self.p.char_vocab_size,
@@ -189,11 +187,12 @@ class Sequence(object):
         model, loss = model.build()
         model.compile(loss=loss, optimizer=self.optimizer)
         self.model = model
+        return self.p
 
-    def online_learning(self, x_train, y_train, x_valid=None, y_valid=None,
+    def online_learning(self, x_train, y_train, predefined_label, x_valid=None, y_valid=None,
             epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True, active_learning=True):
         p = IndexTransformer(initial_vocab=self.initial_vocab, use_char=self.use_char)
-        p.label_fit(['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O'])
+        p.label_fit(predefined_label)
         p.fit(x_train, y_train)
         print(p._label_vocab.vocab)
         trainer = Trainer(self.model, preprocessor=p)
