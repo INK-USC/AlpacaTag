@@ -104,6 +104,15 @@ Vue.component('annotator', {
       }
     },
 
+    addLabelRecommend(labelId, startoff, endoff){
+      const label = {
+          start_offset: startoff,
+          end_offset: endoff,
+          label: labelId,
+        };
+      this.$emit('add-label', label);
+    },
+
     removeLabel(index) {
       this.$emit('remove-label', index);
     },
@@ -186,7 +195,7 @@ Vue.component('recommender', {
                               <div class="control" v-for="label in labels">\
                                 <div class="tags has-addons">\
                                   <a class="tag is-medium" v-bind:style="{ color: label.text_color, backgroundColor: label.background_color }"\
-                                      v-on:click="annotate(label.id)" v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id)">{{ label.text }}</a>\
+                                      v-on:click="annotate(label.id, r.start_offset, r.end_offset)" v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id)">{{ label.text }}</a>\
                                   <span class="tag is-medium"><kbd>{{ label.shortcut | simpleShortcut }}</kbd></span>\
                                 </div>\
                               </div>\
@@ -246,9 +255,9 @@ Vue.component('recommender', {
       return label;
     },
 
-    annotate(labelId) {
-      console.log(labelId);
-      this.$parent.annotate(labelId);
+    annotate(labelId, startoff, endoff) {
+      console.log(labelId, startoff, endoff);
+      this.$parent.recommend_annotate(labelId, startoff, endoff);
     },
   },
 
@@ -299,6 +308,10 @@ const vm = new Vue({
   methods: {
     annotate(labelId) {
       this.$refs.annotator.addLabel(labelId);
+    },
+
+    recommend_annotate(labelId, startoff, endoff){
+      this.$refs.annotator.addLabelRecommend(labelId, startoff, endoff);
     },
 
     addLabel(annotation) {
