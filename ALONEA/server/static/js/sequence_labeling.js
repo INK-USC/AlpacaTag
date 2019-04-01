@@ -185,11 +185,9 @@ Vue.component('recommender', {
                             <div class="field is-grouped is-grouped-multiline">\
                               <div class="control" v-for="label in labels">\
                                 <div class="tags has-addons">\
-                                  <a class="tag is-medium" v-bind:style="{ color: label.text_color, backgroundColor: label.background_color }" v-on:click="annotate(label.id)"\
-                                    v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id)">\
-                                    [[ label.text ]]\
-                                  </a>\
-                                  <span class="tag is-medium"><kbd>[[ label.shortcut | simpleShortcut ]]</kbd></span>\
+                                  <a class="tag is-medium" v-bind:style="{ color: label.text_color, backgroundColor: label.background_color }"\
+                                      v-on:click="annotate(label.id)" v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id)">{{ label.text }}</a>\
+                                  <span class="tag is-medium"><kbd>{{ label.shortcut | simpleShortcut }}</kbd></span>\
                                 </div>\
                               </div>\
                             </div>\

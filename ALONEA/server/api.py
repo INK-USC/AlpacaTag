@@ -301,4 +301,5 @@ class OnlineLearning(APIView):
         response = {'predefined_label':predefined_label,
                     'docs':train_docs,
                     'annotations':annotations}
+
         return Response(response)
