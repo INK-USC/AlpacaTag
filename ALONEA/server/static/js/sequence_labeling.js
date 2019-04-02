@@ -104,13 +104,43 @@ Vue.component('annotator', {
       }
     },
 
-    addLabelRecommend(labelId, startoff, endoff){
-      const label = {
+    validRecommendRange(startOffset, endOffset) {
+      if (startOffset === endOffset) {
+        return false;
+      }
+      if (startOffset > this.text.length || endOffset > this.text.length) {
+        return false;
+      }
+      if (startOffset < 0 || endOffset < 0) {
+        return false;
+      }
+      for (let i = 0; i < this.entityPositions.length; i++) {
+        const e = this.entityPositions[i];
+        if ((e.start_offset <= startOffset) && (startOffset < e.end_offset)) {
+          return false;
+        }
+        if ((e.start_offset < endOffset) && (endOffset < e.end_offset)) {
+          return false;
+        }
+        if ((startOffset < e.start_offset) && (e.start_offset < endOffset)) {
+          return false;
+        }
+        if ((startOffset < e.end_offset) && (e.end_offset < endOffset)) {
+          return false;
+        }
+      }
+      return true;
+    },
+
+    addLabelRecommend(labelId, startoff, endoff) {
+      if (this.validRecommendRange(startoff, endoff)) {
+        const label = {
           start_offset: startoff,
           end_offset: endoff,
           label: labelId,
         };
-      this.$emit('add-label', label);
+        this.$emit('add-label', label);
+      }
     },
 
     removeLabel(index) {
@@ -195,7 +225,7 @@ Vue.component('recommender', {
                               <div class="control" v-for="label in labels">\
                                 <div class="tags has-addons">\
                                   <a class="tag is-medium" v-bind:style="{ color: label.text_color, backgroundColor: label.background_color }"\
-                                      v-on:click="annotate(label.id, r.start_offset, r.end_offset)" v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id)">{{ label.text }}</a>\
+                                      v-on:click="annotate(label.id, r.start_offset, r.end_offset)" v-shortkey.once=" replaceNull(label.shortcut) " @shortkey="annotate(label.id, r.start_offset, r.end_offset)">{{ label.text }}</a>\
                                   <span class="tag is-medium"><kbd>{{ label.shortcut | simpleShortcut }}</kbd></span>\
                                 </div>\
                               </div>\
@@ -258,6 +288,14 @@ Vue.component('recommender', {
     annotate(labelId, startoff, endoff) {
       console.log(labelId, startoff, endoff);
       this.$parent.recommend_annotate(labelId, startoff, endoff);
+    },
+
+    replaceNull(shortcut) {
+      if (shortcut === null) {
+        shortcut = '';
+      }
+      shortcut = shortcut.split(' ');
+      return shortcut;
     },
   },
 
