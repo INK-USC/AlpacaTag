@@ -21,6 +21,9 @@ sys.path.append("..")
 
 import tensorflow as tf
 import active
+import spacy
+
+nounChunk = spacy.load('en_core_web_sm')
 session = tf.Session()
 graph = tf.get_default_graph()
 model = active.Sequence()

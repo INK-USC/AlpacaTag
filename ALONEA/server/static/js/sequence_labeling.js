@@ -211,6 +211,10 @@ Vue.component('annotator', {
   },
 });
 
+Vue.use(require('vue-shortkey'), {
+  prevent: ['input', 'textarea'],
+});
+
 Vue.component('recommender', {
   template: '<div @click="setSelectedRange">\
                  <template v-for="r in chunks">\
