@@ -214,7 +214,7 @@ Vue.component('annotator', {
 Vue.component('recommender', {
   template: '<div @click="setSelectedRange">\
                  <template v-for="r in chunks">\
-                 <v-popover style="display: inline" offset="6" v-if="id2label[r.label].text_decoration">\
+                 <v-popover style="display: inline" offset="4" v-if="id2label[r.label].text_decoration">\
                     <span class="text-sequence tooltip-target"\
                          v-bind:class="{tag: id2label[r.label].text_color}"\
                          v-bind:style="{textDecoration: id2label[r.label].text_decoration}"\
@@ -231,7 +231,6 @@ Vue.component('recommender', {
                               </div>\
                             </div>\
                           </div>\
-                      <a v-close-popover>Close</a>\
                     </template>\
                   </v-popover>\
                   <span v-else class="text-sequence" \
