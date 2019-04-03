@@ -60,6 +60,16 @@ Vue.component('annotator', {
       console.log(start, end);
     },
 
+    duplicateRange(){
+      for (let i = 0; i < this.entityPositions.length; i++) {
+        const e = this.entityPositions[i];
+        if ((e.start_offset == this.startOffset) && (e.end_offset == this.endOffset)) {
+          return false;
+        }
+      }
+      return true;
+    },
+
     validRange() {
       if (this.startOffset === this.endOffset) {
         return false;
@@ -94,6 +104,15 @@ Vue.component('annotator', {
     },
 
     addLabel(labelId) {
+      if (this.duplicateRange()){
+        this.removeLabel(labelId);
+        const label = {
+          start_offset: this.startOffset,
+          end_offset: this.endOffset,
+          label: labelId,
+        };
+        this.$emit('add-label', label);
+      }
       if (this.validRange()) {
         const label = {
           start_offset: this.startOffset,

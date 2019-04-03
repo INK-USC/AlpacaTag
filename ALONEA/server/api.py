@@ -23,10 +23,17 @@ import tensorflow as tf
 import active
 import spacy
 
+# from anago.utils import download
+# import anago
 nounChunk = spacy.load('en_core_web_sm')
 session = tf.Session()
 graph = tf.get_default_graph()
 model = active.Sequence()
+
+# url = 'https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/public/conll2003_en.zip'
+# weights, params, preprocessor = download(url)
+# with graph.as_default():
+#     model = anago.Sequence.load(weights, params, preprocessor)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -200,6 +207,10 @@ class RecommendationList(generics.ListCreateAPIView):
         global model
         global graph
         res = []
+
+        chunks = nounChunk(document.text)
+
+
         with session.as_default():
             with graph.as_default():
                 response = model.analyze(document.text)
