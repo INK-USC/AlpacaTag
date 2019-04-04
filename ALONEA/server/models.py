@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.staticfiles.storage import staticfiles_storage
 from .utils import get_key_choices
 import re
+import nltk
 
 class Project(models.Model):
     SEQUENCE_LABELING = 'SequenceLabeling'
@@ -104,15 +105,12 @@ class Document(models.Model):
 
     def make_dataset_for_sequence_labeling(self):
         annotations = self.get_annotations()
-        self.text = re.sub(r"(\w)([.,;])", r"\1 \2", self.text)
-        dataset = [[self.id, word, 'O', self.metadata] for word in str.split(self.text)]
+        dataset = [[self.id, word, 'O', self.metadata] for word in nltk.word_tokenize(self.text)]
         startoff_map = {}
         endoff_map = {}
 
         start_off = 0
         for word_index, word in enumerate(dataset):
-            if word[1] in ['.',',',';']:
-                start_off = start_off - 1
             end_off = start_off + len(word[1])
             startoff_map[start_off] = word_index
             endoff_map[end_off] = word_index

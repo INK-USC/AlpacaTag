@@ -21,11 +21,11 @@ sys.path.append("..")
 
 import tensorflow as tf
 import active
-import spacy
+
 
 # from anago.utils import download
 # import anago
-nounChunk = spacy.load('en_core_web_sm')
+
 session = tf.Session()
 graph = tf.get_default_graph()
 model = active.Sequence()
@@ -199,6 +199,27 @@ class RecommendationList(generics.ListCreateAPIView):
         doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
         serializer.save(document=doc, user=self.request.user)
 
+    def index_word2char(self, entities, words):
+        res = []
+        for i in range(len(entities)):
+            startOffset = 0
+            for j in range(entities[i]['beginOffset']):
+                startOffset = startOffset + len(words[j])
+                startOffset = startOffset + 1
+
+            endOffset = startOffset
+
+            for j in range(entities[i]['beginOffset'], entities[i]['endOffset']):
+                endOffset = endOffset + len(words[j])
+                endOffset = endOffset + 1
+
+            endOffset = endOffset - 1
+
+            recommend = {'document': self.kwargs['doc_id'], 'label': entities[i]['type'],
+                         'start_offset': startOffset, 'end_offset': endOffset}
+            res.append(recommend)
+        return res
+
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
@@ -206,37 +227,29 @@ class RecommendationList(generics.ListCreateAPIView):
         global session
         global model
         global graph
-        res = []
 
-        chunks = nounChunk(document.text)
-
+        nounchunks = model.noun_chunks(document.text)
+        nounchunks_entities = nounchunks['entities']
+        nounchunks_words = nounchunks['words']
+        chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
 
         with session.as_default():
             with graph.as_default():
                 response = model.analyze(document.text)
                 entities = response['entities']
                 words = response['words']
-                for i in range(len(entities)):
-                    startOffset = 0
-                    for j in range(entities[i]['beginOffset']):
-                        startOffset = startOffset + len(words[j])
-                        startOffset = startOffset + 1
+                modellist = self.index_word2char(entities, words)
 
-                    endOffset = startOffset
+        for chunk in chunklist:
+            for recommend in modellist:
+                if chunk['document'] == recommend['document'] and chunk['start_offset'] == recommend['start_offset'] and chunk['end_offset'] == recommend['end_offset']:
+                    chunk['label'] = recommend['label']
 
-                    for j in range(entities[i]['beginOffset'], entities[i]['endOffset']):
-                        endOffset = endOffset + len(words[j])
-                        endOffset = endOffset + 1
-
-                    endOffset = endOffset - 1
-
-                    recommend = {'document': self.kwargs['doc_id'], 'label': entities[i]['type'],
-                                 'start_offset': startOffset, 'end_offset': endOffset}
-                    res.append(recommend)
-                serializer = serializer(data=res, many=True)
-                if serializer.is_valid():
-                    serializer.save()
-        return Response({"recommendation":res})
+        print(chunklist)
+        serializer = serializer(data=chunklist, many=True)
+        if serializer.is_valid():
+            serializer.save()
+        return Response({"recommendation":chunklist})
 
 
 class RecommendationDetail(generics.RetrieveUpdateDestroyAPIView):

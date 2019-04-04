@@ -8,7 +8,8 @@ from active.preprocessing import IndexTransformer
 from active.tagger import Tagger
 from active.trainer import Trainer
 from active.utils import filter_embeddings
-
+from active.nounchunk import NounChunk
+import spacy
 
 class Sequence(object):
 
@@ -203,3 +204,9 @@ class Sequence(object):
 
     def active_learning(self):
         None
+
+    def noun_chunks(self, text):
+        nlp = spacy.load('en_core_web_sm')
+        chunk_merger = NounChunk(nlp)
+        doc = chunk_merger.chunking(text)
+        return doc

@@ -4,6 +4,8 @@ Model API.
 import numpy as np
 from seqeval.metrics.sequence_labeling import get_entities
 import re
+import nltk
+
 
 class Tagger(object):
     """A model API that tags input sentence.
@@ -33,8 +35,7 @@ class Tagger(object):
             Returns the probability of the word for each class in the model,
         """
         assert isinstance(text, str)
-        text = re.sub(r"(\w)([.,;])", r"\1 \2", text)
-        words = self.tokenizer(text)
+        words = nltk.word_tokenize(text)
         X = self.preprocessor.transform([words])
         y = self.model.predict(X)
         y = y[0]  # reduce batch dimension.
@@ -53,8 +54,7 @@ class Tagger(object):
         return tags
 
     def _build_response(self, sent, tags, prob):
-        sent = re.sub(r"(\w)([.,;])", r"\1 \2", sent)
-        words = self.tokenizer(sent)
+        words = nltk.word_tokenize(sent)
         res = {
             'words': words,
             'entities': [

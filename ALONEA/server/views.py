@@ -17,6 +17,7 @@ from django.contrib import messages
 
 from .permissions import SuperUserMixin
 from .models import Document, Project
+import nltk
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):
 
             return (
                 Document(
-                    text=row[text_col],
+                    text=" ".join(str(x) for x in nltk.word_tokenize(row[text_col])),
                     metadata=self.extract_metadata_csv(row, text_col, header_without_text),
                     project=project
                 )
@@ -122,8 +123,6 @@ class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):
 
             elif import_format == 'json':
                 documents = self.json_to_documents(project, file)
-
-            request.session['dataset'+str(kwargs.get('project_id'))]=documents
 
             IMPORT_BATCH_SIZE = 500
             batch_size = IMPORT_BATCH_SIZE
