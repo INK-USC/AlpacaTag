@@ -92,6 +92,24 @@ body {
   color: #AAAAAA;
 }
 
+.confirmbutton {
+  width: 500px;
+  height: 35px;
+  line-height: 35px;
+  background-color: #cd5c5c;
+  text-align: center;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.confirmbuttontext {
+  color: white;
+  font-size: 17px;
+  text-decoration: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .inbox-messages {
   margin-top: 60px;
 }

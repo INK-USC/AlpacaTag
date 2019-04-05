@@ -82,6 +82,39 @@ const annotationMixin = {
       }
     },
 
+    checkConfirmLabel(){
+      for (let i = 0; i < this.annotations[this.pageNumber].length; i++) {
+        const annotation = this.annotations[this.pageNumber][i];
+        if (annotation['label']=="confirm") {
+          return annotation;
+        }
+      }
+      return false;
+    },
+
+    async confirm() {
+      if (!this.checkConfirmLabel()) {
+        this.addConfirmLabel();
+        this.$refs["confirm"].style.backgroundColor = "#3cb371";
+      }
+      else{
+        this.removeLabel(this.checkConfirmLabel())
+        this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
+      }
+    },
+
+    addConfirmLabel() {
+      const label = {
+        start_offset: 0,
+        end_offset: 0,
+        label: "<confirm>",
+      };
+      const docId = this.docs[this.pageNumber].id;
+      HTTP.post(`docs/${docId}/annotations/`, label).then((response) => {
+        this.annotations[this.pageNumber].push(response.data);
+      });
+    },
+
     async process_data(response) {
       this.docs = response.data.results;
       this.next = response.data.next;
@@ -95,7 +128,6 @@ const annotationMixin = {
       }
       for (let i = 0; i < this.docs.length; i++) {
         const doc = this.docs[i];
-        // this.getRecommendation(this.docs[i].id);
         await HTTP.get(`docs/${this.docs[i].id}/recommendations/`).then((recomm_response) => {
           console.log(response.data);
           console.log(response.data.entities);

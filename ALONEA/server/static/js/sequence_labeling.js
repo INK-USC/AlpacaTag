@@ -64,10 +64,10 @@ Vue.component('annotator', {
       for (let i = 0; i < this.entityPositions.length; i++) {
         const e = this.entityPositions[i];
         if ((e.start_offset == this.startOffset) && (e.end_offset == this.endOffset)) {
-          return false;
+          return e;
         }
       }
-      return true;
+      return false;
     },
 
     validRange() {
@@ -105,7 +105,7 @@ Vue.component('annotator', {
 
     addLabel(labelId) {
       if (this.duplicateRange()){
-        this.removeLabel(labelId);
+        this.removeLabel(this.duplicateRange());
         const label = {
           start_offset: this.startOffset,
           end_offset: this.endOffset,

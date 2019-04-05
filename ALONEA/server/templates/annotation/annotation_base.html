@@ -116,7 +116,9 @@
         </span>
         <span>Prev</span>
       </a>
-
+        <a class="confirmbutton level-center" ref="confirm" v-on:click="confirm">
+            <span class="confirmbuttontext" ref="confirmtext">Press this button if the sentence has no entities</span>
+        </a>
       <a class="button level-right" v-on:click="nextPage" v-shortkey="{next1: ['ctrl', 'n'], next2: ['arrowdown'], next3: ['arrowright']}"
         @shortkey="nextPage">
         <span>Next</span>
