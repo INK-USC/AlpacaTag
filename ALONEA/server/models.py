@@ -89,6 +89,9 @@ class Document(models.Model):
     annotated = models.BooleanField(default=False)
     metadata = models.TextField(default='{}')
 
+    def delete_annotations(self):
+        self.seq_annotations.all().delete()
+
     def get_annotations(self):
         return self.seq_annotations.all()
 

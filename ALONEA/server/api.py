@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from .models import Project, Label, Document, SequenceRecommendation
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
@@ -170,6 +171,10 @@ class AnnotationList(generics.ListCreateAPIView):
         doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
         serializer.save(document=doc, user=self.request.user)
 
+    def delete(self, request, *args, **kwargs):
+        doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
+        doc.delete_annotations()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, IsProjectUser, IsOwnAnnotation)
@@ -323,7 +328,7 @@ class OnlineLearning(APIView):
     pagination_class = None
     permission_classes = (IsAuthenticated, IsProjectUser)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
         labels = [label.text for label in p.labels.all()]
         predefined_label = []
@@ -332,7 +337,8 @@ class OnlineLearning(APIView):
             predefined_label.append('I-' + str(i))
         predefined_label.append('O')
 
-        docs = [doc for doc in p.documents.filter(pk__in=[1,2,3])]
+        docs_num = request.data.get('numbers')
+        docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
         annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
         train_docs = [str.split(doc.text) for doc in docs]
 

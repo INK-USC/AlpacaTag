@@ -43,6 +43,7 @@ const annotationMixin = {
       annotations: [],
       recommendations: [],
       labels: [],
+      onlineLearningIndices: [],
       guideline: '',
       total: 0,
       remaining: 0,
@@ -105,6 +106,10 @@ const annotationMixin = {
         this.docs[this.pageNumber].annotated = false;
         this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
         this.confirmtext = "Press this button if the sentence has no entities";
+        const docId = this.docs[this.pageNumber].id;
+        HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
+          this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
+        });
       }
       HTTP.get('progress').then((response) => {
         this.total = response.data.total;
@@ -166,8 +171,6 @@ const annotationMixin = {
       HTTP.delete(`docs/${docId}/annotations/${annotation.id}`).then((response) => {
         const index = this.annotations[this.pageNumber].indexOf(annotation);
         this.annotations[this.pageNumber].splice(index, 1);
-        console.log(this.annotations[this.pageNumber]);
-        console.log(this.annotations[this.pageNumber].length);
         if (this.annotations[this.pageNumber].length == 0) {
           this.docs[this.pageNumber].annotated = false;
           HTTP.patch(`docs/${docId}`, {'annotated': false}).then((response) => {
@@ -183,6 +186,8 @@ const annotationMixin = {
       shortcut = shortcut.split(' ');
       return shortcut;
     },
+
+
   },
 
   watch: {
