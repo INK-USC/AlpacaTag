@@ -1,7 +1,8 @@
 {% extends "annotation/annotation_base.html" %}
 {% load static %}
 {% block annotation-area %}
-<div class="card">
+<div class="card vld-parent">
+  <loading :active.sync="isLoading" :can-cancel="true"></loading>
   <header class="card-header">
     <div class="card-header-title has-background-royalblue" style="padding:1.5rem;">
       <div class="field is-grouped is-grouped-multiline">
