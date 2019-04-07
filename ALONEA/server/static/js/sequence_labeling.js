@@ -316,6 +316,9 @@ const vm = new Vue({
       const docId = this.docs[this.pageNumber].id;
       HTTP.post(`docs/${docId}/annotations/`, annotation).then((response) => {
         this.annotations[this.pageNumber].push(response.data);
+        this.docs[this.pageNumber].annotated = true;
+        HTTP.patch(`docs/${docId}`, {'annotated': true}).then((response) => {
+        });
       });
     },
   },

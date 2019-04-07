@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 from .models import Project, Label, Document, SequenceRecommendation
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
-from .serializers import ProjectSerializer, LabelSerializer
+from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer
 
 import re
 import time
@@ -130,6 +130,23 @@ class DocumentList(generics.ListCreateAPIView):
 
         return queryset
 
+class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = (IsAuthenticated, IsProjectUser, IsAdminUser)
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(project=self.kwargs['project_id'])
+        return queryset
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset, pk=self.kwargs['doc_id'])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 class AnnotationList(generics.ListCreateAPIView):
     pagination_class = None
@@ -245,7 +262,6 @@ class RecommendationList(generics.ListCreateAPIView):
                 if chunk['document'] == recommend['document'] and chunk['start_offset'] == recommend['start_offset'] and chunk['end_offset'] == recommend['end_offset']:
                     chunk['label'] = recommend['label']
 
-        print(chunklist)
         serializer = serializer(data=chunklist, many=True)
         if serializer.is_valid():
             serializer.save()

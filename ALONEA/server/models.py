@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib.staticfiles.storage import staticfiles_storage
 from .utils import get_key_choices
 import re
-import nltk
+import spacy
+nlp = spacy.load('en_core_web_sm')
 
 class Project(models.Model):
     SEQUENCE_LABELING = 'SequenceLabeling'
@@ -38,11 +39,7 @@ class Project(models.Model):
 
     def get_documents(self, is_null=True, user=None):
         docs = self.documents.all()
-        if user:
-            docs = docs.exclude(seq_annotations__user=user)
-        else:
-            docs = docs.filter(seq_annotations__isnull=is_null)
-
+        docs = docs.filter(annotated=False)
         return docs
 
     def get_document_serializer(self):
@@ -89,6 +86,7 @@ class Label(models.Model):
 class Document(models.Model):
     text = models.TextField()
     project = models.ForeignKey(Project, related_name='documents', on_delete=models.CASCADE)
+    annotated = models.BooleanField(default=False)
     metadata = models.TextField(default='{}')
 
     def get_annotations(self):
@@ -105,7 +103,9 @@ class Document(models.Model):
 
     def make_dataset_for_sequence_labeling(self):
         annotations = self.get_annotations()
-        dataset = [[self.id, word, 'O', self.metadata] for word in nltk.word_tokenize(self.text)]
+        doc = nlp(self.text)
+        words = [token.text for token in doc]
+        dataset = [[self.id, word, 'O', self.metadata] for word in words]
         startoff_map = {}
         endoff_map = {}
 

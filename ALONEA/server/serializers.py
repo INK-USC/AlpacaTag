@@ -15,8 +15,12 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('id', 'text')
+        fields = ('id', 'text', 'annotated')
 
+    def update(self, instance, validated_data):
+        instance.annotated = validated_data.get('annotated', instance.annotated)
+        instance.save()
+        return instance
 
 class ProjectSerializer(serializers.ModelSerializer):
 
@@ -58,9 +62,6 @@ class SequenceRecommendationSerializer(serializers.ModelSerializer):
         fields = ('id', 'prob', 'label', 'start_offset', 'end_offset', 'document')
 
     def create(self, validated_data):
-        # recommends = [SequenceRecommendation(**item) for item in validated_data]
-        # for recommend in recommends:
-        #     SequenceAnnotation.objects.create(recommend)
         recommendation = SequenceRecommendation.objects.create(**validated_data)
         return recommendation
 
@@ -85,5 +86,5 @@ class SequenceDocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('id', 'text', 'annotations', 'recommendations')
+        fields = ('id', 'text', 'annotations', 'recommendations', 'annotated')
 

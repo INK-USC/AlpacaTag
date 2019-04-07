@@ -1,26 +1,23 @@
-import nltk
-
 class NounChunk(object):
     def __init__(self, nlp):
         self.nlp = nlp
 
     def chunking(self, text):
         doc = self.nlp(text)
-
+        words = [token.text for token in doc]
         chunklist = []
         for chunk in doc.noun_chunks:
             chunkdict = {}
             chunkdict['nounchunk'] = chunk.text
-            chunkdict['left'] = chunk.root.left_edge.i
-            chunkdict['right'] = chunk.root.left_edge.i + len(str.split(chunk.text))
+            chunkdict['left'] = chunk.start
+            chunkdict['right'] = chunk.end
             chunklist.append(chunkdict)
 
-        res = self._build_response(chunklist, text)
+        res = self._build_response(chunklist, text, words)
 
         return res
 
-    def _build_response(self, chunks, text):
-        words = nltk.word_tokenize(text)
+    def _build_response(self, chunks, text, words):
         res = {
             'words': words,
             'entities': [

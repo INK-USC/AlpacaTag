@@ -17,7 +17,9 @@ from django.contrib import messages
 
 from .permissions import SuperUserMixin
 from .models import Document, Project
-import nltk
+
+import spacy
+nlp = spacy.load('en_core_web_sm')
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +92,7 @@ class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):
 
             return (
                 Document(
-                    text=" ".join(str(x) for x in nltk.word_tokenize(row[text_col])),
+                    text=" ".join(str(x.text) for x in nlp(row[text_col])),
                     metadata=self.extract_metadata_csv(row, text_col, header_without_text),
                     project=project
                 )

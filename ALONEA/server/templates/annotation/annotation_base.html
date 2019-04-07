@@ -67,7 +67,7 @@
         <a href="#" class="item" v-for="(doc, index) in docs" v-bind:class="{ active: index == pageNumber }" v-on:click="pageNumber = index"
           v-bind:data-preview-id="index">
           <span class="icon">
-            <i class="fa fa-check" v-show="annotations[index] && annotations[index].length"></i>
+            <i class="fa fa-check" v-show="docs[index].annotated"></i>
           </span>
           <span class="name">[[ doc.text.slice(0, 60) ]]...</span>
         </a>
@@ -117,7 +117,7 @@
         <span>Prev</span>
       </a>
         <a class="confirmbutton level-center" ref="confirm" v-on:click="confirm">
-            <span class="confirmbuttontext" ref="confirmtext">Press this button if the sentence has no entities</span>
+            <span class="confirmbuttontext" ref="confirmtext">[[ confirmtext ]]</span>
         </a>
       <a class="button level-right" v-on:click="nextPage" v-shortkey="{next1: ['ctrl', 'n'], next2: ['arrowdown'], next3: ['arrowright']}"
         @shortkey="nextPage">

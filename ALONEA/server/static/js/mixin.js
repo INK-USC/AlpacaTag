@@ -52,6 +52,7 @@ const annotationMixin = {
       picked: 'all',
       count: 0,
       isActive: false,
+      confirmtext: '',
     };
   },
 
@@ -82,36 +83,32 @@ const annotationMixin = {
       }
     },
 
-    checkConfirmLabel(){
-      for (let i = 0; i < this.annotations[this.pageNumber].length; i++) {
-        const annotation = this.annotations[this.pageNumber][i];
-        if (annotation['label']=="confirm") {
-          return annotation;
-        }
-      }
-      return false;
-    },
-
-    async confirm() {
-      if (!this.checkConfirmLabel()) {
-        this.addConfirmLabel();
-        this.$refs["confirm"].style.backgroundColor = "#3cb371";
-      }
-      else{
-        this.removeLabel(this.checkConfirmLabel())
-        this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
-      }
-    },
-
-    addConfirmLabel() {
-      const label = {
-        start_offset: 0,
-        end_offset: 0,
-        label: "<confirm>",
-      };
+    annotatedCheck(check) {
       const docId = this.docs[this.pageNumber].id;
-      HTTP.post(`docs/${docId}/annotations/`, label).then((response) => {
-        this.annotations[this.pageNumber].push(response.data);
+      HTTP.patch(`docs/${docId}`, {'annotated': check}).then((response) => {
+        console.log(response);
+      });
+    },
+
+    confirm() {
+      const check = this.docs[this.pageNumber].annotated;
+      if (!check) {
+        console.log("1");
+        this.annotatedCheck(true);
+        this.docs[this.pageNumber].annotated = true;
+        this.$refs["confirm"].style.backgroundColor = "#3cb371";
+        this.confirmtext = "Confirmed";
+      }
+      else {
+        console.log("2");
+        this.annotatedCheck(false);
+        this.docs[this.pageNumber].annotated = false;
+        this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
+        this.confirmtext = "Press this button if the sentence has no entities";
+      }
+      HTTP.get('progress').then((response) => {
+        this.total = response.data.total;
+        this.remaining = response.data.remaining;
       });
     },
 
@@ -169,6 +166,13 @@ const annotationMixin = {
       HTTP.delete(`docs/${docId}/annotations/${annotation.id}`).then((response) => {
         const index = this.annotations[this.pageNumber].indexOf(annotation);
         this.annotations[this.pageNumber].splice(index, 1);
+        console.log(this.annotations[this.pageNumber]);
+        console.log(this.annotations[this.pageNumber].length);
+        if (this.annotations[this.pageNumber].length == 0) {
+          this.docs[this.pageNumber].annotated = false;
+          HTTP.patch(`docs/${docId}`, {'annotated': false}).then((response) => {
+          });
+        }
       });
     },
 
@@ -187,7 +191,15 @@ const annotationMixin = {
     },
 
     annotations() {
-      // fetch progress info.
+      const check = this.docs[this.pageNumber].annotated;
+      if (!check) {
+        this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
+        this.confirmtext = "Press this button if the sentence has no entities";
+      }
+      else {
+        this.$refs["confirm"].style.backgroundColor = "#3cb371";
+        this.confirmtext = "confirmed";
+      }
       HTTP.get('progress').then((response) => {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
