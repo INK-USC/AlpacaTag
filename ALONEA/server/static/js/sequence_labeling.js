@@ -1,7 +1,13 @@
 import Vue from 'vue';
 import VTooltip from 'v-tooltip'
+// Import component
+import Loading from 'vue-loading-overlay';
+// Import stylesheet
+import 'vue-loading-overlay/dist/vue-loading.css';
 
 Vue.use(VTooltip);
+Vue.use(Loading);
+
 import annotationMixin from './mixin';
 import HTTP from './http';
 import simpleShortcut from './filter';
@@ -299,6 +305,9 @@ const vm = new Vue({
   el: '#mail-app',
   delimiters: ['[[', ']]'],
   mixins: [annotationMixin],
+  components: {
+        Loading: Loading
+    },
   methods: {
     annotate(labelId) {
       this.$refs.annotator.addLabel(labelId);

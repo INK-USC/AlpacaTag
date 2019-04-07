@@ -53,6 +53,7 @@ const annotationMixin = {
       count: 0,
       isActive: false,
       confirmtext: '',
+      isLoading: true,
     };
   },
 
@@ -113,6 +114,7 @@ const annotationMixin = {
     },
 
     async process_data(response) {
+      this.isLoading = true;
       this.docs = response.data.results;
       this.next = response.data.next;
       this.prev = response.data.previous;
@@ -133,6 +135,7 @@ const annotationMixin = {
         });
       }
       this.offset = getOffsetFromUrl(this.url);
+      this.isLoading = false;
     },
 
     async search() {

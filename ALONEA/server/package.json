@@ -11,10 +11,13 @@
   "dependencies": {
     "axios": "^0.18.0",
     "chart.js": "^2.7.2",
+    "css-loader": "^2.1.1",
+    "style-loader": "^0.23.1",
     "v-tooltip": "^2.0.0-rc.33",
     "vue": "^2.5.16",
     "vue-chartjs": "^3.4.0",
     "vue-loader": "^15.2.4",
+    "vue-loading-overlay": "^3.2.0",
     "vue-shortkey": "^3.1.6"
   },
   "devDependencies": {

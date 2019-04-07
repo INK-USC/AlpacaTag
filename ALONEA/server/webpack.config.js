@@ -1,5 +1,5 @@
 const process = require('process');
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
     mode: process.env.DEBUG === 'False' ? 'production' : 'development',
@@ -20,7 +20,12 @@ module.exports = {
             {
                 test: /\.vue$/,
                 loader: 'vue-loader'
-            }
+            },
+            {
+              test: /\.css$/,
+              include: /node_modules/,
+              loaders: ['style-loader', 'css-loader'],
+             }
         ]
     },
     plugins: [
