@@ -4,8 +4,8 @@ Model API.
 import numpy as np
 from seqeval.metrics.sequence_labeling import get_entities
 import re
-import nltk
-
+import spacy
+nlp = spacy.load('en_core_web_sm')
 
 class Tagger(object):
     """A model API that tags input sentence.
@@ -35,7 +35,8 @@ class Tagger(object):
             Returns the probability of the word for each class in the model,
         """
         assert isinstance(text, str)
-        words = nltk.word_tokenize(text)
+        doc = nlp(text)
+        words = [token.text for token in doc]
         X = self.preprocessor.transform([words])
         y = self.model.predict(X)
         y = y[0]  # reduce batch dimension.
@@ -54,7 +55,8 @@ class Tagger(object):
         return tags
 
     def _build_response(self, sent, tags, prob):
-        words = nltk.word_tokenize(sent)
+        doc = nlp(sent)
+        words = [token.text for token in doc]
         res = {
             'words': words,
             'entities': [

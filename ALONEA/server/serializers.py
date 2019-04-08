@@ -12,6 +12,9 @@ class LabelSerializer(serializers.ModelSerializer):
 
 
 class DocumentSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        many = kwargs.pop('many', True)
+        super(DocumentSerializer, self).__init__(many=many, *args, **kwargs)
 
     class Meta:
         model = Document
@@ -21,6 +24,10 @@ class DocumentSerializer(serializers.ModelSerializer):
         instance.annotated = validated_data.get('annotated', instance.annotated)
         instance.save()
         return instance
+
+    def create(self, validated_data):
+        docs = [Document(**item) for item in validated_data]
+        return Document.objects.bulk_create(docs)
 
 class ProjectSerializer(serializers.ModelSerializer):
 
