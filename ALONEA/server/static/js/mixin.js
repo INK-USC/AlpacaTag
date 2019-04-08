@@ -44,6 +44,8 @@ const annotationMixin = {
       recommendations: [],
       labels: [],
       onlineLearningIndices: new Set(),
+      onlineLearningNum: 0,
+      onlineLearningPer: 5,
       guideline: '',
       total: 0,
       remaining: 0,
@@ -99,7 +101,10 @@ const annotationMixin = {
         this.docs[this.pageNumber].annotated = true;
         this.$refs["confirm"].style.backgroundColor = "#3cb371";
         this.confirmtext = "Confirmed";
-        this.onlineLearningIndices.add(docId);
+        if (!this.onlineLearningIndices.has(docId)) {
+          this.onlineLearningIndices.add(docId);
+          this.onlineLearningNum = this.onlineLearningNum + 1;
+        }
       }
       else {
         this.annotatedCheck(false);
@@ -108,7 +113,10 @@ const annotationMixin = {
         this.confirmtext = "Press this button if the sentence has no entities";
         HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
           this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
-          this.onlineLearningIndices.delete(docId);
+          if (this.onlineLearningIndices.has(docId)) {
+            this.onlineLearningIndices.delete(docId);
+            this.onlineLearningNum = this.onlineLearningNum - 1;
+          }
         });
       }
       HTTP.get('progress').then((response) => {
@@ -144,6 +152,7 @@ const annotationMixin = {
         this.onlinelearning().then((res) => {
           HTTP.get(this.url).then((response) => this.process_data(response));
           this.onlineLearningIndices.clear();
+          this.onlineLearningNum = 0;
         });
       }
       else {
@@ -178,9 +187,12 @@ const annotationMixin = {
       HTTP.delete(`docs/${docId}/annotations/${annotation.id}`).then((response) => {
         const index = this.annotations[this.pageNumber].indexOf(annotation);
         this.annotations[this.pageNumber].splice(index, 1);
-        if (this.annotations[this.pageNumber].length == 0) {
+        if (this.annotations[this.pageNumber].length === 0) {
           this.docs[this.pageNumber].annotated = false;
-          this.onlineLearningIndices.delete(docId);
+          if (this.onlineLearningIndices.has(docId)) {
+            this.onlineLearningIndices.delete(docId);
+            this.onlineLearningNum = this.onlineLearningNum - 1;
+          }
           HTTP.patch(`docs/${docId}`, {'annotated': false}).then((response) => {
           });
         }
@@ -269,6 +281,22 @@ const annotationMixin = {
         return 'is-danger';
       }
       if (this.achievement < 70) {
+        return 'is-warning';
+      }
+      return 'is-primary';
+    },
+
+    achievementTrain() {
+      const done = this.onlineLearningNum;
+      const percentage = Math.round(done / this.onlineLearningPer * 100);
+      return this.onlineLearningPer > 0 ? percentage : 0;
+    },
+
+    progressColorTrain() {
+      if (this.achievementTrain < 30) {
+        return 'is-danger';
+      }
+      if (this.achievementTrain < 70) {
         return 'is-warning';
       }
       return 'is-primary';

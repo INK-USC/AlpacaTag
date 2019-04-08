@@ -90,12 +90,23 @@
         </div>
       </div>
 
+      <div class="columns is-multiline is-gapless is-mobile is-vertical-center">
+        <div class="column is-3">
+            <progress class="progress is-inline-block" v-bind:class="progressColorTrain" v-bind:value="achievementTrain" max="100">30%</progress>
+        </div>
+        <div class="column is-8">
+            <span class="ml10"><strong>[[ onlineLearningIndices.size ]]</strong></span>/<span>[[ onlineLearningPer ]]</span>
+            <span> to train </span>
+        </div>
+      </div>
+
     <div class="columns is-multiline is-gapless is-mobile is-vertical-center">
       <div class="column is-3">
         <progress class="progress is-inline-block" v-bind:class="progressColor" v-bind:value="achievement" max="100">30%</progress>
       </div>
       <div class="column is-8">
         <span class="ml10"><strong>[[ total - remaining ]]</strong></span>/<span>[[ total ]]</span>
+          <span> to annotate </span>
       </div>
       <div class="column is-1 has-text-right">
         <a class="button" @click="isActive=!isActive">

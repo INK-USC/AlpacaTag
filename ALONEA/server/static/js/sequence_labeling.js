@@ -323,7 +323,10 @@ const vm = new Vue({
       HTTP.post(`docs/${docId}/annotations/`, annotation).then((response) => {
         this.annotations[this.pageNumber].push(response.data);
         this.docs[this.pageNumber].annotated = true;
-        this.onlineLearningIndices.add(docId);
+        if (!this.onlineLearningIndices.has(docId)) {
+          this.onlineLearningIndices.add(docId);
+          this.onlineLearningNum = this.onlineLearningNum + 1;
+        }
         HTTP.patch(`docs/${docId}`, {'annotated': true}).then((response) => {
         });
       });
