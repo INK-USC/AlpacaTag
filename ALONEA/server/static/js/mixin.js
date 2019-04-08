@@ -43,7 +43,7 @@ const annotationMixin = {
       annotations: [],
       recommendations: [],
       labels: [],
-      onlineLearningIndices: [],
+      onlineLearningIndices: new Set(),
       guideline: '',
       total: 0,
       remaining: 0,
@@ -88,28 +88,27 @@ const annotationMixin = {
     annotatedCheck(check) {
       const docId = this.docs[this.pageNumber].id;
       HTTP.patch(`docs/${docId}`, {'annotated': check}).then((response) => {
-        console.log(response);
       });
     },
 
     confirm() {
       const check = this.docs[this.pageNumber].annotated;
+      const docId = this.docs[this.pageNumber].id;
       if (!check) {
-        console.log("1");
         this.annotatedCheck(true);
         this.docs[this.pageNumber].annotated = true;
         this.$refs["confirm"].style.backgroundColor = "#3cb371";
         this.confirmtext = "Confirmed";
+        this.onlineLearningIndices.add(docId);
       }
       else {
-        console.log("2");
         this.annotatedCheck(false);
         this.docs[this.pageNumber].annotated = false;
         this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
         this.confirmtext = "Press this button if the sentence has no entities";
-        const docId = this.docs[this.pageNumber].id;
         HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
           this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
+          this.onlineLearningIndices.delete(docId);
         });
       }
       HTTP.get('progress').then((response) => {
@@ -131,10 +130,7 @@ const annotationMixin = {
         this.annotations.push(doc.annotations);
       }
       for (let i = 0; i < this.docs.length; i++) {
-        const doc = this.docs[i];
         await HTTP.get(`docs/${this.docs[i].id}/recommendations/`).then((recomm_response) => {
-          console.log(response.data);
-          console.log(response.data.entities);
           const rec = recomm_response.data.recommendation;
           this.recommendations.push(rec);
         });
@@ -144,7 +140,15 @@ const annotationMixin = {
     },
 
     async search() {
-      await HTTP.get(this.url).then((response) => this.process_data(response));
+      if (this.onlineLearningIndices.size >= 5) {
+        this.onlinelearning().then((res) => {
+          HTTP.get(this.url).then((response) => this.process_data(response));
+          this.onlineLearningIndices.clear();
+        });
+      }
+      else {
+        HTTP.get(this.url).then((response) => this.process_data(response));
+      }
     },
 
     getState() {
@@ -164,8 +168,8 @@ const annotationMixin = {
       this.pageNumber = 0;
     },
 
-    initiatelearning(){
-      return HTTP.get(`learninginitiate`).then((response) => {
+    async initiatelearning(){
+      return await HTTP.get(`learninginitiate`).then((response) => {
       });
     },
 
@@ -176,6 +180,7 @@ const annotationMixin = {
         this.annotations[this.pageNumber].splice(index, 1);
         if (this.annotations[this.pageNumber].length == 0) {
           this.docs[this.pageNumber].annotated = false;
+          this.onlineLearningIndices.delete(docId);
           HTTP.patch(`docs/${docId}`, {'annotated': false}).then((response) => {
           });
         }
@@ -190,7 +195,13 @@ const annotationMixin = {
       return shortcut;
     },
 
-
+    onlinelearning(){
+      this.isLoading=true;
+      const indices = Array.from(this.onlineLearningIndices);
+      return HTTP.post(`onlinelearning/`, { 'indices': indices }).then((response) => {
+      });
+      this.isLoading=false;
+    },
   },
 
   watch: {

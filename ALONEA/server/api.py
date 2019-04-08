@@ -337,18 +337,18 @@ class OnlineLearning(APIView):
             predefined_label.append('I-' + str(i))
         predefined_label.append('O')
 
-        docs_num = request.data.get('numbers')
+        docs_num = request.data.get('indices')
         docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
         annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
         train_docs = [str.split(doc.text) for doc in docs]
 
-        if model.model is None:
+        if model.model is not None:
             with session.as_default():
                 with graph.as_default():
                     model.online_learning(train_docs, annotations, predefined_label)
 
-        response = {'predefined_label':predefined_label,
-                    'docs':train_docs,
-                    'annotations':annotations}
+        response = {'predefined_label': predefined_label,
+                    'docs': train_docs,
+                    'annotations': annotations}
 
         return Response(response)

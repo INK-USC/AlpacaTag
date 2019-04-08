@@ -1,17 +1,14 @@
 import Vue from 'vue';
-import VTooltip from 'v-tooltip'
-// Import component
+import VTooltip from 'v-tooltip';
 import Loading from 'vue-loading-overlay';
-// Import stylesheet
 import 'vue-loading-overlay/dist/vue-loading.css';
-
-Vue.use(VTooltip);
-Vue.use(Loading);
 
 import annotationMixin from './mixin';
 import HTTP from './http';
 import simpleShortcut from './filter';
 
+Vue.use(VTooltip);
+Vue.use(Loading);
 Vue.use(require('vue-shortkey'), {
   prevent: ['input', 'textarea'],
 });
@@ -234,7 +231,7 @@ Vue.component('recommender', {
       endOffset: 0,
     };
   },
-  mixins: [annotationMixin],
+
   methods: {
     setSelectedRange(startoff, endoff, label) {
       if (label == 'underline') {
@@ -304,10 +301,10 @@ Vue.component('recommender', {
 const vm = new Vue({
   el: '#mail-app',
   delimiters: ['[[', ']]'],
-  mixins: [annotationMixin],
   components: {
-        Loading: Loading
-    },
+    Loading: Loading,
+  },
+  mixins: [annotationMixin],
   methods: {
     annotate(labelId) {
       this.$refs.annotator.addLabel(labelId);
@@ -326,6 +323,7 @@ const vm = new Vue({
       HTTP.post(`docs/${docId}/annotations/`, annotation).then((response) => {
         this.annotations[this.pageNumber].push(response.data);
         this.docs[this.pageNumber].annotated = true;
+        this.onlineLearningIndices.add(docId);
         HTTP.patch(`docs/${docId}`, {'annotated': true}).then((response) => {
         });
       });
