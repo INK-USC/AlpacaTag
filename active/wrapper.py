@@ -203,6 +203,8 @@ class Sequence(object):
                       shuffle=shuffle)
 
     def active_learning(self):
+
+
         None
 
     def noun_chunks(self, text):
