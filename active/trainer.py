@@ -49,3 +49,4 @@ class Trainer(object):
                                   callbacks=callbacks,
                                   verbose=verbose,
                                   shuffle=shuffle)
+        return self._model

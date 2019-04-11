@@ -202,14 +202,11 @@ class Sequence(object):
     def active_learning(self):
         None
 
-    def online_learning(self, x_train, y_train, predefined_label, x_valid=None, y_valid=None,
-            epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True, active_learning=True):
-        p = IndexTransformer(initial_vocab=self.initial_vocab, use_char=self.use_char)
-        p.label_fit(predefined_label)
-        p.fit(x_train, y_train)
+    def online_learning(self, x_train, y_train, x_valid=None, y_valid=None,
+            epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
 
-        trainer = Trainer(self.model, preprocessor=p)
-        trainer.train(x_train, y_train, x_valid, y_valid,
+        trainer = Trainer(self.model, preprocessor=self.p)
+        self.model = trainer.train(x_train, y_train, x_valid, y_valid,
                       epochs=epochs, batch_size=batch_size,
                       verbose=verbose, callbacks=callbacks,
                       shuffle=shuffle)
