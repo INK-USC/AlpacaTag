@@ -7,7 +7,7 @@ from active.models import BiLSTMCRF, save_model, load_model
 from active.preprocessing import IndexTransformer
 from active.tagger import Tagger
 from active.trainer import Trainer
-from active.utils import filter_embeddings
+from active.utils import filter_embeddings, load_glove
 from active.nounchunk import NounChunk
 from active.layers import CRF
 import spacy
@@ -33,7 +33,7 @@ class Sequence(object):
         self.char_lstm_size = char_lstm_size
         self.fc_dim = fc_dim
         self.dropout = dropout
-        self.embeddings = embeddings
+        self.embeddings = load_glove('glove.6B.100d')
         self.use_char = use_char
         self.use_crf = use_crf
         self.initial_vocab = initial_vocab
@@ -216,3 +216,4 @@ class Sequence(object):
         chunk_merger = NounChunk(nlp)
         doc = chunk_merger.chunking(text)
         return doc
+
