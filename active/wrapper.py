@@ -9,6 +9,7 @@ from active.tagger import Tagger
 from active.trainer import Trainer
 from active.utils import filter_embeddings
 from active.nounchunk import NounChunk
+from active.layers import CRF
 import spacy
 
 class Sequence(object):
@@ -38,6 +39,8 @@ class Sequence(object):
         self.initial_vocab = initial_vocab
         self.optimizer = optimizer
 
+        self.modelclass = None
+        self.activemodel = None
         self.model = None
         self.p = None
         self.tagger = None
@@ -66,7 +69,7 @@ class Sequence(object):
         p.fit(x_train, y_train)
         embeddings = filter_embeddings(self.embeddings, p._word_vocab.vocab, self.word_embedding_dim)
 
-        model = BiLSTMCRF(char_vocab_size=p.char_vocab_size,
+        self.modelclass = BiLSTMCRF(char_vocab_size=p.char_vocab_size,
                           word_vocab_size=p.word_vocab_size,
                           num_labels=p.label_size,
                           word_embedding_dim=self.word_embedding_dim,
@@ -78,7 +81,7 @@ class Sequence(object):
                           embeddings=embeddings,
                           use_char=self.use_char,
                           use_crf=self.use_crf)
-        model, loss = model.build()
+        model, loss = self.modelclass.build()
         model.compile(loss=loss, optimizer=self.optimizer)
 
         trainer = Trainer(model, preprocessor=p)
@@ -172,7 +175,7 @@ class Sequence(object):
         self.p.word_fit(x_train)
         embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
 
-        model = BiLSTMCRF(char_vocab_size=self.p.char_vocab_size,
+        self.modelclass = BiLSTMCRF(char_vocab_size=self.p.char_vocab_size,
                           word_vocab_size=self.p.word_vocab_size,
                           num_labels=self.p.label_size,
                           word_embedding_dim=self.word_embedding_dim,
@@ -185,27 +188,31 @@ class Sequence(object):
                           use_char=self.use_char,
                           use_crf=self.use_crf)
 
-        model, loss = model.build()
+        model, loss = self.modelclass.build()
         model.compile(loss=loss, optimizer=self.optimizer)
         self.model = model
         return self.p
+
+    def active_build(self):
+        # MNLP
+        model = self.modelclass.marginalCRF()
+        model.compile()
+        self.activemodel = model
+
+    def active_learning(self):
+        None
 
     def online_learning(self, x_train, y_train, predefined_label, x_valid=None, y_valid=None,
             epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True, active_learning=True):
         p = IndexTransformer(initial_vocab=self.initial_vocab, use_char=self.use_char)
         p.label_fit(predefined_label)
         p.fit(x_train, y_train)
-        print(p._label_vocab.vocab)
+
         trainer = Trainer(self.model, preprocessor=p)
         trainer.train(x_train, y_train, x_valid, y_valid,
                       epochs=epochs, batch_size=batch_size,
                       verbose=verbose, callbacks=callbacks,
                       shuffle=shuffle)
-
-    def active_learning(self):
-
-
-        None
 
     def noun_chunks(self, text):
         nlp = spacy.load('en_core_web_sm')

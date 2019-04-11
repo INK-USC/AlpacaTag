@@ -121,3 +121,35 @@ class BiLSTMCRF(object):
 
         return model, loss
 
+    def marginalCRF(self):
+        word_ids = Input(batch_shape=(None, None), dtype='int32', name='word_input')
+        inputs = [word_ids]
+        if self._embeddings is None:
+            word_embeddings = Embedding(input_dim=self._word_vocab_size,
+                                        output_dim=self._word_embedding_dim,
+                                        mask_zero=True,
+                                        name='word_embedding')(word_ids)
+        else:
+            word_embeddings = Embedding(input_dim=self._embeddings.shape[0],
+                                        output_dim=self._embeddings.shape[1],
+                                        mask_zero=True,
+                                        weights=[self._embeddings],
+                                        name='word_embedding')(word_ids)
+
+        # build character based word embedding
+        if self._use_char:
+            char_ids = Input(batch_shape=(None, None, None), dtype='int32', name='char_input')
+            inputs.append(char_ids)
+            char_embeddings = Embedding(input_dim=self._char_vocab_size,
+                                        output_dim=self._char_embedding_dim,
+                                        mask_zero=True,
+                                        name='char_embedding')(char_ids)
+            char_embeddings = TimeDistributed(Bidirectional(LSTM(self._char_lstm_size)))(char_embeddings)
+            word_embeddings = Concatenate()([word_embeddings, char_embeddings])
+
+        word_embeddings = Dropout(self._dropout)(word_embeddings)
+        marginalCRF = CRF(self._num_labels, learn_mode='marginal', test_mode='marginal')
+        prob = marginalCRF(word_embeddings)
+        model = Model(inputs=inputs, outputs=prob)
+        return model
+
