@@ -330,12 +330,6 @@ class OnlineLearning(APIView):
 
     def post(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        labels = [label.text for label in p.labels.all()]
-        predefined_label = []
-        for i in labels:
-            predefined_label.append('B-' + str(i))
-            predefined_label.append('I-' + str(i))
-        predefined_label.append('O')
 
         docs_num = request.data.get('indices')
         docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
@@ -345,10 +339,9 @@ class OnlineLearning(APIView):
         if model.model is not None:
             with session.as_default():
                 with graph.as_default():
-                    model.online_learning(train_docs, annotations, predefined_label)
+                    model.online_learning(train_docs, annotations)
 
-        response = {'predefined_label': predefined_label,
-                    'docs': train_docs,
+        response = {'docs': train_docs,
                     'annotations': annotations}
 
         return Response(response)
