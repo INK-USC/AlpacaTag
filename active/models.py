@@ -148,8 +148,9 @@ class BiLSTMCRF(object):
             word_embeddings = Concatenate()([word_embeddings, char_embeddings])
 
         word_embeddings = Dropout(self._dropout)(word_embeddings)
-        marginalCRF = CRF(self._num_labels, learn_mode='marginal', test_mode='marginal')
+        marginalCRF = CRF(self._num_labels, test_mode='score')
+        loss = marginalCRF.loss_function
         prob = marginalCRF(word_embeddings)
         model = Model(inputs=inputs, outputs=prob)
-        return model
+        return model, loss
 

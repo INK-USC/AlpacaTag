@@ -147,7 +147,7 @@ class CRF(Layer):
         if self.test_mode is None:
             self.test_mode = 'viterbi' if self.learn_mode == 'join' else 'marginal'
         else:
-            assert self.test_mode in ['viterbi', 'marginal']
+            assert self.test_mode in ['viterbi', 'marginal','score']
         self.sparse_target = sparse_target
         self.use_boundary = use_boundary
         self.use_bias = use_bias
@@ -213,6 +213,9 @@ class CRF(Layer):
 
         if self.test_mode == 'viterbi':
             test_output = self.viterbi_decoding(X, mask)
+        elif self.test_mode == 'score':
+            test_output = self.viterbi_decoding_score(X, mask)
+            return test_output
         else:
             test_output = self.get_marginal_prob(X, mask)
 
@@ -505,10 +508,19 @@ class CRF(Layer):
                 next_best_idx = K.T.unbroadcast(next_best_idx, 1)
             return next_best_idx, [next_best_idx]
 
-        print(argmin_tables)
         _, best_paths, _ = K.rnn(find_path, argmin_tables, initial_best_idx, input_length=K.int_shape(X)[1], unroll=self.unroll)
-        print(best_paths)
+
         best_paths = K.reverse(best_paths, 1)
         best_paths = K.squeeze(best_paths, 2)
 
         return K.one_hot(best_paths, self.units)
+
+    def viterbi_decoding_score(self, X, mask=None):
+        input_energy = self.activation(K.dot(X, self.kernel) + self.bias)
+        if self.use_boundary:
+            input_energy = self.add_boundary_energy(input_energy, mask, self.left_boundary, self.right_boundary)
+
+        scores = self.recursion(input_energy, mask, return_logZ=True)
+        scores = K.cast(scores, 'float32')
+
+        return scores

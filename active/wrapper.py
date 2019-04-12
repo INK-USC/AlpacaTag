@@ -9,6 +9,7 @@ from active.tagger import Tagger
 from active.trainer import Trainer
 from active.utils import filter_embeddings, load_glove
 from active.nounchunk import NounChunk
+from active.acquisition import Acquisition
 from active.layers import CRF
 import spacy
 
@@ -44,6 +45,9 @@ class Sequence(object):
         self.model = None
         self.p = None
         self.tagger = None
+        self.loss = None
+        self.labeled = set()
+        self.acquisition = None
 
     def fit(self, x_train, y_train, x_valid=None, y_valid=None,
             epochs=1, batch_size=32, verbose=1, callbacks=None, shuffle=True):
@@ -191,16 +195,27 @@ class Sequence(object):
         model, loss = self.modelclass.build()
         model.compile(loss=loss, optimizer=self.optimizer)
         self.model = model
+        self.loss = loss
         return self.p
 
-    def active_build(self):
-        # MNLP
-        model = self.modelclass.marginalCRF()
-        model.compile()
-        self.activemodel = model
+    def active_learning(self, x_train, y_train):
+        model, loss = self.modelclass.marginalCRF()
+        model.compile(loss=self.loss, optimizer=self.optimizer)
+        activemodel = model
 
-    def active_learning(self):
-        None
+        if self.acquisition is None:
+            self.acquisition = Acquisition(x_train, activemodel, self.p)
+        else:
+            self.acquisition.obtain_data(x_train, activemodel, self.p)
+
+        active_train_data = [x_train[i] for i in self.acquisition.return_index]
+        active_label_data = [y_train[i] for i in self.acquisition.return_index]
+        active_train_indice = [i for i in self.acquisition.return_index]
+
+        print(len(active_train_indice))
+        print(active_train_indice)
+
+        return active_train_data, active_label_data
 
     def online_learning(self, x_train, y_train, x_valid=None, y_valid=None,
             epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
