@@ -57,6 +57,7 @@ const annotationMixin = {
       isActive: false,
       confirmtext: '',
       isLoading: true,
+      loadingMsg: 'Loading...',
     };
   },
 
