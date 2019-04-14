@@ -34,7 +34,7 @@ class Sequence(object):
         self.char_lstm_size = char_lstm_size
         self.fc_dim = fc_dim
         self.dropout = dropout
-        self.embeddings = load_glove('glove.6B.100d.txt')
+        self.embeddings = load_glove('../glove.6B.100d.txt')
         self.use_char = use_char
         self.use_crf = use_crf
         self.initial_vocab = initial_vocab

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import SequenceAnnotation, SequenceRecommendation
+from .models import SequenceAnnotation
 from .models import Label, Project, Document
 
 
@@ -59,23 +59,8 @@ class SequenceAnnotationSerializer(serializers.ModelSerializer):
         return annotation
 
 
-class SequenceRecommendationSerializer(serializers.ModelSerializer):
-    def __init__(self, *args, **kwargs):
-        many = kwargs.pop('many', True)
-        super(SequenceRecommendationSerializer, self).__init__(many=many, *args, **kwargs)
-
-    class Meta:
-        model = SequenceRecommendation
-        fields = ('id', 'prob', 'label', 'start_offset', 'end_offset', 'document')
-
-    def create(self, validated_data):
-        recommendation = SequenceRecommendation.objects.create(**validated_data)
-        return recommendation
-
-
 class SequenceDocumentSerializer(serializers.ModelSerializer):
     annotations = serializers.SerializerMethodField()
-    recommendations = serializers.SerializerMethodField()
 
     def get_annotations(self, instance):
         request = self.context.get('request')
@@ -84,14 +69,7 @@ class SequenceDocumentSerializer(serializers.ModelSerializer):
             serializer = SequenceAnnotationSerializer(annotations, many=True)
             return serializer.data
 
-    def get_recommendations(self, instance):
-        request = self.context.get('request')
-        if request:
-            recommendations = instance.seq_recommendations
-            serializer = SequenceRecommendationSerializer(recommendations, many=True)
-            return serializer.data
-
     class Meta:
         model = Document
-        fields = ('id', 'text', 'annotations', 'recommendations', 'annotated')
+        fields = ('id', 'text', 'annotations', 'annotated')
 

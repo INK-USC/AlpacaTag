@@ -143,9 +143,9 @@ const annotationMixin = {
           const rec = recomm_response.data.recommendation;
           this.recommendations.push(rec);
         });
+        this.isLoading = false;
       }
       this.offset = getOffsetFromUrl(this.url);
-      this.isLoading = false;
     },
 
     async search() {
@@ -180,6 +180,7 @@ const annotationMixin = {
 
     async initiatelearning(){
       return await HTTP.get(`learninginitiate`).then((response) => {
+        console.log(response.data.isFirst);
       });
     },
 

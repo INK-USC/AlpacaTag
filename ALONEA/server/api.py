@@ -10,31 +10,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from .models import Project, Label, Document, SequenceRecommendation
+from .models import Project, Label, Document
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
 from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer
 
-import re
-import time
-import os
 import sys
 sys.path.append("..")
 
 import tensorflow as tf
 import active
 
-
-# from anago.utils import download
-# import anago
-
+projectid = 0
 session = tf.Session()
 graph = tf.get_default_graph()
 model = active.Sequence()
-
-# url = 'https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/public/conll2003_en.zip'
-# weights, params, preprocessor = download(url)
-# with graph.as_default():
-#     model = anago.Sequence.load(weights, params, preprocessor)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -203,24 +192,6 @@ class RecommendationList(generics.ListCreateAPIView):
     pagination_class = None
     permission_classes = (IsAuthenticated, )
 
-    def get_serializer_class(self):
-        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        self.serializer_class = project.get_recommendation_serializer()
-
-        return self.serializer_class
-
-    def get_queryset(self):
-        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        document = project.documents.get(id=self.kwargs['doc_id'])
-        self.queryset = document.get_recommendations()
-        self.queryset = self.queryset.filter(user=self.request.user) ##useless trimming needs
-
-        return self.queryset
-
-    def perform_create(self, serializer):
-        doc = get_object_or_404(Document, pk=self.kwargs['doc_id'])
-        serializer.save(document=doc, user=self.request.user)
-
     def index_word2char(self, entities, words):
         res = []
         for i in range(len(entities)):
@@ -245,7 +216,7 @@ class RecommendationList(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
-        serializer = self.get_serializer_class()
+
         global session
         global model
         global graph
@@ -267,33 +238,7 @@ class RecommendationList(generics.ListCreateAPIView):
                 if chunk['document'] == recommend['document'] and chunk['start_offset'] == recommend['start_offset'] and chunk['end_offset'] == recommend['end_offset']:
                     chunk['label'] = recommend['label']
 
-        serializer = serializer(data=chunklist, many=True)
-        if serializer.is_valid():
-            serializer.save()
         return Response({"recommendation":chunklist})
-
-
-class RecommendationDetail(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated, IsOwnAnnotation)
-
-    def get_serializer_class(self):
-        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        self.serializer_class = project.get_recommendation_serializer()
-
-        return self.serializer_class
-
-    def get_queryset(self):
-        document = get_object_or_404(Document, pk=self.kwargs['doc_id'])
-        self.queryset = document.get_recommendations()
-
-        return self.queryset
-
-    def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
-        obj = get_object_or_404(queryset, pk=self.kwargs['annotation_id'])
-        self.check_object_permissions(self.request, obj)
-
-        return obj
 
 
 class LearningInitiate(APIView):
@@ -309,17 +254,17 @@ class LearningInitiate(APIView):
             predefined_label.append('I-' + str(i))
         predefined_label.append('O')
         docs = [doc for doc in p.documents.all()]
-        annotations = [[doc.make_dataset_for_sequence_labeling()] for doc in docs]
         train_docs = [str.split(doc.text) for doc in docs]
-
-        if model.model is None:
+        global projectid
+        isFirst = False
+        if projectid != self.kwargs['project_id']:
+            projectid = self.kwargs['project_id']
             with session.as_default():
                 with graph.as_default():
                     model.online_word_build(train_docs, predefined_label)
+                    isFirst = True
 
-        response = {'predefined_label': predefined_label,
-                    'docs': train_docs,
-                    'annotations': annotations}
+        response = {'isFirst': isFirst}
 
         return Response(response)
 
