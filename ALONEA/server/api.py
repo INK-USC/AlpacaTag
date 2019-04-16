@@ -188,7 +188,7 @@ class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
         return obj
 
 
-class RecommendationList(generics.ListCreateAPIView):
+class RecommendationList(APIView):
     pagination_class = None
     permission_classes = (IsAuthenticated, )
 
@@ -233,12 +233,20 @@ class RecommendationList(generics.ListCreateAPIView):
                 words = response['words']
                 modellist = self.index_word2char(entities, words)
 
+        finallist = []
+        is_dict = False
         for chunk in chunklist:
+            is_model = False
             for recommend in modellist:
-                if chunk['document'] == recommend['document'] and chunk['start_offset'] == recommend['start_offset'] and chunk['end_offset'] == recommend['end_offset']:
-                    chunk['label'] = recommend['label']
+                if chunk['start_offset'] <= recommend['start_offset'] and chunk['end_offset'] >= recommend['end_offset']:
+                    print(chunk)
+                    print(recommend)
+                    finallist.append(recommend)
+                    is_model = True
+            if not is_model:
+                finallist.append(chunk)
 
-        return Response({"recommendation":chunklist})
+        return Response({"recommendation": finallist})
 
 
 class LearningInitiate(APIView):
