@@ -1,5 +1,5 @@
 # ALPACA
-An Active Learning-based Crowd Annotation\\ Framework for Sequence Tagging 
+An Active Learning-based Crowd Annotation Framework for Sequence Tagging 
 
 MIT License
 
