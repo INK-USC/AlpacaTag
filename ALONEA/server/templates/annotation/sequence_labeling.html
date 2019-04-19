@@ -1,10 +1,10 @@
 {% extends "annotation/annotation_base.html" %}
 {% load static %}
 {% block annotation-area %}
-<div class="card vld-parent">
+<div class="card vld-parent" xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <loading :active.sync="isLoading" :can-cancel="true">
     <template v-slot:before>
-        <p>{{ loadingMsg }}</p>
+        <p>[[ loadingMsg ]]</p>
     </template>
   </loading>
   <header class="card-header">

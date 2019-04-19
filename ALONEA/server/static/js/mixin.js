@@ -8,7 +8,6 @@ const getOffsetFromUrl = function(url) {
   if (offsetMatch == null) {
     return 0;
   }
-
   return parseInt(offsetMatch[1], 10);
 };
 
@@ -128,6 +127,7 @@ const annotationMixin = {
 
     async process_data(response) {
       this.isLoading = true;
+      this.loadingMsg="recommending";
       this.docs = response.data.results;
       this.next = response.data.next;
       this.prev = response.data.previous;
@@ -180,6 +180,7 @@ const annotationMixin = {
 
     async initiatelearning(){
       return await HTTP.get(`learninginitiate`).then((response) => {
+        this.loadingMsg="initiate learning";
         console.log(response.data.isFirst);
       });
     },
@@ -247,6 +248,7 @@ const annotationMixin = {
   created() {
     HTTP.get('labels').then((response) => {
       this.labels = response.data;
+
     });
     HTTP.get().then((response) => {
       this.guideline = response.data.guideline;
