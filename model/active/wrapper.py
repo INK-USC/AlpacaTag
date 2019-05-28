@@ -3,14 +3,13 @@ Wrapper class.
 """
 from seqeval.metrics import f1_score
 
-from active.models import BiLSTMCRF, save_model, load_model
-from active.preprocessing import IndexTransformer
-from active.tagger import Tagger
-from active.trainer import Trainer
-from active.utils import filter_embeddings, load_glove
-from active.nounchunk import NounChunk
-from active.acquisition import Acquisition
-from active.layers import CRF
+from model.active import BiLSTMCRF, save_model, load_model
+from model.active.preprocessing import IndexTransformer
+from model.active.tagger import Tagger
+from model.active.trainer import Trainer
+from model.active.utils import filter_embeddings, load_glove
+from model.active import NounChunk
+from model.active.acquisition import Acquisition
 import spacy
 
 class Sequence(object):

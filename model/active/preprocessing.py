@@ -10,7 +10,7 @@ from sklearn.externals import joblib
 from keras.utils.np_utils import to_categorical
 from keras.preprocessing.sequence import pad_sequences
 
-from active.utils import Vocabulary
+from model.active.utils import Vocabulary
 
 options_file = 'https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json'
 weight_file = 'https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5'

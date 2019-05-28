@@ -1,7 +1,7 @@
 """Training-related module.
 """
-from active.callbacks import F1score
-from active.utils import NERSequence
+from model.active.callbacks import F1score
+from model.active.utils import NERSequence
 
 
 class Trainer(object):

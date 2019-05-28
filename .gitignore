@@ -1,8 +1,8 @@
 .idea/
 .DS_Store
 *pycache*
-ALONEA/server/static/bundle/*
-Active-NLP/wordvectors/*
-Active-NLP/datasets/conll/mapping_iobes.pkl
+annotation/ALONEA/server/static/bundle/*
+model/Active-NLP/wordvectors/*
+model/Active-NLP/datasets/conll/mapping_iobes.pkl
 glove*
 

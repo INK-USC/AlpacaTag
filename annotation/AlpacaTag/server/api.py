@@ -17,13 +17,13 @@ from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer
 import sys
 sys.path.append("..")
 
-import tensorflow as tf
-import active
-
-projectid = 0
-session = tf.Session()
-graph = tf.get_default_graph()
-model = active.Sequence()
+# import tensorflow as tf
+# from model import active
+#
+# projectid = 0
+# session = tf.Session()
+# graph = tf.get_default_graph()
+# model = active.Sequence()
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -217,36 +217,37 @@ class RecommendationList(APIView):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
 
-        global session
-        global model
-        global graph
-
-        nounchunks = model.noun_chunks(document.text)
-        nounchunks_entities = nounchunks['entities']
-        nounchunks_words = nounchunks['words']
-        chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
-
-        with session.as_default():
-            with graph.as_default():
-                response = model.analyze(document.text)
-                entities = response['entities']
-                words = response['words']
-                modellist = self.index_word2char(entities, words)
-
-        finallist = []
-        is_dict = False
-        for chunk in chunklist:
-            is_model = False
-            for recommend in modellist:
-                if chunk['start_offset'] <= recommend['start_offset'] and chunk['end_offset'] >= recommend['end_offset']:
-                    print(chunk)
-                    print(recommend)
-                    finallist.append(recommend)
-                    is_model = True
-            if not is_model:
-                finallist.append(chunk)
-
-        return Response({"recommendation": finallist})
+        # global session
+        # global model
+        # global graph
+        #
+        # nounchunks = model.noun_chunks(document.text)
+        # nounchunks_entities = nounchunks['entities']
+        # nounchunks_words = nounchunks['words']
+        # chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
+        #
+        # with session.as_default():
+        #     with graph.as_default():
+        #         response = model.analyze(document.text)
+        #         entities = response['entities']
+        #         words = response['words']
+        #         modellist = self.index_word2char(entities, words)
+        #
+        # finallist = []
+        # is_dict = False
+        # for chunk in chunklist:
+        #     is_model = False
+        #     for recommend in modellist:
+        #         if chunk['start_offset'] <= recommend['start_offset'] and chunk['end_offset'] >= recommend['end_offset']:
+        #             print(chunk)
+        #             print(recommend)
+        #             finallist.append(recommend)
+        #             is_model = True
+        #     if not is_model:
+        #         finallist.append(chunk)
+        #
+        # return Response({"recommendation": finallist})
+        return None
 
 
 class LearningInitiate(APIView):
@@ -256,25 +257,26 @@ class LearningInitiate(APIView):
     def get(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
         labels = [label.text for label in p.labels.all()]
-        predefined_label = []
-        for i in labels:
-            predefined_label.append('B-' + str(i))
-            predefined_label.append('I-' + str(i))
-        predefined_label.append('O')
-        docs = [doc for doc in p.documents.all()]
-        train_docs = [str.split(doc.text) for doc in docs]
-        global projectid
-        isFirst = False
-        if projectid != self.kwargs['project_id']:
-            projectid = self.kwargs['project_id']
-            with session.as_default():
-                with graph.as_default():
-                    model.online_word_build(train_docs, predefined_label)
-                    isFirst = True
-
-        response = {'isFirst': isFirst}
-
-        return Response(response)
+        # predefined_label = []
+        # for i in labels:
+        #     predefined_label.append('B-' + str(i))
+        #     predefined_label.append('I-' + str(i))
+        # predefined_label.append('O')
+        # docs = [doc for doc in p.documents.all()]
+        # train_docs = [str.split(doc.text) for doc in docs]
+        # global projectid
+        # isFirst = False
+        # if projectid != self.kwargs['project_id']:
+        #     projectid = self.kwargs['project_id']
+        #     with session.as_default():
+        #         with graph.as_default():
+        #             model.online_word_build(train_docs, predefined_label)
+        #             isFirst = True
+        #
+        # response = {'isFirst': isFirst}
+        #
+        # return Response(response)
+        return None
 
 
 class OnlineLearning(APIView):
@@ -284,17 +286,18 @@ class OnlineLearning(APIView):
     def post(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
 
-        docs_num = request.data.get('indices')
-        docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
-        annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
-        train_docs = [str.split(doc.text) for doc in docs]
-
-        if model.model is not None:
-            with session.as_default():
-                with graph.as_default():
-                    model.online_learning(train_docs, annotations)
-
-        response = {'docs': train_docs,
-                    'annotations': annotations}
-
-        return Response(response)
+        # docs_num = request.data.get('indices')
+        # docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
+        # annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
+        # train_docs = [str.split(doc.text) for doc in docs]
+        #
+        # if model.model is not None:
+        #     with session.as_default():
+        #         with graph.as_default():
+        #             model.online_learning(train_docs, annotations)
+        #
+        # response = {'docs': train_docs,
+        #             'annotations': annotations}
+        #
+        # return Response(response)
+        return None

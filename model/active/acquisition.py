@@ -1,7 +1,5 @@
-import numpy as np
-import math
 import time
-from active.utils import *
+from model.active.utils import *
 
 class Acquisition(object):
     #currently train_data = [['EU','rejects','it',,,,],]
