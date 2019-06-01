@@ -14,7 +14,7 @@ STOP_TAG = '<STOP>'
 
 def get_name(parameters):
     """
-    Generate a model name from its parameters.
+    Generate a alpaca_model name from its parameters.
     """
     l = []
     for k, v in parameters.items():

@@ -1,11 +1,11 @@
 """Training-related module.
 """
-from model.active.callbacks import F1score
-from model.active.utils import NERSequence
+from alpaca_server.alpaca_model.active.callbacks import F1score
+from alpaca_server.alpaca_model import NERSequence
 
 
 class Trainer(object):
-    """A trainer that train the model.
+    """A trainer that train the alpaca_model.
 
     Attributes:
         _model: Model.
@@ -18,7 +18,7 @@ class Trainer(object):
 
     def train(self, x_train, y_train, x_valid=None, y_valid=None,
               epochs=1, batch_size=32, verbose=1, callbacks=None, shuffle=True):
-        """Trains the model for a fixed number of epochs (iterations on a dataset).
+        """Trains the alpaca_model for a fixed number of epochs (iterations on a dataset).
 
         Args:
             x_train: list of training data.
@@ -28,7 +28,7 @@ class Trainer(object):
             batch_size: Integer.
                 Number of samples per gradient update.
                 If unspecified, `batch_size` will default to 32.
-            epochs: Integer. Number of epochs to train the model.
+            epochs: Integer. Number of epochs to train the alpaca_model.
             verbose: Integer. 0, 1, or 2. Verbosity mode.
                 0 = silent, 1 = progress bar, 2 = one line per epoch.
             callbacks: List of `keras.callbacks.Callback` instances.

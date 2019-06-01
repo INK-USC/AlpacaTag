@@ -3,13 +3,13 @@ Wrapper class.
 """
 from seqeval.metrics import f1_score
 
-from model.active import BiLSTMCRF, save_model, load_model
-from model.active.preprocessing import IndexTransformer
-from model.active.tagger import Tagger
-from model.active.trainer import Trainer
-from model.active.utils import filter_embeddings, load_glove
-from model.active import NounChunk
-from model.active.acquisition import Acquisition
+from alpaca_server.alpaca_model import BiLSTMCRF, save_model, load_model
+from alpaca_server.alpaca_model import IndexTransformer
+from alpaca_server.alpaca_model.active.tagger import Tagger
+from alpaca_server.alpaca_model import Trainer
+from alpaca_server.alpaca_model import filter_embeddings, load_glove
+from alpaca_server.alpaca_model import NounChunk
+from alpaca_server.alpaca_model import Acquisition
 import spacy
 
 class Sequence(object):
@@ -50,7 +50,7 @@ class Sequence(object):
 
     def fit(self, x_train, y_train, x_valid=None, y_valid=None,
             epochs=1, batch_size=32, verbose=1, callbacks=None, shuffle=True):
-        """Fit the model for a fixed number of epochs.
+        """Fit the alpaca_model for a fixed number of epochs.
 
         Args:
             x_train: list of training data.
@@ -60,7 +60,7 @@ class Sequence(object):
             batch_size: Integer.
                 Number of samples per gradient update.
                 If unspecified, `batch_size` will default to 32.
-            epochs: Integer. Number of epochs to train the model.
+            epochs: Integer. Number of epochs to train the alpaca_model.
             verbose: Integer. 0, 1, or 2. Verbosity mode.
                 0 = silent, 1 = progress bar, 2 = one line per epoch.
             callbacks: List of `keras.callbacks.Callback` instances.
@@ -97,7 +97,7 @@ class Sequence(object):
         self.model = model
 
     def predict(self, x_test):
-        """Returns the prediction of the model on the given test data.
+        """Returns the prediction of the alpaca_model on the given test data.
 
         Args:
             x_test : array-like, shape = (n_samples, sent_length)
@@ -114,7 +114,7 @@ class Sequence(object):
             y_pred = self.p.inverse_transform(y_pred, lengths)
             return y_pred 
         else:
-            raise OSError('Could not find a model. Call load(dir_path).')
+            raise OSError('Could not find a alpaca_model. Call load(dir_path).')
 
     def score(self, x_test, y_test):
         """Returns the f1-micro score on the given test data and labels.
@@ -137,7 +137,7 @@ class Sequence(object):
             score = f1_score(y_test, y_pred)
             return score
         else:
-            raise OSError('Could not find a model. Call load(dir_path).')
+            raise OSError('Could not find a alpaca_model. Call load(dir_path).')
 
     def analyze(self, text, tokenizer=str.split):
         """Analyze text and return pretty format.

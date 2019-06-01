@@ -30,11 +30,11 @@ parser.add_argument('--worddim', default=100, type=int, dest='worddim',
 parser.add_argument('--pretrnd', default="wordvectors/glove.6B.100d.txt", type=str, dest='pretrnd',
                     help="Location of pretrained embeddings")
 parser.add_argument('--reload', default=0, type=int, dest='reload',
-                    help="Reload the last saved model")
+                    help="Reload the last saved alpaca_model")
 parser.add_argument('--checkpoint', default=".", type=str, dest='checkpoint',
                     help="Location of trained Model")
 parser.add_argument('--num_epochs', default=20, type=int, dest='num_epochs',
-                    help="Reload the last saved model")
+                    help="Reload the last saved alpaca_model")
 parser.add_argument('--initdata', default=2, type=int, dest='initdata',
                     help="Percentage of Data to being with")
 parser.add_argument('--acquiremethod', default='random', type=str, dest='acquiremethod',
@@ -45,7 +45,7 @@ parameters = OrderedDict()
 
 opt = parser.parse_args()
 
-parameters['model'] = opt.usemodel
+parameters['alpaca_model'] = opt.usemodel
 parameters['wrdim'] = opt.worddim
 parameters['ptrnd'] = opt.pretrnd
 

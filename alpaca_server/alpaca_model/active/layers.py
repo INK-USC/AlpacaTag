@@ -34,23 +34,23 @@ class CRF(Layer):
     In addition, this implementation supports masking and accepts either onehot or sparse target.
     # Examples
     ```python
-        model = Sequential()
-        model.add(Embedding(3001, 300, mask_zero=True)(X)
+        alpaca_model = Sequential()
+        alpaca_model.add(Embedding(3001, 300, mask_zero=True)(X)
         # use learn_mode = 'join', test_mode = 'viterbi', sparse_target = True (label indice output)
         crf = CRF(10, sparse_target=True)
-        model.add(crf)
+        alpaca_model.add(crf)
         # crf.accuracy is default to Viterbi acc if using join-mode (default).
         # One can add crf.marginal_acc if interested, but may slow down learning
-        model.compile('adam', loss=crf.loss_function, metrics=[crf.accuracy])
+        alpaca_model.compile('adam', loss=crf.loss_function, metrics=[crf.accuracy])
         # y must be label indices (with shape 1 at dim 3) here, since `sparse_target=True`
-        model.fit(x, y)
+        alpaca_model.fit(x, y)
         # prediction give onehot representation of Viterbi best path
-        y_hat = model.predict(x_test)
+        y_hat = alpaca_model.predict(x_test)
     ```
     # Arguments
         units: Positive integer, dimensionality of the output space.
         learn_mode: Either 'join' or 'marginal'.
-            The former train the model by maximizing join likelihood while the latter
+            The former train the alpaca_model by maximizing join likelihood while the latter
             maximize the product of marginal likelihood over all time steps.
         test_mode: Either 'viterbi' or 'marginal'.
             The former is recommended and as default when `learn_mode = 'join'` and
@@ -60,7 +60,7 @@ class CRF(Layer):
         sparse_target: Boolean (default False) indicating if provided labels are one-hot or
             indices (with shape 1 at dim 3).
         use_boundary: Boolean (default True) indicating if trainable start-end chain energies
-            should be added to model.
+            should be added to alpaca_model.
         use_bias: Boolean, whether the layer uses a bias vector.
         kernel_initializer: Initializer for the `kernel` weights matrix,
             used for the linear transformation of the inputs.
@@ -101,7 +101,7 @@ class CRF(Layer):
             (see [constraints](../constraints.md)).
         input_dim: dimensionality of the input (integer).
             This argument (or alternatively, the keyword argument `input_shape`)
-            is required when using this layer as the first layer in a model.
+            is required when using this layer as the first layer in a alpaca_model.
         unroll: Boolean (default False). If True, the network will be unrolled, else a symbolic loop will be used.
             Unrolling can speed-up a RNN, although it tends to be more memory-intensive.
             Unrolling is only suitable for short sequences.

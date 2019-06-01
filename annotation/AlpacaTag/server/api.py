@@ -18,12 +18,12 @@ import sys
 sys.path.append("..")
 
 # import tensorflow as tf
-# from model import active
+# from alpaca_model import active
 #
 # projectid = 0
 # session = tf.Session()
 # graph = tf.get_default_graph()
-# model = active.Sequence()
+# alpaca_model = active.Sequence()
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -218,17 +218,17 @@ class RecommendationList(APIView):
         document = project.documents.get(id=self.kwargs['doc_id'])
 
         # global session
-        # global model
+        # global alpaca_model
         # global graph
         #
-        # nounchunks = model.noun_chunks(document.text)
+        # nounchunks = alpaca_model.noun_chunks(document.text)
         # nounchunks_entities = nounchunks['entities']
         # nounchunks_words = nounchunks['words']
         # chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
         #
         # with session.as_default():
         #     with graph.as_default():
-        #         response = model.analyze(document.text)
+        #         response = alpaca_model.analyze(document.text)
         #         entities = response['entities']
         #         words = response['words']
         #         modellist = self.index_word2char(entities, words)
@@ -270,7 +270,7 @@ class LearningInitiate(APIView):
         #     projectid = self.kwargs['project_id']
         #     with session.as_default():
         #         with graph.as_default():
-        #             model.online_word_build(train_docs, predefined_label)
+        #             alpaca_model.online_word_build(train_docs, predefined_label)
         #             isFirst = True
         #
         # response = {'isFirst': isFirst}
@@ -291,10 +291,10 @@ class OnlineLearning(APIView):
         # annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
         # train_docs = [str.split(doc.text) for doc in docs]
         #
-        # if model.model is not None:
+        # if alpaca_model.alpaca_model is not None:
         #     with session.as_default():
         #         with graph.as_default():
-        #             model.online_learning(train_docs, annotations)
+        #             alpaca_model.online_learning(train_docs, annotations)
         #
         # response = {'docs': train_docs,
         #             'annotations': annotations}

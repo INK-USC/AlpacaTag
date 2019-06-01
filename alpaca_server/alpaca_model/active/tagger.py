@@ -8,7 +8,7 @@ import spacy
 nlp = spacy.load('en_core_web_sm')
 
 class Tagger(object):
-    """A model API that tags input sentence.
+    """A alpaca_model API that tags input sentence.
 
     Attributes:
         model: Model.
@@ -32,7 +32,7 @@ class Tagger(object):
 
         Returns:
             y : array-like, shape = [num_words, num_classes]
-            Returns the probability of the word for each class in the model,
+            Returns the probability of the word for each class in the alpaca_model,
         """
         assert isinstance(text, str)
         doc = nlp(text)
@@ -89,7 +89,7 @@ class Tagger(object):
 
         Examples:
             >>> text = 'President Obama is speaking at the White House.'
-            >>> model.analyze(text)
+            >>> alpaca_model.analyze(text)
             {
                 "words": [
                     "President",
@@ -127,7 +127,7 @@ class Tagger(object):
         return res
 
     def predict(self, text):
-        """Predict using the model.
+        """Predict using the alpaca_model.
 
         Args:
             text: string, the input text.

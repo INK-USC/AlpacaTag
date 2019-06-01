@@ -7,7 +7,7 @@ from keras.layers import Dense, LSTM, Bidirectional, Embedding, Input, Dropout, 
 from keras.layers.merge import Concatenate
 from keras.models import Model, model_from_json
 
-from model.active import CRF
+from alpaca_server.alpaca_model import CRF
 
 
 def save_model(model, weights_file, params_file):
@@ -48,7 +48,7 @@ class BiLSTMCRF(object):
                  embeddings=None,
                  use_char=True,
                  use_crf=True):
-        """Build a Bi-LSTM CRF model.
+        """Build a Bi-LSTM CRF alpaca_model.
 
         Args:
             word_vocab_size (int): word vocabulary size.

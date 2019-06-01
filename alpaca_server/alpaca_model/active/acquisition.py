@@ -1,5 +1,5 @@
 import time
-from model.active.utils import *
+
 
 class Acquisition(object):
     #currently train_data = [['EU','rejects','it',,,,],]
