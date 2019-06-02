@@ -27,7 +27,7 @@ class AlpacaClient(object):
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
                  check_token_info=True, ignore_all_checks=False,
-                 timeout=-1):
+                 timeout=1000):
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -224,49 +224,34 @@ class AlpacaClient(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-class BCManager():
-    def __init__(self, available_bc):
-        self.available_bc = available_bc
-        self.bc = None
+class ACManager():
+    def __init__(self, available_ac):
+        self.available_ac = available_ac
+        self.ac = None
 
     def __enter__(self):
-        self.bc = self.available_bc.pop()
-        return self.bc
+        self.ac = self.available_ac.pop()
+        return self.ac
 
     def __exit__(self, *args):
-        self.available_bc.append(self.bc)
+        self.available_ac.append(self.ac)
 
 
 class ConcurrentAlpacaClient(AlpacaClient):
     def __init__(self, max_concurrency=10, **kwargs):
-        """ A thread-safe client object connected to a BertServer
-        Create a BertClient that connects to a BertServer.
-        Note, server must be ready at the moment you are calling this function.
-        If you are not sure whether the server is ready, then please set `check_version=False` and `check_length=False`
-        :type max_concurrency: int
-        :param max_concurrency: the maximum number of concurrent connections allowed
-        """
-        try:
-            from bert_serving.client import BertClient
-        except ImportError:
-            raise ImportError('BertClient module is not available, it is required for serving HTTP requests.'
-                              'Please use "pip install -U bert-serving-client" to install it.'
-                              'If you do not want to use it as an HTTP server, '
-                              'then remove "-http_port" from the command line.')
-
-        self.available_bc = [BertClient(**kwargs) for _ in range(max_concurrency)]
+        self.available_ac = [AlpacaClient(**kwargs) for _ in range(max_concurrency)]
         self.max_concurrency = max_concurrency
 
     def close(self):
-        for bc in self.available_bc:
-            bc.close()
+        for ac in self.available_ac:
+            ac.close()
 
     def _concurrent(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             try:
-                with BCManager(self.available_bc) as bc:
-                    f = getattr(bc, func.__name__)
+                with ACManager(self.available_ac) as ac:
+                    f = getattr(ac, func.__name__)
                     r = f if isinstance(f, dict) else f(*args, **kwargs)
                 return r
             except IndexError:

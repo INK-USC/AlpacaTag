@@ -1,9 +1,10 @@
 from multiprocessing import Process, Event
 
 from termcolor import colored
-
 from .helper import set_logger
 
+import sys
+sys.path.append("..")
 
 class HTTPProxy(Process):
     def __init__(self, args):
@@ -17,12 +18,12 @@ class HTTPProxy(Process):
             from flask_compress import Compress
             from flask_cors import CORS
             from flask_json import FlaskJSON, as_json, JsonError
-            from bert_serving.client import ConcurrentBertClient
+            from alpaca_client.alpaca_serving import ConcurrentAlpacaClient
         except ImportError:
             raise ImportError('client is not installed')
 
         # support up to 10 concurrent HTTP requests
-        bc = ConcurrentBertClient(max_concurrency=self.args.http_max_connect,
+        ac = ConcurrentAlpacaClient(max_concurrency=self.args.http_max_connect,
                                   port=self.args.port, port_out=self.args.port_out,
                                   output_fmt='list', ignore_all_checks=True)
         app = Flask(__name__)
@@ -31,12 +32,12 @@ class HTTPProxy(Process):
         @app.route('/status/server', methods=['GET'])
         @as_json
         def get_server_status():
-            return bc.server_status
+            return ac.server_status
 
         @app.route('/status/client', methods=['GET'])
         @as_json
         def get_client_status():
-            return bc.status
+            return ac.status
 
         @app.route('/encode', methods=['POST'])
         @as_json
@@ -45,7 +46,7 @@ class HTTPProxy(Process):
             try:
                 logger.info('new request from %s' % request.remote_addr)
                 return {'id': data['id'],
-                        'result': bc.encode(data['texts'], is_tokenized=bool(
+                        'result': ac.encode(data['texts'], is_tokenized=bool(
                             data['is_tokenized']) if 'is_tokenized' in data else False)}
 
             except Exception as e:

@@ -208,7 +208,7 @@ def get_shutdown_parser():
                         help='the ip address that a BertServer is running on')
     parser.add_argument('-port', '-port_in', '-port_data', type=int, required=True,
                         help='the port that a BertServer is running on')
-    parser.add_argument('-timeout', type=int, default=5000,
+    parser.add_argument('-timeout', type=int, default=1000,
                         help='timeout (ms) for connecting to a server')
     return parser
 

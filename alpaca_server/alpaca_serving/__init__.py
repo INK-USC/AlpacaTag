@@ -6,7 +6,6 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
-from itertools import chain
 
 import zmq
 import zmq.decorators as zmqd
@@ -25,7 +24,6 @@ class ServerCmd:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
-
     initiate = b'INITIATE'
     learning = b'ONLINE_LEARNING'
     active = b'ACTIVE_LEARNING'
@@ -46,10 +44,8 @@ class AlpacaServer(threading.Thread):
 
         # ZeroMQ server configuration
         self.num_worker = args.num_worker  # number of Workers
-        self.num_concurrent_socket = max(8, args.num_worker * 2)  # optimize concurrency for multi-clients
+        self.num_concurrent_socket = max(16, args.num_worker * 2)  # optimize concurrency for multi-clients
         self.port = args.port
-
-        self.max_seq_len = args.max_seq_len # max sequence length for prediction
 
         # project configuration
         self.model_dir = args.model_dir  # alpaca_model per project
@@ -112,7 +108,6 @@ class AlpacaServer(threading.Thread):
     @zmqd.socket(zmq.PAIR)
     @multi_socket(zmq.PUSH, num_socket='num_concurrent_socket')
     def _run(self, _, frontend, sink, *backend_socks):
-
         # bind all sockets
         self.logger.info('bind all sockets')
         frontend.bind('tcp://*:%d' % self.port)
@@ -153,7 +148,6 @@ class AlpacaServer(threading.Thread):
         # receive message from client
         # make commands (1.recommend, 2.online learning(training) 3.active learning ...)
         # project based file management
-
         while True:
             try:
                 request = frontend.recv_multipart()
@@ -194,12 +188,16 @@ class AlpacaServer(threading.Thread):
 
                     # renew the backend socket to prevent large job queueing up
                     # [0] is reserved for high priority job
-                    # last used backennd shouldn't be selected either as it may be queued up already
+                    # last used backend shouldn't be selected either as it may be queued up already
                     rand_backend_socket = random.choice([b for b in backend_socks[1:] if b != rand_backend_socket])
-
+                    print(rand_backend_socket.closed)
                     # push a new job
                     job_id = client + b'#' + req_id
-                    rand_backend_socket.send_multipart([job_id, msg])
+
+                    try:
+                        rand_backend_socket.send_multipart([job_id, msg],zmq.NOBLOCK)  # fixed!
+                    except zmq.error.Again:
+                        self.logger.info('zmq.error.Again: resource not available temporally, please send again!')
 
         for p in self.processes:
             p.close()
@@ -304,7 +302,6 @@ class AlpacaSink(Process):
                 logger.info('collect %s %s' % (msg[1], job_id))
 
                 # check if there are finished jobs, then send it back to workers
-
                 finished = [(k, v) for k, v in pending_jobs.items() if v.is_done]
                 for job_info, tmp in finished:
                     client_addr, req_id = job_info.split(b'#')
@@ -317,8 +314,9 @@ class AlpacaSink(Process):
 
             if socks.get(frontend) == zmq.POLLIN:
                 client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
-                #print(client_addr,msg_type,msg_info,req_id)
-                logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                if msg_type == ServerCmd.new_job:
+                    job_info = client_addr + b'#' + req_id
+                    logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                 if msg_type == ServerCmd.show_config:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send config\tclient %s' % client_addr)
@@ -370,6 +368,7 @@ class AlpacaWorker(Process):
         self.sink_address = sink_address
         self.prefetch_size = args.prefetch_size if self.device_id > 0 else None  # set to zero for CPU-worker
         self.gpu_memory_fraction = args.gpu_memory_fraction
+        self.gpu_memory_fraction = args.gpu_memory_fraction
         self.use_fp16 = args.fp16
         self.show_tokens_to_client = args.show_tokens_to_client
         self.is_ready = multiprocessing.Event()
@@ -395,20 +394,35 @@ class AlpacaWorker(Process):
         logger.info('use device %s' %
                     ('cpu' if self.device_id < 0 else 'gpu: %d' % self.device_id))
 
+        poller = zmq.Poller()
         for sock, addr in zip(receivers, self.worker_address):
             sock.connect(addr)
+            poller.register(sock, zmq.POLLIN)
 
         outputs.connect(self.sink_address)
         inputs.connect(self.sink_address)
 
+        logger.info('ready and listening!')
+        self.is_ready.set()
+
+        while not self.exit_flag.is_set():
+            events = dict(poller.poll())
+            for sock_idx, sock in enumerate(receivers):
+                if sock in events:
+                    client_id, raw_msg = sock.recv_multipart()
+                    msg = jsonapi.loads(raw_msg)
+                    logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
+                    # check if msg is a list of list, if yes consider the input is already tokenized
+                    helper.send_test(outputs, client_id, b'hihi', ServerCmd.show_config)
+                    logger.info('job done\tsize: %s\tclient: %s' % (b'hihi', client_id))
+
         # distinguish the commands!!
         # for example, servercmd.activelearning ...
-        for r in self.input_fn_builder(receivers, inputs):
-            helper.send_test(outputs, r['client_id'], b'hihi', ServerCmd.show_config)
-            logger.info('job done\tsize: %s\tclient: %s' % (b'hihi', r['client_id']))
+        # for r in self.input_fn_builder(receivers):
+        #     helper.send_test(outputs, r['client_id'], b'hihi', ServerCmd.show_config)
+        #     logger.info('job done\tsize: %s\tclient: %s' % (b'hihi', r['client_id']))
 
-    def input_fn_builder(self, socks, sink):
-
+    def input_fn_builder(self, socks):
         logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         poller = zmq.Poller()
         for sock in socks:
