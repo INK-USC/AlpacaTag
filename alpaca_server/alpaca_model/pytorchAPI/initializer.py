@@ -1,6 +1,6 @@
 import torch.nn as nn
-from torch.nn import init
 import numpy as np
+
 
 class Initializer(object):
     

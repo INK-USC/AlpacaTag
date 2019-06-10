@@ -210,3 +210,4 @@ def pad_nested_sequences(sequences, dtype='int32'):
             x[i, j, :len(word)] = word
 
     return x
+

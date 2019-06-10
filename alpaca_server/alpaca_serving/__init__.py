@@ -146,14 +146,14 @@ class AlpacaServer(threading.Thread):
         self.logger.info('all set, ready to serve request!')
 
         # receive message from client
-        # make commands (1.recommend, 2.online learning(training) 3.active learning ...)
+        # make commands (1.recommend, 2.online learning(training) 3.kerasAPI learning ...)
         # project based file management
         while True:
             try:
                 request = frontend.recv_multipart()
                 # client message format
                 # self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
-                # command by request_id (1: online learning, 2: active learning ...)
+                # command by request_id (1: online learning, 2: kerasAPI learning ...)
                 client, msg, req_id, msg_len = request
                 assert req_id.isdigit()
                 assert msg_len.isdigit()
@@ -488,7 +488,7 @@ class ServerStatistic:
                 return {}
 
         def get_num_active_client(interval=180):
-            # we count a client active when its last request is within 3 min.
+            # we count a client kerasAPI when its last request is within 3 min.
             now = time.perf_counter()
             return sum(1 for v in self._client_last_active_time.values() if (now - v) < interval)
 

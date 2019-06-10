@@ -18,12 +18,12 @@ import sys
 sys.path.append("..")
 
 # import tensorflow as tf
-# from alpaca_model import active
+# from alpaca_model import kerasAPI
 #
 # projectid = 0
 # session = tf.Session()
 # graph = tf.get_default_graph()
-# alpaca_model = active.Sequence()
+# alpaca_model = kerasAPI.Sequence()
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()

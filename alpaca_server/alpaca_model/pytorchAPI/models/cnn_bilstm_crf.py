@@ -2,14 +2,12 @@ import torch
 import torch.nn as nn
 import torch.autograd as autograd
 from torch.autograd import Variable
-
-
-import neural_ner
-from neural_ner.util import Initializer
-from neural_ner.util import Loader
-from neural_ner.modules import CharEncoderCNN
-from neural_ner.modules import WordEncoderRNN
-from neural_ner.modules import DecoderCRF
+import sys
+sys.path.append("..")
+from initializer import Initializer
+from modules import CharEncoderCNN
+from modules import WordEncoderRNN
+from modules import DecoderCRF
 
 class CNN_BiLSTM_CRF(nn.Module):
     
@@ -34,7 +32,6 @@ class CNN_BiLSTM_CRF(nn.Module):
         self.tagset_size = len(tag_to_id)
         
         self.initializer = Initializer()
-        self.loader = Loader()
         
         if self.cap_embedding_dim:
             self.cap_embedder = nn.Embedding(self.cap_input_dim, self.cap_embedding_dim)
@@ -52,12 +49,10 @@ class CNN_BiLSTM_CRF(nn.Module):
             self.word_encoder.embedding.weight = nn.Parameter(torch.FloatTensor(pretrained))
             
         self.initializer.init_lstm(self.word_encoder.rnn)
-        
         self.decoder = DecoderCRF(word_hidden_dim*2, self.tag_to_ix, input_dropout_p=0.5)
         self.initializer.init_linear(self.decoder.hidden2tag)
-        
-    def forward(self, words, tags, chars, caps, wordslen, charslen, tagsmask, usecuda=True):
-        
+
+    def forward(self, words, tags, chars, caps, wordslen, charslen, tagsmask, usecuda=False):
         batch_size, max_len = words.size()
         
         cap_features = self.cap_embedder(caps) if self.cap_embedding_dim else None
@@ -66,13 +61,12 @@ class CNN_BiLSTM_CRF(nn.Module):
         char_features = char_features.view(batch_size, max_len, -1)
         
         word_features = self.word_encoder(words, char_features, cap_features, wordslen)
-        
         score = self.decoder(word_features, tags, tagsmask, usecuda=usecuda)
         
         return score
     
-    def decode(self, words, chars, caps, wordslen, charslen, tagsmask, usecuda=True,
-               score_only = False):
+    def decode(self, words, chars, caps, wordslen, charslen, tagsmask, usecuda=False,
+               score_only=False):
         
         batch_size, max_len = words.size()
         
@@ -85,7 +79,7 @@ class CNN_BiLSTM_CRF(nn.Module):
         
         if score_only:
             score = self.decoder.decode(word_features, tagsmask, usecuda=usecuda, 
-                                        score_only = True)
+                                        score_only=True)
             return score
         score, tag_seq = self.decoder.decode(word_features, tagsmask, usecuda=usecuda)
         return score, tag_seq

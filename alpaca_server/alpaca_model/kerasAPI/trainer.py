@@ -1,6 +1,6 @@
 """Training-related module.
 """
-from alpaca_server.alpaca_model.active.callbacks import F1score
+from alpaca_server.alpaca_model.kerasAPI.callbacks import F1score
 from alpaca_server.alpaca_model import NERSequence
 
 

@@ -5,7 +5,7 @@ from seqeval.metrics import f1_score
 
 from alpaca_server.alpaca_model import BiLSTMCRF, save_model, load_model
 from alpaca_server.alpaca_model import IndexTransformer
-from alpaca_server.alpaca_model.active.tagger import Tagger
+from alpaca_server.alpaca_model.kerasAPI.tagger import Tagger
 from alpaca_server.alpaca_model import Trainer
 from alpaca_server.alpaca_model import filter_embeddings, load_glove
 from alpaca_server.alpaca_model import NounChunk

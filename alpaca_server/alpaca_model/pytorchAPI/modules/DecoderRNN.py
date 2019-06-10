@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from neural_ner.util.utils import *
+from pytorchAPI.utils import *
 
 class DecoderRNN(nn.Module):
     def __init__(self, input_size ,hidden_size, tag_size, tag_to_ix, input_dropout_p=0.5, 

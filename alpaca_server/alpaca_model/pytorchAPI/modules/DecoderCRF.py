@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-from neural_ner.util.utils import *
+from pytorchAPI.utils import *
 
 class DecoderCRF(nn.Module):
 
@@ -20,7 +20,7 @@ class DecoderCRF(nn.Module):
         self.transitions.data[tag_to_ix[START_TAG], :] = -10000
         self.transitions.data[:, tag_to_ix[STOP_TAG]] = -10000
     
-    def viterbi_decode(self, feats, mask ,usecuda = True, score_only= False):
+    def viterbi_decode(self, feats, mask, usecuda=False, score_only=False):
     
         batch_size, sequence_len, num_tags = feats.size()
         
@@ -102,7 +102,7 @@ class DecoderCRF(nn.Module):
         
         return probs_score.data.cpu().numpy(), decoded_tags
     
-    def crf_forward(self, feats, mask, usecuda=True):
+    def crf_forward(self, feats, mask, usecuda=False):
         
         batch_size, sequence_length, num_tags = feats.size()
         
@@ -111,6 +111,7 @@ class DecoderCRF(nn.Module):
         
         init_alphas = torch.Tensor(batch_size, num_tags).fill_(-10000.)
         init_alphas[:,self.tag_to_ix[START_TAG]] = 0.
+
         if usecuda:
             forward_var = Variable(init_alphas).cuda()
         else:
@@ -131,7 +132,7 @@ class DecoderCRF(nn.Module):
         return alpha
         
     
-    def score_sentence(self, feats, tags, mask, usecuda=True):
+    def score_sentence(self, feats, tags, mask, usecuda=False):
                 
         batch_size, sequence_length, num_tags = feats.size()
         
@@ -172,7 +173,7 @@ class DecoderCRF(nn.Module):
         
         return score
     
-    def decode(self, input_var, mask, usecuda=True, score_only= False):
+    def decode(self, input_var, mask, usecuda=False, score_only= False):
         
         input_var = self.dropout(input_var)
         features = self.hidden2tag(input_var)
@@ -182,11 +183,11 @@ class DecoderCRF(nn.Module):
         score, tag_seq = self.viterbi_decode(features, mask, usecuda=usecuda)
         return score, tag_seq
     
-    def forward(self, input_var, tags, mask=None, usecuda=True):
+    def forward(self, input_var, tags, mask=None, usecuda=False):
         
         if mask is None:
             mask = Variable(torch.ones(*tags.size()).long())
-        
+
         input_var = self.dropout(input_var)
         features = self.hidden2tag(input_var)
         forward_score = self.crf_forward(features, mask, usecuda=usecuda)
