@@ -7,7 +7,7 @@ import numpy as np
 np.random.seed(0)
 import torch
 import torch.nn as nn
-from utils import *
+from .utils import *
 
 
 class Trainer(object):

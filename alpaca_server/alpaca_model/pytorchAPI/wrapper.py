@@ -1,6 +1,7 @@
 from alpaca_server.alpaca_model.pytorchAPI.utils import *
 from alpaca_server.alpaca_model.pytorchAPI.trainer import *
 from alpaca_server.alpaca_model.pytorchAPI.models import *
+from alpaca_server.alpaca_model.pytorchAPI.active_learning import *
 
 
 class Sequence(object):
@@ -38,6 +39,9 @@ class Sequence(object):
         self.loss = None
         self.labeled = set()
         self.acquisition = None
+
+        # model name like CNN_BiLSTM_CRF
+        self.model_name = None
 
     # def fit(self, x_train, y_train, x_valid=None, y_valid=None,
     #         epochs=1, batch_size=32, verbose=1, callbacks=None, shuffle=True):
@@ -188,7 +192,17 @@ class Sequence(object):
         self.loss = loss
         return self.p
 
-    # def active_learning(self, x_train, y_train):
+    def active_learning(self, x_train, y_train, acquire_method_name):
+
+        if self.acquisition is None:
+            self.acquisition = Acquisition(x_train, init_percent=self.initial_vocab,
+                                           seed=0, acq_mode = self.model) ###################
+
+        self.acquisition.obtain_data(data=x_train, model=self.model, model_name=self.model_name, method=acquire_method_name)
+
+        return [i for i in self.acquisition.train_index]
+
+
     #     model, loss = self.modelclass.marginalCRF()
     #     model.compile(loss=self.loss, optimizer=self.optimizer)
     #     activemodel = model

@@ -5,7 +5,7 @@ import numpy as np
 from collections import Counter
 import time
 from scipy import stats
-from neural_ner.util.utils import *
+from ..utils import *
 import pandas as pd
 
 class Acquisition(object):
@@ -30,9 +30,8 @@ class Acquisition(object):
             i+=1
         self.train_index.update(cur_indices)
                  
-    def get_mnlp(self, dataset, model_path, decoder, num_tokens, batch_size = 50):
-        
-        model = torch.load(model_path)
+    def get_mnlp(self, dataset, model, decoder, num_tokens, batch_size = 50):
+
         model.train(False)
         tm = time.time()
         probs = np.ones(len(dataset))*float('Inf')
@@ -87,9 +86,8 @@ class Acquisition(object):
         
         print ('D Acquisition took %d seconds:' %(time.time()-tm))
         
-    def get_mnlp_mc(self, dataset, model_path, decoder, num_tokens, nsamp=100, batch_size = 50):
-        
-        model = torch.load(model_path)
+    def get_mnlp_mc(self, dataset, model, decoder, num_tokens, nsamp=100, batch_size = 50):
+
         model.train(True)
         tm = time.time()
         
@@ -167,9 +165,8 @@ class Acquisition(object):
         print ('MC Acquisition took %d seconds:' %(time.time()-tm))
         print ('*'*80)
         
-    def get_mnlp_bb(self, dataset, model_path, decoder, num_tokens, nsamp=100, batch_size = 50):
-        
-        model = torch.load(model_path)
+    def get_mnlp_bb(self, dataset, model, decoder, num_tokens, nsamp=100, batch_size = 50):
+
         model.train(True)
         tm = time.time()
         
@@ -247,11 +244,11 @@ class Acquisition(object):
         print ('MC Acquisition took %d seconds:' %(time.time()-tm))
         print ('*'*80)
         
-    def obtain_data(self, data, model_path=None, model_name=None, acquire=2, method='random', num_samples=100):
+    def obtain_data(self, data, model=None, model_name=None, acquire=2, method='random', num_samples=100):
         
         num_tokens = (acquire*self.tokenlen)/100
         
-        if model_path is None or model_name is None:
+        if model is None or model_name is None:
             method = 'random'
         
         if method=='random':
@@ -260,17 +257,17 @@ class Acquisition(object):
             decoder = model_name.split('_')[2]
             if self.acq_mode == 'd':
                 if method=='mnlp':
-                    self.get_mnlp(data, model_path, decoder, num_tokens)
+                    self.get_mnlp(data, model, decoder, num_tokens)
                 else:
                     raise NotImplementedError()
             elif self.acq_mode == 'm':
                 if method=='mnlp':
-                    self.get_mnlp_mc(data, model_path, decoder, num_tokens, nsamp = num_samples)
+                    self.get_mnlp_mc(data, model, decoder, num_tokens, nsamp = num_samples)
                 else:
                     raise NotImplementedError()
             elif self.acq_mode == 'b':
                 if method=='mnlp':
-                    self.get_mnlp_bb(data, model_path, decoder, num_tokens, nsamp = num_samples)
+                    self.get_mnlp_bb(data, model, decoder, num_tokens, nsamp = num_samples)
                 else:
                     raise NotImplementedError()
             else:
