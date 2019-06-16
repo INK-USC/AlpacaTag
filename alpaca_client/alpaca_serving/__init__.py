@@ -45,13 +45,6 @@ class AlpacaClient(object):
         self.pending_request = set()
         self.pending_response = {}
 
-        # if output_fmt == 'ndarray':
-        #     self.formatter = lambda x: x
-        # elif output_fmt == 'list':
-        #     self.formatter = lambda x: x.tolist()
-        # else:
-        #     raise AttributeError('"output_fmt" must be "ndarray" or "list"')
-
         self.output_fmt = output_fmt
         self.port = port
         self.port_out = port_out
@@ -89,9 +82,9 @@ class AlpacaClient(object):
         self.receiver.close()
         self.context.term()
 
-    def _send(self, msg, msg_len=0):
+    def _send(self, msg_type, msg, msg_len=0):
         self.request_id += 1
-        self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
+        self.sender.send_multipart([self.identity, msg_type, msg, b'%d' % self.request_id, b'%d' % msg_len])
         self.pending_request.add(self.request_id)
         return self.request_id
 
@@ -177,8 +170,35 @@ class AlpacaClient(object):
         :return: a dictionary contains the current status of the server connected to this client
         :rtype: dict[str, str]
         """
-        req_id = self._send(b'SHOW_CONFIG')
+        req_id = self._send(b'SHOW_CONFIG', b'SHOW_CONFIG')
         return jsonapi.loads(self._recv(req_id).content[1])
+
+    @_timeout
+    def initiate(self, project_id):
+        # model = Sequence()
+
+        req_id = self._send(b'INITIATE', bytes(str(project_id), encoding='ascii'))
+        return jsonapi.loads(self._recv(req_id).content[1])
+
+    @_timeout
+    def online_initiate(self, sentences, predefined_label):
+        # model.online_word_build(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
+        req_id = self._send(b'ONLINE_INITIATE', jsonapi.dumps([sentences, predefined_label]), len(sentences))
+        r = self._recv_test(req_id)
+        return r
+
+    @_timeout
+    def online_learning(self, sentences, labels):
+        assert len(sentences) == len(labels)
+        req_id = self._send(b'ONLINE_LEARNING', jsonapi.dumps([sentences, labels]), len(sentences))
+        r = self._recv_test(req_id)
+        return r
+
+    @_timeout
+    def predict(self, sentences):
+        req_id = self._send(b'PREDICT', jsonapi.dumps(sentences), len(sentences))
+        r = self._recv_test(req_id)
+        return r
 
     @_timeout
     def encode(self, texts, blocking=True, is_tokenized=False, show_tokens=False):

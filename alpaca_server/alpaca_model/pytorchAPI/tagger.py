@@ -37,6 +37,7 @@ class Tagger(object):
         dataset = prepare_dataset([words], None, self.preprocessor)
         testdata = create_batches(dataset, batch_size=1, str_words=True, tag_padded=False)
 
+
         words = testdata[0]['words']
         chars = testdata[0]['chars']
         caps = testdata[0]['caps']

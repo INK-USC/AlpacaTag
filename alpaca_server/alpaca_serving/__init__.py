@@ -15,6 +15,7 @@ from zmq.utils import jsonapi
 from alpaca_server.alpaca_serving.helper import *
 from alpaca_server.alpaca_serving.httpproxy import HTTPProxy
 from alpaca_server.alpaca_serving.zmq_decor import multi_socket
+from alpaca_server.alpaca_model import *
 
 __all__ = ['__version__']
 __version__ = '1.0.1'
@@ -25,8 +26,9 @@ class ServerCmd:
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
     initiate = b'INITIATE'
-    learning = b'ONLINE_LEARNING'
-    active = b'ACTIVE_LEARNING'
+    online_initiate = b'ONLINE_INITIATE'
+    online_learning = b'ONLINE_LEARNING'
+    active_learning = b'ACTIVE_LEARNING'
     predict = b'PREDICT'
 
     @staticmethod
@@ -151,10 +153,7 @@ class AlpacaServer(threading.Thread):
         while True:
             try:
                 request = frontend.recv_multipart()
-                # client message format
-                # self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
-                # command by request_id (1: online learning, 2: kerasAPI learning ...)
-                client, msg, req_id, msg_len = request
+                client, msg_type, msg, req_id, msg_len = request
                 assert req_id.isdigit()
                 assert msg_len.isdigit()
             except (ValueError, AssertionError):
@@ -162,9 +161,9 @@ class AlpacaServer(threading.Thread):
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)), exc_info=True)
             else:
                 server_status.update(request)
-                if msg == ServerCmd.terminate:
+                if msg_type == ServerCmd.terminate:
                     break
-                elif msg == ServerCmd.show_config:
+                elif msg_type == ServerCmd.show_config:
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
@@ -180,9 +179,8 @@ class AlpacaServer(threading.Thread):
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
                 else:
-                    self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
-                                     (int(req_id), int(msg_len), client))
-
+                    self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' % (int(req_id), int(msg_len), client))
+                    print(msg)
                     # register a new job at sink
                     sink.send_multipart([client, ServerCmd.new_job, msg_len, req_id])
 
@@ -290,6 +288,7 @@ class AlpacaSink(Process):
             socks = dict(poller.poll())
             if socks.get(receiver) == zmq.POLLIN:
                 msg = receiver.recv_multipart()
+                print(msg)
                 # job_id = client + b'#' + req_id
                 job_id = msg[0]
                 # parsing job_id and partial_id
@@ -411,10 +410,15 @@ class AlpacaWorker(Process):
                 if sock in events:
                     client_id, raw_msg = sock.recv_multipart()
                     msg = jsonapi.loads(raw_msg)
-                    logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
+                    if type(msg) is int:
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
+                        helper.send_test(outputs, client_id, bytes(str(msg), encoding='ascii'), ServerCmd.show_config)
+                        logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
+                    else:
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
+                        helper.send_test(outputs, client_id, msg, ServerCmd.show_config)
+                        logger.info('job done\tsize: %s\tclient: %s' % (msg, client_id))
                     # check if msg is a list of list, if yes consider the input is already tokenized
-                    helper.send_test(outputs, client_id, b'hihi', ServerCmd.show_config)
-                    logger.info('job done\tsize: %s\tclient: %s' % (b'hihi', client_id))
 
         # distinguish the commands!!
         # for example, servercmd.activelearning ...
@@ -456,9 +460,9 @@ class ServerStatistic:
         self._num_last_two_req = 200
 
     def update(self, request):
-        client, msg, req_id, msg_len = request
+        client, msg_type, msg, req_id, msg_len = request
         self._hist_client[client] += 1
-        if ServerCmd.is_valid(msg):
+        if ServerCmd.is_valid(msg_type):
             self._num_sys_req += 1
             # do not count for system request, as they are mainly for heartbeats
         else:
