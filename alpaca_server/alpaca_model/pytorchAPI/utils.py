@@ -7,157 +7,6 @@ import torch
 START_TAG = '<START>'
 STOP_TAG = '<STOP>'
 
-
-class Vocabulary(object):
-    """A vocabulary that maps tokens to ints (storing a vocabulary).
-
-    Attributes:
-        _token_count: A collections.Counter object holding the frequencies of tokens
-            in the data used to build the Vocabulary.
-        _token2id: A collections.defaultdict instance mapping token strings to
-            numerical identifiers.
-        _id2token: A list of token strings indexed by their numerical identifiers.
-    """
-
-    def __init__(self, max_size=None, lower=True, unk_token=True, specials=('<pad>',)):
-        """Create a Vocabulary object.
-
-        Args:
-            max_size: The maximum size of the vocabulary, or None for no
-                maximum. Default: None.
-            lower: boolean. Whether to convert the texts to lowercase.
-            unk_token: boolean. Whether to add unknown token.
-            specials: The list of special tokens (e.g., padding or eos) that
-                will be prepended to the vocabulary. Default: ('<pad>',)
-        """
-        self._max_size = max_size
-        self._lower = lower
-        self._unk = unk_token
-        self._token2id = {token: i for i, token in enumerate(specials)}
-        self._id2token = list(specials)
-        self._token_count = Counter()
-
-    def __len__(self):
-        return len(self._token2id)
-
-    def add_token(self, token):
-        """Add token to vocabulary.
-
-        Args:
-            token (str): token to add.
-        """
-        token = self.process_token(token)
-        self._token_count.update([token])
-
-    def add_documents(self, docs):
-        """Update dictionary from a collection of documents. Each document is a list
-        of tokens.
-
-        Args:
-            docs (list): documents to add.
-        """
-        for sent in docs:
-            sent = map(self.process_token, sent)
-            self._token_count.update(sent)
-
-    def doc2id(self, doc):
-        """Get the list of token_id given doc.
-
-        Args:
-            doc (list): document.
-
-        Returns:
-            list: int id of doc.
-        """
-        doc = map(self.process_token, doc)
-        return [self.token_to_id(token) for token in doc]
-
-    def id2doc(self, ids):
-        """Get the token list.
-
-        Args:
-            ids (list): token ids.
-
-        Returns:
-            list: token list.
-        """
-        return [self.id_to_token(idx) for idx in ids]
-
-    def build(self):
-        """
-        Build vocabulary.
-        """
-        token_freq = self._token_count.most_common(self._max_size)
-        idx = len(self.vocab)
-        for token, _ in token_freq:
-            self._token2id[token] = idx
-            self._id2token.append(token)
-            idx += 1
-        if self._unk:
-            unk = '<unk>'
-            self._token2id[unk] = idx
-            self._id2token.append(unk)
-
-    def process_token(self, token):
-        """Process token before following methods:
-        * add_token
-        * add_documents
-        * doc2id
-        * token_to_id
-
-        Args:
-            token (str): token to process.
-
-        Returns:
-            str: processed token string.
-        """
-        if self._lower:
-            token = token.lower()
-
-        return token
-
-    def token_to_id(self, token):
-        """Get the token_id of given token.
-
-        Args:
-            token (str): token from vocabulary.
-
-        Returns:
-            int: int id of token.
-        """
-        token = self.process_token(token)
-        return self._token2id.get(token, len(self._token2id) - 1)
-
-    def id_to_token(self, idx):
-        """token-id to token (string).
-
-        Args:
-            idx (int): token id.
-
-        Returns:
-            str: string of given token id.
-        """
-        return self._id2token[idx]
-
-    @property
-    def vocab(self):
-        """Return the vocabulary.
-
-        Returns:
-            dict: get the dict object of the vocabulary.
-        """
-        return self._token2id
-
-    @property
-    def reverse_vocab(self):
-        """Return the vocabulary as a reversed dict object.
-
-        Returns:
-            dict: reversed vocabulary object.
-        """
-        return self._id2token
-
-
 def load_data_and_labels(filename, encoding='utf-8'):
     sents, labels = [], []
     words, tags = [], []
@@ -260,22 +109,39 @@ def prepare_dataset(sentences, tags, p, lower=True):
 
     def f(x): return x.lower() if lower else x
     data = []
-    for s,ts in zip(sentences,tags):
-        str_words = [w for w in s]
-        words = [word_to_id[f(w) if f(w) in word_to_id else '<unk>']
-                 for w in str_words]
-        # Skip characters that are not in the training set
-        chars = [[char_to_id[c] for c in w if c in char_to_id]
-                 for w in str_words]
-        caps = [cap_feature(w) for w in str_words]
-        tags = [tag_to_id[t] for t in ts]
-        data.append({
-            'str_words': str_words,
-            'words': words,
-            'chars': chars,
-            'caps': caps,
-            'tags': tags,
-        })
+    if tags is None:
+        for s in sentences:
+            str_words = [w for w in s]
+            words = [word_to_id[f(w) if f(w) in word_to_id else '<unk>']
+                     for w in str_words]
+            # Skip characters that are not in the training set
+            chars = [[char_to_id[c] for c in w if c in char_to_id]
+                     for w in str_words]
+            caps = [cap_feature(w) for w in str_words]
+            data.append({
+                'str_words': str_words,
+                'words': words,
+                'chars': chars,
+                'caps': caps,
+                'tags': None,
+            })
+    else:
+        for s,ts in zip(sentences,tags):
+            str_words = [w for w in s]
+            words = [word_to_id[f(w) if f(w) in word_to_id else '<unk>']
+                     for w in str_words]
+            # Skip characters that are not in the training set
+            chars = [[char_to_id[c] for c in w if c in char_to_id]
+                     for w in str_words]
+            caps = [cap_feature(w) for w in str_words]
+            tags = [tag_to_id[t] for t in ts]
+            data.append({
+                'str_words': str_words,
+                'words': words,
+                'chars': chars,
+                'caps': caps,
+                'tags': tags,
+            })
     return data
 
 
@@ -355,3 +221,86 @@ def log_gaussian_logsigma(x, mu, logsigma):
 
 def bayes_loss_function(l_pw, l_qw, l_likelihood, n_batches, batch_size):
     return ((1./n_batches) * (l_qw - l_pw) - l_likelihood).sum() / float(batch_size)
+
+
+def get_entities(seq, suffix=False):
+    # for nested list
+    if any(isinstance(s, list) for s in seq):
+        seq = [item for sublist in seq for item in sublist + ['O']]
+
+    prev_tag = 'O'
+    prev_type = ''
+    begin_offset = 0
+    chunks = []
+    for i, chunk in enumerate(seq + ['O']):
+        if suffix:
+            tag = chunk[-1]
+            type_ = chunk.split('-')[0]
+        else:
+            tag = chunk[0]
+            type_ = chunk.split('-')[-1]
+
+        if end_of_chunk(prev_tag, tag, prev_type, type_):
+            chunks.append((prev_type, begin_offset, i-1))
+        if start_of_chunk(prev_tag, tag, prev_type, type_):
+            begin_offset = i
+        prev_tag = tag
+        prev_type = type_
+
+    return chunks
+
+
+def end_of_chunk(prev_tag, tag, prev_type, type_):
+    """Checks if a chunk ended between the previous and current word.
+    Args:
+        prev_tag: previous chunk tag.
+        tag: current chunk tag.
+        prev_type: previous type.
+        type_: current type.
+    Returns:
+        chunk_end: boolean.
+    """
+    chunk_end = False
+
+    if prev_tag == 'E': chunk_end = True
+    if prev_tag == 'S': chunk_end = True
+
+    if prev_tag == 'B' and tag == 'B': chunk_end = True
+    if prev_tag == 'B' and tag == 'S': chunk_end = True
+    if prev_tag == 'B' and tag == 'O': chunk_end = True
+    if prev_tag == 'I' and tag == 'B': chunk_end = True
+    if prev_tag == 'I' and tag == 'S': chunk_end = True
+    if prev_tag == 'I' and tag == 'O': chunk_end = True
+
+    if prev_tag != 'O' and prev_tag != '.' and prev_type != type_:
+        chunk_end = True
+
+    return chunk_end
+
+
+def start_of_chunk(prev_tag, tag, prev_type, type_):
+    """Checks if a chunk started between the previous and current word.
+    Args:
+        prev_tag: previous chunk tag.
+        tag: current chunk tag.
+        prev_type: previous type.
+        type_: current type.
+    Returns:
+        chunk_start: boolean.
+    """
+    chunk_start = False
+
+    if tag == 'B': chunk_start = True
+    if tag == 'S': chunk_start = True
+
+    if prev_tag == 'E' and tag == 'E': chunk_start = True
+    if prev_tag == 'E' and tag == 'I': chunk_start = True
+    if prev_tag == 'S' and tag == 'E': chunk_start = True
+    if prev_tag == 'S' and tag == 'I': chunk_start = True
+    if prev_tag == 'O' and tag == 'E': chunk_start = True
+    if prev_tag == 'O' and tag == 'I': chunk_start = True
+
+    if tag != 'O' and tag != '.' and prev_type != type_:
+        chunk_start = True
+
+    return chunk_start

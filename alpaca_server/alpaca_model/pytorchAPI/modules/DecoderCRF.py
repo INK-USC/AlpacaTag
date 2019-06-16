@@ -30,20 +30,24 @@ class DecoderCRF(nn.Module):
         feats = feats.transpose(0, 1).contiguous()
         
         backpointers = []
-        
-        all_forward_vars = Variable(torch.Tensor(sequence_len, 
-                                    batch_size, num_tags).fill_(0.)).cuda()
-        sum_all_forward_vars = Variable(torch.Tensor(sequence_len, 
-                                    batch_size, num_tags).fill_(0.)).cuda()
-        
+        if usecuda:
+            all_forward_vars = Variable(torch.Tensor(sequence_len,
+                                        batch_size, num_tags).fill_(0.)).cuda()
+            sum_all_forward_vars = Variable(torch.Tensor(sequence_len,
+                                        batch_size, num_tags).fill_(0.)).cuda()
+        else:
+            all_forward_vars = Variable(torch.Tensor(sequence_len,
+                                                     batch_size, num_tags).fill_(0.))
+            sum_all_forward_vars = Variable(torch.Tensor(sequence_len,
+                                                         batch_size, num_tags).fill_(0.))
         init_vars = torch.Tensor(batch_size, num_tags).fill_(-10000.)
         init_vars[:,self.tag_to_ix[START_TAG]] = 0.
         if usecuda:
             forward_var = Variable(init_vars).cuda()
             sum_forward_var = Variable(init_vars).cuda()
         else:
-            forward_var = Variable(init_vars)
-            sum_forward_var = Variable(init_vars)
+            forward_var = init_vars
+            sum_forward_var = init_vars
         
         for i in range(sequence_len):
             
@@ -77,7 +81,6 @@ class DecoderCRF(nn.Module):
         terminal_var.data[:,self.tag_to_ix[START_TAG]] = -10000.
         sum_terminal_var.data[:,self.tag_to_ix[STOP_TAG]] = -10000.
         sum_terminal_var.data[:,self.tag_to_ix[START_TAG]] = -10000.
-        
         path_score, best_tag_id = torch.max(terminal_var, dim = 1)
         sum_path_score = log_sum_exp(sum_terminal_var, dim = 1)
         
@@ -91,7 +94,10 @@ class DecoderCRF(nn.Module):
         decoded_tags = []
         for i in range(batch_size):
             best_path = [best_tag_id[i]]
-            bp_list = reversed([itm[i] for itm in backpointers[:n_mask_sum[i]]])
+            if batch_size == 1:
+                bp_list = reversed([itm[i] for itm in backpointers[:n_mask_sum]])
+            else:
+                bp_list = reversed([itm[i] for itm in backpointers[:n_mask_sum[i]]])
             for bptrs_t in bp_list:
                 best_tag_id[i] = bptrs_t[best_tag_id[i]]
                 best_path.append(best_tag_id[i])

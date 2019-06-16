@@ -4,10 +4,10 @@ import torch.autograd as autograd
 from torch.autograd import Variable
 import sys
 sys.path.append("..")
-from initializer import Initializer
-from modules import CharEncoderCNN
-from modules import WordEncoderRNN
-from modules import DecoderCRF
+from ..initializer import Initializer
+from ..modules import CharEncoderCNN
+from ..modules import WordEncoderRNN
+from ..modules import DecoderCRF
 
 class CNN_BiLSTM_CRF(nn.Module):
     
@@ -65,8 +65,7 @@ class CNN_BiLSTM_CRF(nn.Module):
         
         return score
     
-    def decode(self, words, chars, caps, wordslen, charslen, tagsmask, usecuda=False,
-               score_only=False):
+    def decode(self, words, chars, caps, wordslen, charslen, tagsmask, usecuda=False, score_only=False):
         
         batch_size, max_len = words.size()
         
@@ -78,8 +77,7 @@ class CNN_BiLSTM_CRF(nn.Module):
         word_features = self.word_encoder(words, char_features, cap_features, wordslen)
         
         if score_only:
-            score = self.decoder.decode(word_features, tagsmask, usecuda=usecuda, 
-                                        score_only=True)
+            score = self.decoder.decode(word_features, tagsmask, usecuda=usecuda, score_only=True)
             return score
         score, tag_seq = self.decoder.decode(word_features, tagsmask, usecuda=usecuda)
         return score, tag_seq

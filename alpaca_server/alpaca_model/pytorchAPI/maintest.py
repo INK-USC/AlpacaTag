@@ -32,3 +32,4 @@ optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 trainer = Trainer(model, optimizer)
 trainmodel = trainer.train_model(3, dataset,learning_rate=learning_rate, batch_size=10,lr_decay=0.05)
+
