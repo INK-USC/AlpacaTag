@@ -6,6 +6,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
+from itertools import chain
 
 import zmq
 import zmq.decorators as zmqd
@@ -15,7 +16,7 @@ from zmq.utils import jsonapi
 from alpaca_server.alpaca_serving.helper import *
 from alpaca_server.alpaca_serving.httpproxy import HTTPProxy
 from alpaca_server.alpaca_serving.zmq_decor import multi_socket
-from alpaca_server.alpaca_model import *
+from alpaca_server.alpaca_model.pytorchAPI import Sequence
 
 __all__ = ['__version__']
 __version__ = '1.0.1'
@@ -51,6 +52,7 @@ class AlpacaServer(threading.Thread):
 
         # project configuration
         self.model_dir = args.model_dir  # alpaca_model per project
+        self.model = None # pass this model to every sink and worker!!!!
         # learning initial configuration
         self.batch_size = args.batch_size
         self.epoch = args.epoch
@@ -127,7 +129,7 @@ class AlpacaServer(threading.Thread):
         # start the backend processes
         device_map = self._get_device_map()
         for idx, device_id in enumerate(device_map):
-            process = AlpacaWorker(idx, self.args, addr_backend_list, addr_sink, device_id)
+            process = AlpacaWorker(idx, self.args, self.model, addr_backend_list, addr_sink, device_id)
             self.processes.append(process)
             process.start()
 
@@ -180,20 +182,19 @@ class AlpacaServer(threading.Thread):
                                                                      **self.status_static}), req_id])
                 else:
                     self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' % (int(req_id), int(msg_len), client))
-                    print(msg)
+
                     # register a new job at sink
                     sink.send_multipart([client, ServerCmd.new_job, msg_len, req_id])
-
                     # renew the backend socket to prevent large job queueing up
                     # [0] is reserved for high priority job
                     # last used backend shouldn't be selected either as it may be queued up already
                     rand_backend_socket = random.choice([b for b in backend_socks[1:] if b != rand_backend_socket])
-                    print(rand_backend_socket.closed)
+
                     # push a new job
                     job_id = client + b'#' + req_id
 
                     try:
-                        rand_backend_socket.send_multipart([job_id, msg],zmq.NOBLOCK)  # fixed!
+                        rand_backend_socket.send_multipart([job_id, msg_type, msg],zmq.NOBLOCK)  # fixed!
                     except zmq.error.Again:
                         self.logger.info('zmq.error.Again: resource not available temporally, please send again!')
 
@@ -269,7 +270,7 @@ class AlpacaSink(Process):
 
         # have to make jobs.
         # type: Dict[str, SinkJob]
-        pending_jobs = defaultdict(lambda: SinkJob(0,''))
+        pending_jobs = defaultdict(lambda: SinkJob(0))
 
         poller = zmq.Poller()
         poller.register(frontend, zmq.POLLIN)
@@ -288,17 +289,18 @@ class AlpacaSink(Process):
             socks = dict(poller.poll())
             if socks.get(receiver) == zmq.POLLIN:
                 msg = receiver.recv_multipart()
-                print(msg)
+                print('msg:',msg)
                 # job_id = client + b'#' + req_id
                 job_id = msg[0]
+                x = msg[1]
+                job_type = msg[2]
                 # parsing job_id and partial_id
                 job_info = job_id.split(b'@')
                 job_id = job_info[0]
                 partial_id = int(job_info[1]) if len(job_info) == 2 else 0
 
-                x = [msg[1]]
-                pending_jobs[job_id].add_token(x, partial_id)
-                logger.info('collect %s %s' % (msg[1], job_id))
+                pending_jobs[job_id].add_job(x, job_type, partial_id)
+                logger.info('collect %s %s' % (x, job_id))
 
                 # check if there are finished jobs, then send it back to workers
                 finished = [(k, v) for k, v in pending_jobs.items() if v.is_done]
@@ -323,39 +325,40 @@ class AlpacaSink(Process):
 
 
 class SinkJob:
-    def __init__(self, req_id, tokens):
+    def __init__(self, req_id):
         self.req_id = req_id
-        self.tokens = []
+        self.result_msg = None
 
     def clear(self):
         self.req_id = 0
 
-    def _insert(self, data, pid, data_lst):
-        lo = 0
-        data_lst.insert(lo, data)
-
-
-    def add_token(self, data, pid):
-        progress = len(data)
-        self._insert(data, pid, self.tokens)
+    def add_job(self, data, job_type, pid):
+        if job_type == ServerCmd.initiate:
+            self.result_msg = 'Model initiated'
+        elif job_type == ServerCmd.online_initiate:
+            self.result_msg = 'Online word build completed'
+        elif job_type == ServerCmd.online_learning:
+            self.result_msg = 'Online learning completed'
+        elif job_type == ServerCmd.predict:
+            self.result_msg = data
 
     @property
     def is_done(self):
         return True
-        # if self.with_tokens:
-        #     return self.checksum > 0 and self.checksum == self.progress_tokens and self.checksum == self.progress_embeds
-        # else:
-        #     return self.checksum > 0 and self.checksum == self.progress_embeds
 
     @property
     def result(self):
-        x_info = b'1111'
-        #x_info = {'tokens': list(chain.from_iterable(self.tokens))}
+        if self.result_msg is not None:
+            if type(self.result_msg) == bytes:
+                x_info = self.result_msg
+            else:
+                x_info = jsonapi.dumps(self.result_msg)
+        self.result_msg = None
         return x_info
 
 
 class AlpacaWorker(Process):
-    def __init__(self, id, args, worker_address_list, sink_address, device_id):
+    def __init__(self, id, args, model, worker_address_list, sink_address, device_id):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
@@ -371,6 +374,7 @@ class AlpacaWorker(Process):
         self.use_fp16 = args.fp16
         self.show_tokens_to_client = args.show_tokens_to_client
         self.is_ready = multiprocessing.Event()
+        self.model = model
 
     def close(self):
         self.logger.info('shutting down...')
@@ -408,44 +412,29 @@ class AlpacaWorker(Process):
             events = dict(poller.poll())
             for sock_idx, sock in enumerate(receivers):
                 if sock in events:
-                    client_id, raw_msg = sock.recv_multipart()
+                    client_id, msg_type, raw_msg = sock.recv_multipart()
                     msg = jsonapi.loads(raw_msg)
-                    if type(msg) is int:
+                    if msg_type == ServerCmd.initiate:
+                        self.model = Sequence()
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
-                        helper.send_test(outputs, client_id, bytes(str(msg), encoding='ascii'), ServerCmd.show_config)
+                        helper.send_test(outputs, client_id, b'Model Initiated', msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
-                    else:
-                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
-                        helper.send_test(outputs, client_id, msg, ServerCmd.show_config)
-                        logger.info('job done\tsize: %s\tclient: %s' % (msg, client_id))
-                    # check if msg is a list of list, if yes consider the input is already tokenized
-
-        # distinguish the commands!!
-        # for example, servercmd.activelearning ...
-        # for r in self.input_fn_builder(receivers):
-        #     helper.send_test(outputs, r['client_id'], b'hihi', ServerCmd.show_config)
-        #     logger.info('job done\tsize: %s\tclient: %s' % (b'hihi', r['client_id']))
-
-    def input_fn_builder(self, socks):
-        logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
-        poller = zmq.Poller()
-        for sock in socks:
-            poller.register(sock, zmq.POLLIN)
-
-        logger.info('ready and listening!')
-        self.is_ready.set()
-
-        while not self.exit_flag.is_set():
-            events = dict(poller.poll())
-            for sock_idx, sock in enumerate(socks):
-                if sock in events:
-                    client_id, raw_msg = sock.recv_multipart()
-                    msg = jsonapi.loads(raw_msg)
-                    logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
-                    # check if msg is a list of list, if yes consider the input is already tokenized
-                    yield {
-                        'client_id': client_id
-                    }
+                    elif msg_type == ServerCmd.online_initiate:
+                        self.model.online_word_build(msg[0],msg[1])
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
+                        helper.send_test(outputs, client_id, b'Online word build completed', msg_type)
+                        logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
+                    elif msg_type == ServerCmd.online_learning:
+                        self.model.online_learning(msg[0], msg[1])
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
+                        helper.send_test(outputs, client_id, b'Online learning completed', msg_type)
+                        logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
+                    elif msg_type == ServerCmd.predict:
+                        print(msg)
+                        analyzed_result = self.model.analyze(msg)
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
+                        helper.send_test(outputs, client_id, jsonapi.dumps(analyzed_result), msg_type)
+                        logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
 
 class ServerStatistic:
     def __init__(self):

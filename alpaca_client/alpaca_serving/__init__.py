@@ -27,7 +27,7 @@ class AlpacaClient(object):
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
                  check_token_info=True, ignore_all_checks=False,
-                 timeout=1000):
+                 timeout=15000):
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -176,7 +176,6 @@ class AlpacaClient(object):
     @_timeout
     def initiate(self, project_id):
         # model = Sequence()
-
         req_id = self._send(b'INITIATE', bytes(str(project_id), encoding='ascii'))
         return jsonapi.loads(self._recv(req_id).content[1])
 
@@ -184,21 +183,18 @@ class AlpacaClient(object):
     def online_initiate(self, sentences, predefined_label):
         # model.online_word_build(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
         req_id = self._send(b'ONLINE_INITIATE', jsonapi.dumps([sentences, predefined_label]), len(sentences))
-        r = self._recv_test(req_id)
-        return r
+        return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout
     def online_learning(self, sentences, labels):
         assert len(sentences) == len(labels)
         req_id = self._send(b'ONLINE_LEARNING', jsonapi.dumps([sentences, labels]), len(sentences))
-        r = self._recv_test(req_id)
-        return r
+        return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout
     def predict(self, sentences):
         req_id = self._send(b'PREDICT', jsonapi.dumps(sentences), len(sentences))
-        r = self._recv_test(req_id)
-        return r
+        return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout
     def encode(self, texts, blocking=True, is_tokenized=False, show_tokens=False):
