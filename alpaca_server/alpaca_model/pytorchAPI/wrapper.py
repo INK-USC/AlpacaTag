@@ -6,7 +6,7 @@ from .models import *
 from .tagger import *
 import torch
 
-class Sequence(object):
+class SequenceTaggingModel(object):
 
     def __init__(self,
                  word_embedding_dim=100,
@@ -60,15 +60,25 @@ class Sequence(object):
 
         return self.tagger.analyze(text)
 
-    # def save(self, weights_file, params_file, preprocessor_file):
-    #     self.p.save(preprocessor_file)
-    #     save_model(self.model, weights_file, params_file)
-    #
-    # def load(self, weights_file, params_file, preprocessor_file):
-    #     self.p = IndexTransformer.load(preprocessor_file)
-    #     self.model = load_model(weights_file, params_file)
-    #
-    #     return self
+    def save(self, model_name):
+        p_path = model_name + '.pre'
+        m_path = model_name + '.pt'
+        self.p.save(p_path)
+        torch.save(self.model.state_dict(), m_path)
+
+    def load(self, model_name):
+        p_path = model_name + '.pre'
+        m_path = model_name + '.pt'
+        self.p = IndexTransformer.load(p_path)
+        embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
+        self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
+                                    self.word_embedding_dim,
+                                    self.word_lstm_size,
+                                    self.p.char_vocab_size,
+                                    self.char_embedding_dim,
+                                    self.char_lstm_size,
+                                    self.p._label_vocab.vocab, pretrained=embeddings)
+        self.model.load_state_dict(torch.load(m_path))
 
     # list of sentences into train_sentences [['EU rejects ~~'],[''],..]
     def online_word_build(self, x_train, predefined_label):
@@ -101,15 +111,14 @@ class Sequence(object):
 
         if self.acquisition is None:
             self.acquisition = Acquisition(x_train, init_percent=self.initial_vocab,
-                                           seed=0, acq_mode = self.model) ###################
+                                           seed=0, acq_mode = self.model)
 
         self.acquisition.obtain_data(data=x_train, model=self.model, model_name=self.model_name, method=acquire_method_name)
 
         return [i for i in self.acquisition.train_index]
 
 
-    def online_learning(self, x_train, y_train, x_valid=None, y_valid=None,
-            epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
+    def online_learning(self, x_train, y_train, epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
 
         dataset = prepare_dataset(x_train, y_train, self.p)
         learning_rate = 0.01

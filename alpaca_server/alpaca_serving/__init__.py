@@ -6,7 +6,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
-from itertools import chain
+import os.path
 
 import zmq
 import zmq.decorators as zmqd
@@ -16,7 +16,7 @@ from zmq.utils import jsonapi
 from alpaca_server.alpaca_serving.helper import *
 from alpaca_server.alpaca_serving.httpproxy import HTTPProxy
 from alpaca_server.alpaca_serving.zmq_decor import multi_socket
-from alpaca_server.alpaca_model.pytorchAPI import Sequence
+from alpaca_server.alpaca_model.pytorchAPI import SequenceTaggingModel
 
 __all__ = ['__version__']
 __version__ = '1.0.1'
@@ -26,11 +26,13 @@ class ServerCmd:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
+
     initiate = b'INITIATE'
     online_initiate = b'ONLINE_INITIATE'
     online_learning = b'ONLINE_LEARNING'
     active_learning = b'ACTIVE_LEARNING'
     predict = b'PREDICT'
+    load = b'LOAD'
 
     @staticmethod
     def is_valid(cmd):
@@ -47,6 +49,8 @@ class AlpacaServer(threading.Thread):
 
         # ZeroMQ server configuration
         self.num_worker = args.num_worker  # number of Workers
+
+        # restrict number of workers for temporaly
         self.num_concurrent_socket = max(16, args.num_worker * 2)  # optimize concurrency for multi-clients
         self.port = args.port
 
@@ -289,7 +293,6 @@ class AlpacaSink(Process):
             socks = dict(poller.poll())
             if socks.get(receiver) == zmq.POLLIN:
                 msg = receiver.recv_multipart()
-                print('msg:',msg)
                 # job_id = client + b'#' + req_id
                 job_id = msg[0]
                 x = msg[1]
@@ -341,6 +344,8 @@ class SinkJob:
             self.result_msg = 'Online learning completed'
         elif job_type == ServerCmd.predict:
             self.result_msg = data
+        elif job_type == ServerCmd.load:
+            self.result_msg = 'Model Loaded'
 
     @property
     def is_done(self):
@@ -374,7 +379,9 @@ class AlpacaWorker(Process):
         self.use_fp16 = args.fp16
         self.show_tokens_to_client = args.show_tokens_to_client
         self.is_ready = multiprocessing.Event()
+
         self.model = model
+        self.modelid = 0 #project_id
 
     def close(self):
         self.logger.info('shutting down...')
@@ -414,27 +421,44 @@ class AlpacaWorker(Process):
                 if sock in events:
                     client_id, msg_type, raw_msg = sock.recv_multipart()
                     msg = jsonapi.loads(raw_msg)
+
                     if msg_type == ServerCmd.initiate:
-                        self.model = Sequence()
-                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
-                        helper.send_test(outputs, client_id, b'Model Initiated', msg_type)
-                        logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
+                        self.model = SequenceTaggingModel()
+                        self.modelid = str(msg)
+                        if os.path.isfile(os.path.join('.','model'+self.modelid+'.pre')) and os.path.isfile(os.path.join('.','model'+self.modelid+'.pt')):
+                            self.model.load('model'+self.modelid)
+                            logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
+                            helper.send_test(outputs, client_id, b'Model Loaded', ServerCmd.load)
+                            logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
+                        else:
+                            logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
+                            helper.send_test(outputs, client_id, b'Model Initiated', msg_type)
+                            logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
+
                     elif msg_type == ServerCmd.online_initiate:
-                        self.model.online_word_build(msg[0],msg[1])
+                        #django side -> directly read from database as the msg[0[ / msg[1] could be so huge.
+                        #since we already know the project id.
+                        self.model.online_word_build(msg[0],msg[1]) # whole unlabeled training sentences / predefined_labels
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
                         helper.send_test(outputs, client_id, b'Online word build completed', msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
+
                     elif msg_type == ServerCmd.online_learning:
                         self.model.online_learning(msg[0], msg[1])
+                        self.model.save('model'+self.modelid)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
                         helper.send_test(outputs, client_id, b'Online learning completed', msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
+
                     elif msg_type == ServerCmd.predict:
-                        print(msg)
                         analyzed_result = self.model.analyze(msg)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
                         helper.send_test(outputs, client_id, jsonapi.dumps(analyzed_result), msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
+
+                    elif msg_type == ServerCmd.active_learning:
+                        None
+
 
 class ServerStatistic:
     def __init__(self):

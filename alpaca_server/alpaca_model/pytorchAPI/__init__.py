@@ -1,1 +1,1 @@
-from .wrapper import Sequence
+from .wrapper import SequenceTaggingModel
