@@ -15,10 +15,8 @@ MIT License
 * Python 3.6+
 * django 2.0.5+
 * Google Chrome(highly recommended)
-* Pytorch 0.3.1
-```bash
-pip install https://download.pytorch.org/whl/cu90/torch-0.3.1-cp36-cp36m-linux_x86_64.whl
-```
+* Pytorch
+
 ## Installation
 
 **Setup Python environment**
@@ -26,12 +24,13 @@ pip install https://download.pytorch.org/whl/cu90/torch-0.3.1-cp36-cp36m-linux_x
 First we need to install the dependencies. Run the following commands:
 
 ```bash
-conda create -n alonea python==3.6
-source activate alonea
+conda create -n alpaca python==3.6
+conda activate alpaca
 pip install -r requirements.txt
-cd ALONEA
+cd AlpacaTag
 ```
 
+### Frontend (Django, Vue.js)
 Next we need to compile the frontend. Run the following commands:
 
 ```bash
