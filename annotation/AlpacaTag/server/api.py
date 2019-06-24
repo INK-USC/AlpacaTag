@@ -16,7 +16,7 @@ from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer
 
 import sys
 sys.path.append("..")
-
+import spacy
 # import tensorflow as tf
 # from alpaca_model import kerasAPI
 #
@@ -24,6 +24,7 @@ sys.path.append("..")
 # session = tf.Session()
 # graph = tf.get_default_graph()
 # alpaca_model = kerasAPI.Sequence()
+nlp = spacy.load('en_core_web_sm')
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -213,9 +214,44 @@ class RecommendationList(APIView):
             res.append(recommend)
         return res
 
+    def chunking(self, text):
+        doc = nlp(text)
+        words = [token.text for token in doc]
+        chunklist = []
+        for chunk in doc.noun_chunks:
+            chunkdict = {}
+            chunkdict['nounchunk'] = chunk.text
+            chunkdict['left'] = chunk.start
+            chunkdict['right'] = chunk.end
+            chunklist.append(chunkdict)
+
+        res = {
+            'words': words,
+            'entities': [
+
+            ]
+        }
+
+        for chunkdict in chunklist:
+            entity = {
+                'text': chunkdict['nounchunk'],
+                'type': None,
+                'score': None,
+                'beginOffset': chunkdict['left'],
+                'endOffset': chunkdict['right']
+            }
+            res['entities'].append(entity)
+
+        return res
+
+
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
+        nounchunks = self.chunking(document.text)
+        nounchunks_entities = nounchunks['entities']
+        nounchunks_words = nounchunks['words']
+        chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
 
         # global session
         # global alpaca_model
@@ -247,7 +283,8 @@ class RecommendationList(APIView):
         #         finallist.append(chunk)
         #
         # return Response({"recommendation": finallist})
-        return None
+
+        return Response({"recommendation": chunklist})
 
 
 class LearningInitiate(APIView):
@@ -276,7 +313,8 @@ class LearningInitiate(APIView):
         # response = {'isFirst': isFirst}
         #
         # return Response(response)
-        return None
+        response = {'isFirst': None}
+        return Response(response)
 
 
 class OnlineLearning(APIView):
@@ -300,4 +338,6 @@ class OnlineLearning(APIView):
         #             'annotations': annotations}
         #
         # return Response(response)
-        return None
+        response = {'docs': None,
+                    'annotations': None}
+        return Response(response)

@@ -126,10 +126,10 @@ class SequenceTaggingModel(object):
         self.model = self.trainer.train_model(num_epochs=3, train_data=dataset, learning_rate=learning_rate, batch_size=10, lr_decay=0.05)
 
 
-    # def noun_chunks(self, text):
-    #     nlp = spacy.load('en_core_web_sm')
-    #     chunk_merger = NounChunk(nlp)
-    #     doc = chunk_merger.chunking(text)
-    #     return doc
+    def noun_chunks(self, text):
+        nlp = spacy.load('en_core_web_sm')
+        chunk_merger = NounChunk(nlp)
+        doc = chunk_merger.chunking(text)
+        return doc
 
 
