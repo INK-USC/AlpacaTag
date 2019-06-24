@@ -30,7 +30,7 @@ pip install -r requirements.txt
 cd AlpacaTag
 ```
 
-### Frontend (Django, Vue.js)
+***Frontend (Django, Vue.js)***
 Next we need to compile the frontend. Run the following commands:
 
 ```bash
