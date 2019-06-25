@@ -1,4 +1,4 @@
-# ALPACA
+# AlpacaTag
 An Active Learning-based Crowd Annotation Framework for Sequence Tagging 
 
 MIT License
