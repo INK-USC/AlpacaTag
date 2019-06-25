@@ -30,11 +30,12 @@ pip install -r requirements.txt
 cd AlpacaTag
 ```
 
-***Frontend (Django, Vue.js)***
-Next we need to compile the frontend. Run the following commands:
+## Frontend (Django, Vue.js)
+
+We need to compile the frontend. Run the following commands:
 
 ```bash
-cd server
+cd annotation/AlpacaTag/server
 npm install
 npm run build
 cd ..
@@ -73,11 +74,6 @@ Password (again): *********
 Superuser created successfully.
 ```
 
-## Usage
-
-### Start the development server
-
-
 **Running Django development server**
 
 ```bash
@@ -89,3 +85,29 @@ If you run on your own server, use this command.
 ```bash
 python manage.py runserver 0.0.0.0:8000
 ```
+
+## Backend (Pytorch, ZeroMQ)
+
+**Server-side**
+
+```bash
+cd alpaca_server/alpaca_serving/cli
+python main.py
+```
+
+**Client-side**
+
+```bash
+from alpaca_client.alpaca_serving import *
+from alpaca_server.alpaca_model.pytorchAPI import *
+x_train, y_train = utils.load_data_and_labels('train.bio')
+sent = x_train[0:10]
+label = y_train[0:10]
+ac = AlpacaClient()
+ac.initiate(1)
+ac.online_initiate(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
+ac.online_learning(sent,label)
+ac.predict("New York and Paris")
+```
+
+
