@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <head>
   <title>AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging</title>
-  
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />  
+
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
   <link rel="stylesheet" href="css/style.css">
 
@@ -16,15 +17,16 @@
   <!-- For spinner -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.js"></script>
   <link rel="stylesheet" href="https://spin.js.org/spin.css">
-  
+
   <script type="text/javascript" src="js/clientside.js"></script>
 </head>
 
 <body>
-  <div class="container content-left" style="">
+  <div class="container content-left">
     <div class="row" style="margin-top: 20px;">
-      <div class="col-sm-10">
+      <div class="col-sm-12">
         <h1 class="">AlpacaTag<small class="text-muted"><br>An Active Learning-based Crowd Annotation Framework for Sequence Tagging</small></h1>
+        <br>
         <p><em>Quick links:</em>&nbsp;
           <a href="data/rashkin2018event2mind.pdf">[ACL paper]</a>
           &nbsp;
@@ -44,102 +46,147 @@
         </div>
       </div>
     </div>
-    <div class="row">
+    <div class="row" >
       <div class="col-6">
-        <h3>Knowledge Graph Browser</h3>
-        <p>
-          Select an event and see our annotations (or type to search):
-        </p>
-        <select id="eventSelector" onchange="loadEvent(this.value)" class="selectpicker" data-live-search="true" data-width="90%">
-          <option selected disabled value> -- loading events -- </option>
-          <!--option class="train" value="013e6510-5cd4-4b4e-bd7e-491d3732602b" data-tokens="013e6510-5cd4-4b4e-bd7e-491d3732602b">School Project</option>
-          <option class="dev" value="a2ddbb50-e45b-4ad3-becf-b2d8475172bf" data-tokens="a2ddbb50-e45b-4ad3-becf-b2d8475172bf">Curry Disaster</option-->
-        </select>
-        <div class="loadersmall"></div>
-        <!--div id="loader-container">
-          Loading events
-          <div class="loadersmall"></div>
-        </div-->
-        <div id="annotations">
-          <em><small>No event selected</small></em>
+          <h4>Project description</h4>
+          <p>
+            In <em>AlpacaTag</em>, we introduce an open-source web-based data annotation framework for sequence tagging tasks such as named-entity recognition (NER). 
+            The distinctive advantages of AlpacaTag are three-fold. 
+          </p>
+          <ul>
+            <li><em>Active intelligent recommendation:</em> dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model;
+            </li>
+            <li>
+              <em>Automatic crowd consolidation:</em> enhancing real-time interannotator agreement by merging inconsistent labels from multiple annotators;
+            </li>
+            <li>
+              <em>Real-time model deployment:</em> users can deploy their models in downstream systems while new annotations are being made.
+            </li>
+          </ul>
+          <p>
+            AlpacaTag is a comprehensive solution for sequence labeling tasks, ranging from rapid tagging with recommendations powered by 
+            active learning and auto-consolidation of crowd annotations to real-time model deployment.
+            We show that it ... 
+          </p>
+          <em>Read our paper for more:</em>
+          <br>
+          Bill Yuchen Lin, Dong-Ho Lee, Frank F. Xu, Ouyu Lan, Xiang Ren (2019).<br>
+          <strong>AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging</strong>. <em>ACL System Demostration</em>
+          <a href="https://homes.cs.washington.edu/~msap/pdfs/rashkin2018event2mind.pdf">[view pdf]</a>
+          <a href="#abstract" data-toggle="collapse">[show abstract]</a>
+          <div class="row justify-content-center collapse" id="abstract" style="margin-top: 15px;">
+            <div class="col-10">
+              <h4>Abstract</h4>
+              <p style="font-size: 10pt; max-width: 500px;display: inline-block;text-align: justify;">
+                We introduce an open-source web-based data
+                annotation framework (AlpacaTag) for sequence tagging tasks such as named-entity
+                recognition (NER). The distinctive advantages
+                of AlpacaTag are three-fold. 1) Active intelligent recommendation: dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end
+                active learned model; 2) Automatic crowd
+                consolidation: enhancing real-time interannotator agreement by merging inconsistent
+                labels from multiple annotators; 3) Real-time
+                model deployment: users can deploy their
+                models in downstream systems while new annotations are being made. AlpacaTag is
+                a comprehensive solution for sequence labeling tasks, ranging from rapid tagging with
+                recommendations powered by active learning
+                and auto-consolidation of crowd annotations
+                to real-time model deployment.            </p>
+            </div>  
+            </div>
+          <br>
         </div>
-        <h4>Annotation explanation</h4>
-        <p style="font-size: .95rem;">
-          <strong>PersonX's intent</strong>: What are the likely reasons for PersonX causing the event (if any)?
-          <br>
-          <strong>PersonX's reaction</strong>: How might PersonX likely feel after the event?
-          <br>
-          <strong>Other people's reaction</strong>: How might others (perhaps implied) participants feel after the event?
-        </p>
-        <p style="font-size: .95rem;">
-          <span class="text-monospace">PersonX (PersonY, ...)</span> represent event participants.
-          <br>
-          <span class="text-monospace">____</span> is a placeholder for possible words or phrases that could used with the event.
-        </p>
-        <!--PersonX incapsulates the  -->
-      </div>
       <div class="col-6">
-        <img class="figure-img img-fluid rounded" src="graphics/overview.PNG" alt="see caption" style="margin-left: 20px; width: 90%; float: right;">
+        <figure>
+        <div class="img-div">
+        <img class="figure-img img-fluid" src="graphics/overview.PNG" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
+        <br>
+        <figcaption class="figure-caption">
+            The workflow for annotators to confirm a given tagging suggestion ("Hillary Clinton" as <span class="text-monospace">PER</span>).
+        </figcaption>
+        </div>
+        </figure>
       </div>
     </div>
     <hr>
-    <div class="row" style="margin-top: 25px;">
+    <div class="row" style="margin-top: 20px;">
       <div class="col-8">
-        <h4>Project description</h4>
-        <p>
-          In <em>AlpacaTag</em>, we introduce an open-source web-based data annotation framework for sequence tagging tasks such as named-entity recognition (NER). 
-          The distinctive advantages of AlpacaTag are three-fold. 
-        </p>
-        <ul>
-          <li><em>Active intelligent recommendation:</em> dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model;
-          </li>
-          <li>
-            <em>Automatic crowd consolidation:</em> enhancing real-time interannotator agreement by merging inconsistent labels from multiple annotators;
-          </li>
-          <li>
-            <em>Real-time model deployment:</em> users can deploy their models in downstream systems while new annotations are being made.
-          </li>
-        </ul>
-        <p>
-          AlpacaTag is a comprehensive solution for sequence labeling tasks, ranging from rapid tagging with recommendations powered by 
-          active learning and auto-consolidation of crowd annotations to real-time model deployment.
-          We show that it ... 
-        </p>
-        <em>Read our paper for more:</em>
-        <br>
-        Bill Yuchen Lin, Dong-Ho Lee, Frank F. Xu, Ouyu Lan, Xiang Ren (2019).<br>
-        <strong>AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging</strong>. <em>ACL System Demostration</em>
-        <a href="https://homes.cs.washington.edu/~msap/pdfs/rashkin2018event2mind.pdf">[view pdf]</a>
-        <br>
-        <a href="#abstract" data-toggle="collapse">[show abstract]</a>
-        
-        <div class="row justify-content-center collapse" id="abstract" style="margin-top: 15px;">
-          <div class="col-10">
-            <h4>Abstract</h4>
-            <p style="font-size: 10pt; max-width: 500px;display: inline-block;text-align: justify;">
-              We introduce an open-source web-based data
-              annotation framework (AlpacaTag) for sequence tagging tasks such as named-entity
-              recognition (NER). The distinctive advantages
-              of AlpacaTag are three-fold. 1) Active intelligent recommendation: dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end
-              active learned model; 2) Automatic crowd
-              consolidation: enhancing real-time interannotator agreement by merging inconsistent
-              labels from multiple annotators; 3) Real-time
-              model deployment: users can deploy their
-              models in downstream systems while new annotations are being made. AlpacaTag is
-              a comprehensive solution for sequence labeling tasks, ranging from rapid tagging with
-              recommendations powered by active learning
-              and auto-consolidation of crowd annotations
-              to real-time model deployment.            </p>
-          </div>
+          <div class="">
+          <h2 id="features">Features</h2>
+<ul>
+<li>Collaborative annotation</li>
+<li>Language independent</li>
+<li>Active Learning &amp; Online learning</li>
+</ul>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Python 3.6+</li>
+<li>django 2.0.5+</li>
+<li>Google Chrome(highly recommended)</li>
+<li>Pytorch</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<p><strong>Setup Python environment</strong></p>
+<p>First we need to install the dependencies. Run the following commands:</p>
+<pre class=" language-bash"><code class="prism  language-bash">conda create -n alpaca python<span class="token operator">==</span>3.6
+conda activate alpaca
+pip <span class="token function">install</span> -r requirements.txt
+<span class="token function">cd</span> AlpacaTag
+</code></pre>
+<h2 id="frontend-django-vue.js">Frontend (Django, Vue.js)</h2>
+<p>We need to compile the frontend. Run the following commands:</p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> annotation/AlpacaTag/server
+<span class="token function">npm</span> <span class="token function">install</span>
+<span class="token function">npm</span> run build
+<span class="token function">cd</span> <span class="token punctuation">..</span>
+</code></pre>
+<p>Next we need to make migration. Run the following command:</p>
+<pre class=" language-bash"><code class="prism  language-bash">python manage.py migrate
+</code></pre>
+<p>Next we need to create a user who can login to the admin site. Run the following command:</p>
+<pre class=" language-bash"><code class="prism  language-bash">python manage.py createsuperuser
+</code></pre>
+<p>Enter your desired username and press enter.</p>
+<pre class=" language-bash"><code class="prism  language-bash">Username: admin
+</code></pre>
+<p>You will then be prompted for your desired email address:</p>
+<pre class=" language-bash"><code class="prism  language-bash">Email address: admin@example.com
+</code></pre>
+<p>The final step is to enter your password. You will be asked to enter your password twice, the second time as a confirmation of the first.</p>
+<pre class=" language-bash"><code class="prism  language-bash">Password: **********
+Password <span class="token punctuation">(</span>again<span class="token punctuation">)</span>: *********
+Superuser created successfully.
+</code></pre>
+<p><strong>Running Django development server</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">python manage.py runserver
+</code></pre>
+<p>Now, open a Web browser and go to <a href="http://127.0.0.1:8000">http://127.0.0.1:8000</a>.<br>
+If you run on your own server, use this command.</p>
+<pre class=" language-bash"><code class="prism  language-bash">python manage.py runserver 0.0.0.0:8000
+</code></pre>
+<h2 id="backend-pytorch-zeromq">Backend (Pytorch, ZeroMQ)</h2>
+<p><strong>Server-side</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> alpaca_server/alpaca_serving/cli
+python main.py
+</code></pre>
+<p><strong>Client-side</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">from alpaca_client.alpaca_serving <span class="token function">import</span> *
+from alpaca_server.alpaca_model.pytorchAPI <span class="token function">import</span> *
+x_train, y_train <span class="token operator">=</span> utils.load_data_and_labels<span class="token punctuation">(</span><span class="token string">'train.bio'</span><span class="token punctuation">)</span>
+sent <span class="token operator">=</span> x_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
+label <span class="token operator">=</span> y_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
+ac <span class="token operator">=</span> AlpacaClient<span class="token punctuation">(</span><span class="token punctuation">)</span>
+ac.initiate<span class="token punctuation">(</span>1<span class="token punctuation">)</span>
+ac.online_initiate<span class="token punctuation">(</span>sent,<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">'B-PER'</span>, <span class="token string">'I-PER'</span>, <span class="token string">'B-LOC'</span>, <span class="token string">'I-LOC'</span>, <span class="token string">'B-ORG'</span>, <span class="token string">'I-ORG'</span>, <span class="token string">'B-MISC'</span>, <span class="token string">'I-MISC'</span>, <span class="token string">'O'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+ac.online_learning<span class="token punctuation">(</span>sent,label<span class="token punctuation">)</span>
+ac.predict<span class="token punctuation">(</span><span class="token string">"New York and Paris"</span><span class="token punctuation">)</span>
+</code></pre>
+            </div>
         </div>
-      </div>
-      <!--div class="col-1">
-      </div-->
       <div class="col-4 ">
         <figure>
           <div class="img-div">
-            <img class="figure-img img-fluid rounded" src="graphics/crop_recom.png" alt="see caption" style="width: 100%;max-width:none;">
-            <img class="hoverlarge" src="graphics/crop_recom.png" alt="see caption" style="left:-120px;top:0px; border-radius: 5%;">
+            <img class="figure-img img-fluid" src="graphics/crop_recom.png" alt="see caption" style="width: 100%;max-width:none;">
+            <img class="hoverlarge" src="graphics/crop_recom.png" alt="see caption" style="left:-120px;top:0px; border-radius: 0%;">
             <figcaption class="figure-caption">
               The workflow for annotators to confirm a given tagging suggestion ("Hillary Clinton" as <span class="text-monospace">PER</span>).
             </figcaption>
@@ -148,28 +195,25 @@
         <hr>
         <figure>
           <div class="img-div">
-            <img class="figure-img img-fluid rounded" src="graphics/mind2vecMovies_v3 (birnn-seq).png" alt="see caption" style="width: 100%;max-width:none;">
-            <img class="hoverlarge" src="graphics/mind2vecMovies_v3 (birnn-seq).png" alt="see caption" style="left: -120px; top: 250px; border-radius: 5%;">
+            <img class="figure-img img-fluid" src="graphics/normal_anno.png" alt="see caption" style="width: 100%;max-width:none;">
+            <img class="hoverlarge" src="graphics/normal_anno.png" alt="see caption" style="left: -120px; top: 250px; border-radius: 0%;">
             <figcaption class="figure-caption">
-              Two scene description snippets from <em>Juno</em> (2007, top) and <em>Pretty Woman</em> (1990, bottom).
+                Annotating a span without recommendations.
+            </figcaption>
+          </div>
+        </figure>
+        <hr>
+        <figure>
+          <div class="img-div">
+            <img class="figure-img img-fluid" src="graphics/consolidation.png" alt="see caption" style="width: 100%;max-width:none;">
+            <img class="hoverlarge" src="graphics/consolidation.png" alt="see caption" style="left: -120px; top: 250px; border-radius: 0%;">
+            <figcaption class="figure-caption">
+                Reducing inter-annotator disagreement by training personal models for personalized active sampling and constructing consensus models.
             </figcaption>
           </div>
         </figure>
       </div>
     </div>
-    <!--div class="alert alert-secondary" role="alert">
-      This website is still under construction, check back soon for a demo...
-    </div-->
-    <!--hr>
-    <div class="row" style="margin-bottom: 100px;">
-      <div class="col-sm-12">
-        <em>Read our paper for more:</em>
-        <br>
-        Hannah Rashkin, Maarten Sap, Emily Allaway, Noah A. Smith, &amp; Yejin Choi (2018).<br>
-        <strong>Event2Mind: Commonsense Inference on Events, Intents and Reactions</strong>. <em>ACL</em>
-        <a href="https://homes.cs.washington.edu/~msap/pdfs/rashkin2018event2mind.pdf">[view pdf]</a>
-      </div>
-    </div-->
   </div>  
 </body>
 <script type="text/javascript">
