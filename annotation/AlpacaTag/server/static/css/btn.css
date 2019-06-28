@@ -1,0 +1,75 @@
+.c-text-secondary {
+	 color: #8c9296;
+}
+ .c-bg-slate {
+	 background: #162328;
+}
+ .c-bg-blue-med-light {
+	 background: #3597d4;
+}
+ .c-bg-gray-light {
+	 background: #f6f8fa;
+}
+ .c-bg--alternate.c-bg-white.c-bg-gray-light .banner:not(.banner--interior-hero):not(footer):nth-child(odd) {
+	 background: #fff;
+}
+ .c-bg--alternate.c-bg-white.c-bg-gray-light .banner:not(.banner--interior-hero):not(footer):nth-child(even) {
+	 background: #f6f8fa;
+}
+ .t-center {
+	 text-align: center;
+}
+ .t-white, .t-white * {
+	 color: #fff;
+	 fill: #fff;
+}
+ .t-sm {
+	 font-size: 1em;
+}
+ .t-sm > p {
+	 font-size: 1em;
+}
+ .t-base-font-size {
+	 font-size: 16px !important;
+}
+ .t-white .t-sm, .t-white .t-sm * {
+	 color: rgba(255, 255, 255, 0.66);
+}
+ .t-markdownify > p {
+	 display: inline;
+	 margin: 0;
+	 padding: 0;
+	 font-size: inherit;
+}
+ .u-hidden {
+	 display: none;
+}
+ .btn {
+	 text-decoration: none;
+	 cursor: pointer;
+	 text-transform: uppercase;
+	 font-size: 1em;
+	 margin: 0;
+	 padding: 0;
+	 color: #fff !important;
+	 display: block;
+	 background: #2085bc;
+	 padding: 1.125em 1.75em;
+	 transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+ .btn.btn--blue {
+	 background: #2085bc;
+}
+ .btn:hover {
+	 background: #40affd;
+}
+ .btn:active {
+	 opacity: 0.66;
+	 background: #2085bc;
+	 transition-duration: 0s;
+}
+ @media screen and (max-width: 960px) {
+	 .btn {
+		 padding: 1em 1.25em;
+	}
+}

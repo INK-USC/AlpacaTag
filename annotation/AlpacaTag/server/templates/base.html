@@ -30,19 +30,26 @@
   <link rel="icon" type="image/png" sizes="96x96" href="{% static 'images/favicons/favicon-96x96.png' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicons/favicon-16x16.png' %}">
   <link rel="manifest" href="{% static 'images/favicons/manifest.json' %}">
+  <link rel="stylesheet" href="{% static 'css/banner.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
+  <link rel="stylesheet" href="{% static 'css/callout.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
+  <link rel="stylesheet" href="{% static 'css/btn.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <meta name="msapplication-TileColor" content="#ffffff">
   <meta name="msapplication-TileImage" content="{% static 'images/favicons/ms-icon-144x144.png' %}">
   <meta name="theme-color" content="#ffffff">
-
-
-
-
 
 
   {% block header %}{% endblock %}
 </head>
 
 <body>
+      <div class="banner banner--hero">
+        <div class="banner--hero__content">
+          <h1 class="banner--hero__logo"><span class="u-hidden">AllenNLP</span></h1>
+          <h3><span>An open-source NLP research library, built on PyTorch</span></h3>
+          <div class="banner--hero__cta-container"><a class="btn">View Demo</a><a class="btn">Get Started</a></div>
+        </div>
+        <div class="ai2-bar">AllenNLP is a free, open-source project from <a href="http://allenai.org/" target="_blank">AI2</a>.</div>
+      </div>
   <nav class="navbar has-shadow">
     <div class="container">
       <div class="navbar-brand">

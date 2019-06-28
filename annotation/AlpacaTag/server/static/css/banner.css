@@ -1,0 +1,270 @@
+.c-text-secondary {
+	 color: #8c9296;
+}
+ .c-bg-slate {
+	 background: #162328;
+}
+ .c-bg-blue-med-light {
+	 background: #3597d4;
+}
+ .c-bg-gray-light {
+	 background: #f6f8fa;
+}
+ .c-bg--alternate.c-bg-white.c-bg-gray-light .banner:not(.banner--interior-hero):not(footer):nth-child(odd) {
+	 background: #fff;
+}
+ .c-bg--alternate.c-bg-white.c-bg-gray-light .banner:not(.banner--interior-hero):not(footer):nth-child(even) {
+	 background: #f6f8fa;
+}
+ .t-center {
+	 text-align: center;
+}
+ .t-white, .t-white * {
+	 color: #fff;
+	 fill: #fff;
+}
+ .t-sm {
+	 font-size: 1em;
+}
+ .t-sm > p {
+	 font-size: 1em;
+}
+ .t-base-font-size {
+	 font-size: 16px !important;
+}
+ .t-white .t-sm, .t-white .t-sm * {
+	 color: rgba(255, 255, 255, 0.66);
+}
+ .t-markdownify > p {
+	 display: inline;
+	 margin: 0;
+	 padding: 0;
+	 font-size: inherit;
+}
+ .u-hidden {
+	 display: none;
+}
+ .banner {
+	 width: 100%;
+}
+ .banner--hero, .banner--interior-hero {
+	 display: -webkit-box;
+	 display: -ms-flexbox;
+	 display: -webkit-flex;
+	 display: flex;
+	 -webkit-align-items: center;
+	 -ms-flex-align: center;
+	 align-items: center;
+	 -webkit-justify-content: center;
+	 -ms-justify-content: center;
+	 justify-content: center;
+	 text-align: center;
+	 min-height: 26.25em;
+	 height: 40vw;
+	 max-height: 37.5em;
+	 background: #1c292f url("../assets/banner.jpg") center center no-repeat;
+	 background-size: cover;
+}
+ .banner--hero__content {
+	 padding-top: 2.25em;
+	 -webkit-filter: drop-shadow(0 0 3.125em rgba(0, 0, 0, .3));
+	 filter: drop-shadow(0 0 3.125em rgba(0, 0, 0, .3));
+}
+ .banner--hero .banner--hero__content, .banner--interior-hero .banner--hero__content, .banner--hero .constrained.constrained--sm, .banner--interior-hero .constrained.constrained--sm {
+	 padding-left: 1.125em;
+	 padding-right: 1.125em;
+}
+ .banner--hero__logo, .banner--hero__content h3 {
+	 margin: 0;
+	 padding: 0;
+	 font-size: 1em;
+	 cursor: default;
+}
+ .banner--hero__logo svg {
+	 fill: #fff;
+	 width: 16.5625em;
+	 height: 2.875em;
+}
+ .banner--hero__content h3 {
+	 margin: 1.875em 0;
+}
+ .banner--hero__content h3 span {
+	 font-weight: 100;
+	 -webkit-font-smoothing: antialiased;
+	 -moz-osx-font-smoothing: grayscale;
+	 font-size: 1.25em;
+	 color: #fff;
+}
+ .banner--hero__cta-container {
+	 display: -webkit-box;
+	 display: -ms-flexbox;
+	 display: -webkit-flex;
+	 display: flex;
+	 -webkit-align-items: center;
+	 -ms-flex-align: center;
+	 align-items: center;
+	 -webkit-justify-content: center;
+	 -ms-justify-content: center;
+	 justify-content: center;
+	 padding-top: 2.25em;
+}
+ .banner--hero__cta-container .btn {
+	 width: 100%;
+	 max-width: 14em;
+}
+ .banner--hero__cta-container .btn + .btn {
+	 margin-left: 2.25em;
+}
+ .banner__ai2-logo {
+	 opacity: 0.8;
+}
+ .banner__ai2-logo svg {
+	 font-size: 0.4375em;
+	 width: 3.25em;
+	 height: 2.4375em;
+	 margin-left: 0.25em;
+	 margin-bottom: -0.0625em;
+}
+ .banner__ai2-logo:hover {
+	 opacity: 1;
+}
+ .banner--interior-hero {
+	 min-height: 17.125em;
+	 height: auto;
+	 background-color: #213744;
+	 background-image: url("../assets/banner-blurred.jpg");
+	 position: relative;
+}
+ .banner--interior-hero, .banner--interior-hero * {
+	 color: #fff;
+	 fill: #fff;
+}
+ .banner--interior-hero:before {
+	 display: block;
+	 position: absolute;
+	 width: 100%;
+	 height: 100%;
+	 top: 0;
+	 left: 0;
+	 content: "";
+	 background: black;
+	 z-index: -1;
+}
+ .banner--interior-hero__content {
+	 padding: 1.25em;
+	 padding-bottom: 0;
+	 max-width: 38.75em;
+}
+ .banner--interior-hero.banner--short {
+	 min-height: 0;
+}
+ .banner--interior-hero.banner--short .constrained.constrained--sm {
+	 padding-bottom: 40px;
+}
+ .banner--padded .constrained {
+	 padding: 4.75em 2.25em;
+}
+ .banner--padded .constrained h2, .banner--padded .constrained p {
+	 margin: 0;
+	 padding: 0;
+}
+ .banner--padded .constrained h2 + p {
+	 margin-top: 2em;
+}
+ .banner--notification {
+	 display: -webkit-box;
+	 display: -ms-flexbox;
+	 display: -webkit-flex;
+	 display: flex;
+	 -webkit-align-items: center;
+	 -ms-flex-align: center;
+	 align-items: center;
+	 -webkit-justify-content: center;
+	 -ms-justify-content: center;
+	 justify-content: center;
+	 text-align: center;
+	 -webkit-font-smoothing: antialiased;
+	 -moz-osx-font-smoothing: grayscale;
+}
+ .banner--notification, .banner--notification * {
+	 color: #fff;
+	 fill: #fff;
+}
+ .banner--notification .constrained {
+	 padding: 1.875em;
+}
+ .banner--notification a:hover {
+	 color: #fff;
+	 text-decoration: underline;
+}
+ .banner--hr {
+	 border-top: 6px solid #f6f8fa;
+}
+ .banner--intro-section {
+	 margin-top: 0.625em !important;
+}
+ @media screen and (max-width: 960px) {
+	 .banner--hero .banner--hero__content {
+		 padding: 2.25em 1.125em;
+	}
+	 .banner--hero .banner--hero__content h3 {
+		 margin-bottom: 0;
+	}
+	 .banner--hero .banner--hero__content .banner--hero__cta-container .btn + .btn {
+		 margin-left: 1.125em;
+	}
+	 .banner--hero h1.banner--hero__logo {
+		 font-size: 0.75em;
+	}
+	 .banner--hero, .banner--interior-hero {
+		 min-height: 12.5em;
+		 height: auto;
+	}
+	 .banner--hero .constrained.constrained--sm, .banner--interior-hero .constrained.constrained--sm {
+		 padding-top: 1em;
+		 padding-bottom: 1.25em;
+	}
+	 .banner--hero .constrained.constrained--sm h1, .banner--interior-hero .constrained.constrained--sm h1 {
+		 margin-top: 0;
+	}
+	 .banner--interior-hero.banner--short .constrained.constrained--sm {
+		 padding-bottom: 10px;
+	}
+}
+/* Post-launch edits */
+ .banner--hero {
+	 flex-direction: column;
+}
+ .banner--hero__logo {
+	 margin-top: 25px;
+}
+ header {
+	 position: relative;
+	 z-index: 1;
+}
+ .banner--hero__content {
+	 display: flex;
+	 align-items: center;
+	 justify-content: center;
+	 flex-direction: column;
+	 flex-grow: 1;
+}
+ .banner--hero__cta-container {
+	 max-width: 432px;
+	 width: 100%;
+}
+ .ai2-bar {
+	 width: 100%;
+	 background: rgba(0, 0, 0, .16);
+	 height: 50px;
+	 line-height: 50px;
+	 color: rgba(255, 255, 255, .5);
+	 font-size: 16px;
+	 -webkit-font-smoothing: antialiased;
+	 -moz-osx-font-smoothing: grayscale;
+	 cursor: default;
+}
+ .ai2-bar a {
+	 color: rgba(255, 255, 255, .66);
+	 transition: color 0.2s ease;
+}

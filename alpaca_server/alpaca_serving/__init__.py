@@ -33,6 +33,7 @@ class ServerCmd:
     active_learning = b'ACTIVE_LEARNING'
     predict = b'PREDICT'
     load = b'LOAD'
+    error = b'ERROR'
 
     @staticmethod
     def is_valid(cmd):
@@ -200,7 +201,8 @@ class AlpacaServer(threading.Thread):
                     try:
                         rand_backend_socket.send_multipart([job_id, msg_type, msg],zmq.NOBLOCK)  # fixed!
                     except zmq.error.Again:
-                        self.logger.info('zmq.error.Again: resource not available temporally, please send again!')
+                        self.logger.info()
+                        sink.send_multipart([client, ServerCmd.error, jsonapi.dumps('zmq.error.Again: resource not available temporally, please send again!'), req_id])
 
         for p in self.processes:
             p.close()
@@ -325,7 +327,10 @@ class AlpacaSink(Process):
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send config\tclient %s' % client_addr)
                     sender.send_multipart([client_addr, msg_info, req_id])
-
+                if msg_type == ServerCmd.error:
+                    time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
+                    logger.info('send error\tclient %s' % client_addr)
+                    sender.send_multipart([client_addr, msg_info, req_id])
 
 class SinkJob:
     def __init__(self, req_id):
