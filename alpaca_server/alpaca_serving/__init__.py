@@ -7,6 +7,7 @@ from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
 import os.path
+import json
 
 import zmq
 import zmq.decorators as zmqd
@@ -201,7 +202,7 @@ class AlpacaServer(threading.Thread):
                     try:
                         rand_backend_socket.send_multipart([job_id, msg_type, msg],zmq.NOBLOCK)  # fixed!
                     except zmq.error.Again:
-                        self.logger.info()
+                        self.logger.info('zmq.error.Again: resource not available temporally, please send again!')
                         sink.send_multipart([client, ServerCmd.error, jsonapi.dumps('zmq.error.Again: resource not available temporally, please send again!'), req_id])
 
         for p in self.processes:
@@ -330,7 +331,7 @@ class AlpacaSink(Process):
                 if msg_type == ServerCmd.error:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send error\tclient %s' % client_addr)
-                    sender.send_multipart([client_addr, msg_info, req_id])
+                    sender.send_multipart([client_addr, msg_info, msg_type, req_id])
 
 class SinkJob:
     def __init__(self, req_id):
@@ -351,7 +352,8 @@ class SinkJob:
             self.result_msg = data
         elif job_type == ServerCmd.load:
             self.result_msg = 'Model Loaded'
-
+        elif job_type == ServerCmd.active_learning:
+            self.result_msg = data
     @property
     def is_done(self):
         return True
@@ -462,7 +464,11 @@ class AlpacaWorker(Process):
                         logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
 
                     elif msg_type == ServerCmd.active_learning:
-                        None
+                        indices = self.model.active_learning(msg[0], msg[1])
+                        json_indices = list(map(int, indices))
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
+                        helper.send_test(outputs, client_id, jsonapi.dumps(json_indices), msg_type)
+                        logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
 
 
 class ServerStatistic:
