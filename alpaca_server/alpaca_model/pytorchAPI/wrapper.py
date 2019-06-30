@@ -79,6 +79,9 @@ class SequenceTaggingModel(object):
                                     self.char_lstm_size,
                                     self.p._label_vocab.vocab, pretrained=embeddings)
         self.model.load_state_dict(torch.load(m_path))
+        learning_rate = 0.01
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate, momentum=0.9)
+        self.trainer = Trainer(self.model, optimizer)
 
     # list of sentences into train_sentences [['EU rejects ~~'],[''],..]
     def online_word_build(self, x_train, predefined_label):
