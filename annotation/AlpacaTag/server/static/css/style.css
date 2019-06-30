@@ -163,3 +163,12 @@ td:hover .hoverlarge {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.strong-text {
+    color: #2a2e2f;
+}
+
+.container-left {
+    border: 0em;
+    margin: 0em;
+}

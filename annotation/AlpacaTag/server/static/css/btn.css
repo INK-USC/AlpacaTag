@@ -1,4 +1,8 @@
-.c-text-secondary {
+
+.u-hidden {
+	 display: none;
+}
+ .c-text-secondary {
 	 color: #8c9296;
 }
  .c-bg-slate {
@@ -40,9 +44,6 @@
 	 margin: 0;
 	 padding: 0;
 	 font-size: inherit;
-}
- .u-hidden {
-	 display: none;
 }
  .btn {
 	 text-decoration: none;
