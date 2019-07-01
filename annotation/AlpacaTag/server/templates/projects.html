@@ -2,6 +2,13 @@
 {% load static %}
 {% load widget_tweaks %}
 {% block content %}
+
+
+<head>
+    <script type="text/javascript" src="{% static 'js/newscript.js' %}"></script>
+</head>
+
+
 <div id="projects_root" v-cloak>
 
 
@@ -33,7 +40,7 @@
 <div class="banner--hero__content">
 {#      <h1 class="banner--hero__logo"><span class="u-hidden">AllenNLP</span></h1>#}
     <h1><span><b>Hello, {{ user.get_username | title }}.</b></span></h1>
-  <h2><span>I hope you are having a great day!</span></h2>
+  <h3><span>I hope you are having a great day!</span></h3>
   <div class="banner--hero__cta-container">
           {% if user.is_superuser %}
           <a class="btn" @click="isActive=!isActive">Creat Project</a>

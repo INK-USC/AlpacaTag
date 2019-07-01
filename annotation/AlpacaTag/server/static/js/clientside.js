@@ -1,4 +1,6 @@
-//import {Spinner} from 'spin.js';
+
+
+// import {Spinner} from 'spin.js';
 var events = {}, eventAnnotations, event_keys;
 var defaultEvent = "PersonX puts PersonX's trust in PersonY";
 var beautifyRelations = {
@@ -49,3 +51,5 @@ function loadEvent(event) {
     });
   });
 }
+
+

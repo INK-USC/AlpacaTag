@@ -38,9 +38,33 @@
   <link rel="stylesheet" href="{% static 'css/base.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <link rel="stylesheet" href="{% static 'css/col-layout.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <link rel="stylesheet" href="{% static 'css/publication.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
-
-
   <link rel="stylesheet" href="{% static 'css/header.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">
+
+
+
+
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+
+  <!-- For event dropdown -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css">
+
+  <!-- For spinner -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.js"></script>
+  <link rel="stylesheet" href="https://spin.js.org/spin.css">
+
+  <script type="text/javascript" src="{% static 'js/clientside.js' %}"></script>
+
+
+
+
+
 {#  <link rel="stylesheet" href="{% static 'css/footer.css' %}" xmlns:v-on="http://www.w3.org/1999/xhtml">#}
 
   <meta name="msapplication-TileColor" content="#ffffff">
@@ -69,7 +93,7 @@
           </a>
           {% endif %}
           {% if user.is_authenticated %}
-          <a class="navbar-item" href="{% url 'projects' %}">
+          <a id="project_button" class="navbar-item" href="{% url 'projects' %}">
             <span>Projects</span>
           </a>
           {% endif %}
