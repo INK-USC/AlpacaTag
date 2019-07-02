@@ -110,13 +110,13 @@ class SequenceTaggingModel(object):
 
         return self.p
 
-    def active_learning(self, x_train, init_sampling_percent):
+    def active_learning(self, x_train, size):
         dataset = prepare_dataset(x_train, None, self.p)
         if self.acquisition is None:
-            self.acquisition = Acquisition(dataset, init_percent=init_sampling_percent, seed=0, acq_mode='d')
+            self.acquisition = Acquisition(dataset, size=size, seed=0, acq_mode='d')
 
-        self.acquisition.obtain_data(data=dataset, model=self.model, method='mnlp')
-        return [i for i in self.acquisition.train_index]
+        self.acquisition.obtain_data(data=dataset, model=self.model, acquire=size, method='mnlp')
+        return [i for i in self.acquisition.return_index]
 
 
     def online_learning(self, x_train, y_train, epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
