@@ -155,3 +155,12 @@ class SequenceAnnotation(Annotation):
 
     class Meta:
         unique_together = ('document', 'user', 'label', 'start_offset', 'end_offset')
+
+
+class RecommendationHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    word = models.TextField()
+    label = models.ForeignKey(Label, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'word', 'label')
