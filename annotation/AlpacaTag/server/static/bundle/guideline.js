@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./static/js/guideline.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./static/js/setting.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -452,18 +452,6 @@ eval("var g;\n\n// This works in non-strict mode\ng = (function() {\n\treturn th
 
 /***/ }),
 
-/***/ "./static/js/guideline.js":
-/*!********************************!*\
-  !*** ./static/js/guideline.js ***!
-  \********************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ \"./node_modules/vue/dist/vue.esm.js\");\n/* harmony import */ var _http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./http */ \"./static/js/http.js\");\n\n\n\nconst vm = new vue__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({\n  el: '#editor',\n  data: {\n    input: '# hello',\n    project: Object,\n  },\n\n  computed: {\n    compiledMarkdown() {\n      return marked(this.input, {\n        sanitize: true,\n      });\n    },\n  },\n\n  created() {\n    _http__WEBPACK_IMPORTED_MODULE_1__[\"default\"].get().then((response) => {\n      this.input = response.data.guideline;\n      this.project = response.data;\n    });\n  },\n\n  methods: {\n    update: _.debounce(function(e) {\n      this.input = e.target.value;\n      this.project.guideline = this.input;\n      _http__WEBPACK_IMPORTED_MODULE_1__[\"default\"].put('', this.project).then((response) => {\n        this.project = response.data;\n      });\n    }, 300),\n  },\n\n});\n\n\n//# sourceURL=webpack:///./static/js/guideline.js?");
-
-/***/ }),
-
 /***/ "./static/js/http.js":
 /*!***************************!*\
   !*** ./static/js/http.js ***!
@@ -473,6 +461,18 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var vue_
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ \"./node_modules/axios/index.js\");\n/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);\n\n\naxios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.xsrfCookieName = 'csrftoken';\naxios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.xsrfHeaderName = 'X-CSRFToken';\nconst baseUrl = window.location.href.split('/').slice(3, 5).join('/');\nconst HTTP = axios__WEBPACK_IMPORTED_MODULE_0___default.a.create({\n  baseURL: `/api/${baseUrl}/`,\n});\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (HTTP);\n\n\n//# sourceURL=webpack:///./static/js/http.js?");
+
+/***/ }),
+
+/***/ "./static/js/setting.js":
+/*!******************************!*\
+  !*** ./static/js/setting.js ***!
+  \******************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ \"./node_modules/vue/dist/vue.esm.js\");\n/* harmony import */ var _http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./http */ \"./static/js/http.js\");\n\n\n\nconst vm = new vue__WEBPACK_IMPORTED_MODULE_0__[\"default\"]({\n  el: '#editor',\n  data: {\n    input: '# hello',\n    project: Object,\n  },\n\n  computed: {\n    compiledMarkdown() {\n      return marked(this.input, {\n        sanitize: true,\n      });\n    },\n  },\n\n  created() {\n    _http__WEBPACK_IMPORTED_MODULE_1__[\"default\"].get().then((response) => {\n      this.input = response.data.guideline;\n      this.project = response.data;\n    });\n  },\n\n  methods: {\n    update: _.debounce(function(e) {\n      this.input = e.target.value;\n      this.project.guideline = this.input;\n      _http__WEBPACK_IMPORTED_MODULE_1__[\"default\"].put('', this.project).then((response) => {\n        this.project = response.data;\n      });\n    }, 300),\n  },\n\n});\n\n\n//# sourceURL=webpack:///./static/js/setting.js?");
 
 /***/ })
 

@@ -57,9 +57,9 @@ class LabelView(SuperUserMixin, LoginRequiredMixin, TemplateView):
 class StatsView(SuperUserMixin, LoginRequiredMixin, TemplateView):
     template_name = 'admin/stats.html'
 
-
-class GuidelineView(SuperUserMixin, LoginRequiredMixin, TemplateView):
-    template_name = 'admin/guideline.html'
+#need fix
+class SettingView(SuperUserMixin, LoginRequiredMixin, TemplateView):
+    template_name = 'admin/setting.html'
 
 
 class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):

@@ -1,0 +1,81 @@
+{% extends "admin/admin_base.html" %}
+{% load static %}
+{% block content-area %}
+
+<div class="card">
+  <header class="card-header">
+    <p class="card-header-title">
+      Label editor
+    </p>
+    <a href="#" class="card-header-icon" aria-label="more options">
+      <span class="icon">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+    </a>
+  </header>
+
+  <div class="card-content">
+    <div class="has-text-right">
+      <div class="field is-horizontal bordered-row">
+        <div class="column is-3 mb0">
+          <label class="label mb0">Recommendation</label>
+          <p class="is-small has-text-grey">optional</p>
+        </div>
+        <div class="is-narrow">
+          <input class="is-checkradio" type="checkbox" id="online" value="online" v-model="checkedKey">
+          <label for="online"><kbd>online learning</kbd></label>
+        </div>
+        <div class="is-narrow">
+          <input class="is-checkradio" type="checkbox" id="active" value="active" v-model="checkedKey">
+          <label for="shift"><kbd>active learning</kbd></label>
+        </div>
+      </div>
+    <div class="field is-horizontal bordered-row">
+        <div class="column is-3 mb0">
+          <label class="label mb0">batch size(# of instances per online learning)</label>
+          <p class="is-small has-text-grey">Default : 10</p>
+        </div>
+        <div class="control column is-6">
+          <input class="input" type="text" placeholder="Text input" v-model="labelText">
+        </div>
+      </div>
+     <div class="field is-horizontal bordered-row">
+        <div class="column is-3 mb0">
+          <label class="label mb0">Epoch per batch</label>
+          <p class="is-small has-text-grey">Default : 10</p>
+        </div>
+        <div class="control column is-6">
+          <input class="input" type="text" placeholder="Text input" v-model="labelText">
+        </div>
+      </div>
+        <div class="field is-horizontal bordered-row">
+        <div class="column is-3 mb0">
+          <label class="label mb0">Embedding</label>
+          <p class="is-small has-text-grey">default : Glove</p>
+        </div>
+        <div class="control column is-narrow">
+          <div class="select">
+            <select v-model="selectedKey">
+              <option disabled value="">Please select one</option>
+              {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}
+              <option>{{ ch }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="field is-grouped">
+        <div class="control">
+          <button class="button is-primary" @click="addLabel()">SAVE</button>
+        </div>
+        <div class="control">
+          <button class="button is-text" @click="reset()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block footer %}
+<script src="{% static 'bundle/setting.js' %}"></script>
+{% endblock %}

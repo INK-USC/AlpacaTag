@@ -8,7 +8,7 @@ module.exports = {
         'projects': './static/js/projects.js',
         'stats': './static/js/stats.js',
         'label': './static/js/label.js',
-        'guideline': './static/js/guideline.js',
+        'guideline': './static/js/setting.js',
         'upload': './static/js/upload.js'
     },
     output: {
