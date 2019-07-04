@@ -4,9 +4,14 @@
 
 <div class="card">
   <header class="card-header">
-    <p class="card-header-title">
-      Label editor
-    </p>
+{#    <p class="card-header-title">#}
+{#      Label editor#}
+{#    </p>#}
+{##}
+      <div class="model__content">
+          <h2><span>Label Editor</span></h2>
+      </div>
+
     <a href="#" class="card-header-icon" aria-label="more options">
       <span class="icon">
         <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -14,64 +19,138 @@
     </a>
   </header>
 
-  <div class="card-content">
-    <div class="has-text-right">
-      <div class="field is-horizontal bordered-row">
-        <div class="column is-3 mb0">
-          <label class="label mb0">Recommendation</label>
-          <p class="is-small has-text-grey">optional</p>
-        </div>
-        <div class="is-narrow">
-          <input class="is-checkradio" type="checkbox" id="online" value="online" v-model="checkedKey">
-          <label for="online"><kbd>online learning</kbd></label>
-        </div>
-        <div class="is-narrow">
-          <input class="is-checkradio" type="checkbox" id="active" value="active" v-model="checkedKey">
-          <label for="shift"><kbd>active learning</kbd></label>
-        </div>
-      </div>
-    <div class="field is-horizontal bordered-row">
-        <div class="column is-3 mb0">
-          <label class="label mb0">batch size(# of instances per online learning)</label>
-          <p class="is-small has-text-grey">Default : 10</p>
-        </div>
-        <div class="control column is-6">
-          <input class="input" type="text" placeholder="Text input" v-model="labelText">
-        </div>
-      </div>
-     <div class="field is-horizontal bordered-row">
-        <div class="column is-3 mb0">
-          <label class="label mb0">Epoch per batch</label>
-          <p class="is-small has-text-grey">Default : 10</p>
-        </div>
-        <div class="control column is-6">
-          <input class="input" type="text" placeholder="Text input" v-model="labelText">
-        </div>
-      </div>
+
+
+{#############################################}
+  <div class="card-content model__content ">
+    <div >
+
+
         <div class="field is-horizontal bordered-row">
-        <div class="column is-3 mb0">
-          <label class="label mb0">Embedding</label>
-          <p class="is-small has-text-grey">default : Glove</p>
-        </div>
-        <div class="control column is-narrow">
-          <div class="select">
-            <select v-model="selectedKey">
-              <option disabled value="">Please select one</option>
-              {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}
-              <option>{{ ch }}</option>
-              {% endfor %}
-            </select>
+            <div class="form__instructions">
+                <span>Embedding</span>
+                <select v-model="selectedKey">
+{#                    <option disabled value="">default: Glove</option>#}
+                     <option>default: Glove</option>
+                     {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}
+                    <option>{{ ch }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+{#        <div class="column is-3 mb0">#}
+{#          <label class="label mb0">Embedding</label>#}
+{#          <p class="is-small has-text-grey">default : Glove</p>#}
+{#        </div>#}
+{#        <div class="control column is-narrow">#}
+{#          <div class="select">#}
+{#            <select v-model="selectedKey">#}
+{#              <option disabled value="">Please select one</option>#}
+{#              {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}#}
+{#              <option>{{ ch }}</option>#}
+{#              {% endfor %}#}
+{#            </select>#}
+{#          </div>#}
+{#        </div>#}
+      </div>
+
+
+
+
+      <div class="field is-horizontal bordered-row ">
+          <div class="form__field">
+              <label>Recommendation</label>
+               <div class="Shared__RadioGroup-sc-1s90s52-0 jutfeL">
+              <label for="online"> <input class="Shared__Radio-sc-1s90s52-1 iAOzTN" type="radio" id="online" value="online" v-model="checkedKey"> online learning  </label>
+               <label for="active"> <input class="Shared__Radio-sc-1s90s52-1 iAOzTN" type="radio" id="active" value="active" v-model="checkedKey"> active learning  </label>
           </div>
-        </div>
+          </div>
+{#        <div class="column is-3 mb0">#}
+{#          <label class="label mb0">Recommendation</label>#}
+{#          <p class="is-small has-text-grey">optional</p>#}
+{#        </div>#}
+{#        <div class="is-narrow">#}
+{#          <input class="is-checkradio" type="checkbox" id="online" value="online" v-model="checkedKey">#}
+{#          <label for="online"><kbd>online learning</kbd></label>#}
+{#        </div>#}
+{#        <div class="is-narrow">#}
+{#          <input class="is-checkradio" type="checkbox" id="active" value="active" v-model="checkedKey">#}
+{#          <label for="shift"><kbd>active learning</kbd></label>#}
+{#        </div>#}
       </div>
+
+
+
+
+    <div class="field is-horizontal bordered-row">
+        <div class="form__field">
+            <label>batch size(# of instances per online learning)</label>
+            <input type="text" placeholder="Text input(Default: 10)" v-model="labelText">
+        </div>
+{#        <div class="column is-3 mb0">#}
+{#          <label class="label mb0">batch size(# of instances per online learning)</label>#}
+{#          <p class="is-small has-text-grey">Default : 10</p>#}
+{#        </div>#}
+{#        <div class="control column is-6">#}
+{#          <input class="input" type="text" placeholder="Text input" v-model="labelText">#}
+{#        </div>#}
+      </div>
+
+
+
+     <div class="field is-horizontal bordered-row">
+         <div class="form__field">
+             <label>Epoch per batch</label>
+             <input type="text" placeholder="Text input(Default: 10)" v-model="labelText">
+         </div>
+{#         #}
+{#        <div class="column is-3 mb0">#}
+{#          <label class="label mb0">Epoch per batch</label>#}
+{#          <p class="is-small has-text-grey">Default : 10</p>#}
+{#        </div>#}
+{#        <div class="control column is-6">#}
+{#          <input class="input" type="text" placeholder="Text input" v-model="labelText">#}
+{#        </div>#}
+      </div>
+
+
+
+    <div></div>
+
+
+
+
       <div class="field is-grouped">
-        <div class="control">
-          <button class="button is-primary" @click="addLabel()">SAVE</button>
-        </div>
-        <div class="control">
-          <button class="button is-text" @click="reset()">Reset</button>
-        </div>
+
+          <div class="form__field form__field--btn">
+              <button style="width: 150px" type="button" class="btn btn--icon-disclosure" @click="addLabel()">Save     <svg><polygon points="0.7,12 0,11.3 5.5,6 0,0.7 0.7,0 7,6"></polygon></svg></button>
+
+{#              <button type="button" class="btn btn--icon-disclosure" @click="reset()">Reset<svg><polygon points="0.7,12 0,11.3 5.5,6 0,0.7 0.7,0 7,6"></polygon></svg></button>#}
+
+          </div>
+
+
+{#        <div class="control">#}
+{#          <button class="button is-primary" @click="addLabel()">SAVE</button>#}
+{#        </div>#}
+{#        <div class="control">#}
+{#          <button class="button is-text" @click="reset()">Reset</button>#}
+{#        </div>#}
       </div>
+
+    <div class="field is-grouped">
+        <div class="form__field form__field--btn">
+{#              <button type="button" class="btn btn--icon-disclosure" @click="addLabel()">Save<svg><polygon points="0.7,12 0,11.3 5.5,6 0,0.7 0.7,0 7,6"></polygon></svg></button>#}
+
+              <button style="width: 150px" type="button" class="btn btn--icon-disclosure" @click="reset()">Reset<svg><polygon points="0.7,12 0,11.3 5.5,6 0,0.7 0.7,0 7,6"></polygon></svg></button>
+
+          </div>
+    </div>
+
+
+
+
+
+
     </div>
   </div>
 </div>

@@ -23,6 +23,10 @@
   <link rel="stylesheet" href="https://spin.js.org/spin.css">
 
   <script type="text/javascript" src="{% static 'js/clientside.js' %}"></script>
+
+
+
+{#<script type="text/javascript" src="{% static 'js/html.js' %}"></script>#}
 </head>
 
 
@@ -69,7 +73,7 @@
       <a class="btn" href="http://demo.allennlp.org/event2mind">Demo</a>
       <a class="btn"  href="" data-target="#contactUs" data-toggle="collapse" onclick="return false">Contact Us</a></div>
     <div class="banner--hero__cta-container">
-      <a class="btn" href="" data-target="#api" data-toggle="collapse" onclick="return false">API TUTORIAL</a>
+      <a id="api-test-btn" class="btn" href=""  data-target="#api" data-toggle="collapse" onclick="return false">API TUTORIAL</a>
       <a class="btn" href="" data-target="#web" data-toggle="collapse" onclick="return false">Web Tutorial</a>
       <a class="btn"  href="" data-target="#Installation" data-toggle="collapse" onclick="return false">Installation guide</a></div>
 </div>
@@ -99,7 +103,7 @@
 
 <body>
   <div class="container content-left">
-    <div class="row" style="margin-top: 20px;">
+    <div class="row" >
       <div class="col-sm-12">
 {#        <h1 class="">AlpacaTag<small class="text-muted"><br>An Active Learning-based Crowd Annotation Framework for Sequence Tagging</small></h1>#}
 {#        <br>#}
@@ -124,26 +128,58 @@
             </div>
               <div id="api" class="collapse">
               <p>
-                sonething api
+                something api
               </p>
               <hr>
             </div>
 
               <div id="web" class="collapse">
-              <p>
-                something web
-              </p>
+
+                  <div class="row">
+                      <div class="col-6" >
+                          <img src="{% static 'images/add_label.gif' %}" style="width: 100%; float: left;">
+                      </div>
+                      <div class="col-6">
+                          <p style="margin-left: 10px">
+                            add_label
+                          </p>
+                      </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                      <div class="col-6" >
+                          <img src="{% static 'images/annotate.gif' %}" style="width: 100%; float: left;">
+                      </div>
+                      <div class="col-6">
+                          <p style="margin-left: 10px">
+                            annotate
+                          </p>
+                      </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                      <div class="col-6" >
+                          <img src="{% static 'images/recommendation.gif' %}" style="width: 100%; float: left;">
+                      </div>
+                      <div class="col-6">
+                          <p style="margin-left: 10px">
+                            recommendation
+                          </p>
+                      </div>
+                  </div>
+
+
               <hr>
             </div>
               <div id="Installation" class="collapse">
 
-              <h1 id="features">Features</h1>
-          <ol class="formatted">
-              <li>Collaborative annotation</li>
-                <li>Language independent</li>
-                <li>Active Learning &amp; Online learning</li>
-          </ol>
-            <hr>
+{#              <h1 id="features">Features</h1>#}
+{#          <ol class="formatted">#}
+{#              <li>Collaborative annotation</li>#}
+{#                <li>Language independent</li>#}
+{#                <li>Active Learning &amp; Online learning</li>#}
+{#          </ol>#}
+{#            <hr>#}
         <h1 id="requirements">Requirements</h1>
               <ol class="formatted">
                   <li>Python 3.6+</li>
