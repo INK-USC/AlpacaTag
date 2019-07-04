@@ -5,5 +5,3 @@ annotation/ALONEA/server/static/bundle/*
 model/Active-NLP/wordvectors/*
 model/Active-NLP/datasets/conll/mapping_iobes.pkl
 glove*
-node_modules/*
-package-lock.json
