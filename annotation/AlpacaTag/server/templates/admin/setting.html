@@ -2,6 +2,11 @@
 {% load static %}
 {% block content-area %}
 
+
+<head>
+  <script type="text/javascript" src="{% static 'js/html.js' %}"></script>
+</head>
+
 <div class="card">
   <header class="card-header">
 {#    <p class="card-header-title">#}
@@ -9,14 +14,14 @@
 {#    </p>#}
 {##}
       <div class="model__content">
-          <h2><span>Label Editor</span></h2>
+          <h2><span>Settings</span></h2>
       </div>
 
-    <a href="#" class="card-header-icon" aria-label="more options">
-      <span class="icon">
-        <i class="fas fa-angle-down" aria-hidden="true"></i>
-      </span>
-    </a>
+{#    <a href="#" class="card-header-icon" aria-label="more options">#}
+{#      <span class="icon">#}
+{#        <i class="fas fa-angle-down" aria-hidden="true"></i>#}
+{#      </span>#}
+{#    </a>#}
   </header>
 
 
@@ -59,11 +64,12 @@
       <div class="field is-horizontal bordered-row ">
           <div class="form__field">
               <label>Recommendation</label>
-               <div class="Shared__RadioGroup-sc-1s90s52-0 jutfeL">
-              <label for="online"> <input class="Shared__Radio-sc-1s90s52-1 iAOzTN" type="radio" id="online" value="online" v-model="checkedKey"> online learning  </label>
-               <label for="active"> <input class="Shared__Radio-sc-1s90s52-1 iAOzTN" type="radio" id="active" value="active" v-model="checkedKey"> active learning  </label>
+               <div class="">
+              <label for="online"> <input class="" type="checkbox" id="online" value="online" v-model="checkedKey"> online learning  </label>
+               <label for="active"> <input class="" type="checkbox" id="active" value="active" v-model="checkedKey"> active learning  </label>
           </div>
           </div>
+
 {#        <div class="column is-3 mb0">#}
 {#          <label class="label mb0">Recommendation</label>#}
 {#          <p class="is-small has-text-grey">optional</p>#}
@@ -76,6 +82,7 @@
 {#          <input class="is-checkradio" type="checkbox" id="active" value="active" v-model="checkedKey">#}
 {#          <label for="shift"><kbd>active learning</kbd></label>#}
 {#        </div>#}
+
       </div>
 
 
