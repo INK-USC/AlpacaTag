@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://spin.js.org/spin.css">
 
   <script type="text/javascript" src="{% static 'js/clientside.js' %}"></script>
-
+  <script type="text/javascript" src="{% static 'js/html.js' %}"></script>
 
 
 {#<script type="text/javascript" src="{% static 'js/html.js' %}"></script>#}
@@ -73,9 +73,11 @@
       <a class="btn" href="http://demo.allennlp.org/event2mind">Demo</a>
       <a class="btn"  href="" data-target="#contactUs" data-toggle="collapse" onclick="return false">Contact Us</a></div>
     <div class="banner--hero__cta-container">
-      <a id="api-test-btn" class="btn" href=""  data-target="#api" data-toggle="collapse" onclick="return false">API TUTORIAL</a>
-      <a class="btn" href="" data-target="#web" data-toggle="collapse" onclick="return false">Web Tutorial</a>
-      <a class="btn"  href="" data-target="#Installation" data-toggle="collapse" onclick="return false">Installation guide</a></div>
+      <a class="btn" data-toggle="collapse" data-target="#api">API TUTORIAL</a>
+      <a class="btn" data-toggle="collapse" data-target="#web">Web Tutorial</a>
+      <a class="btn" data-toggle="collapse" data-target="#Installation">Installation guide</a>
+    </div>
+    </div>
 </div>
 {#    <div class="ai2-bar">AllenNLP is a free, open-source project from <a href="http://allenai.org/" target="_blank">AI2</a>.</div>#}
 </section>
@@ -119,21 +121,21 @@
 {#          <a href="" data-target="#contactUs" data-toggle="collapse" onclick="return false;">[Contact Us]</a>#}
 {#        </p>#}
 
-          <div class="tutorials__content constrained constrained--med">
-              <div id="contactUs" class="collapse">
+          <div id="tutorials" class="tutorials__content constrained constrained--med">
+              <div id="contactUs" class="collapse" data-parent="#tutorials">
               <p>
                 For research or press inquiries, contact <a href="yuchen.lin@usc.edu">Bill Yuchen Lin</a> and/or <a href="mailto:xiangren@usc.edu">Xiang Ren</a>.
               </p>
               <hr>
             </div>
-              <div id="api" class="collapse">
+              <div id="api" class="collapse" data-parent="#tutorials">
               <p>
                 something api
               </p>
               <hr>
             </div>
 
-              <div id="web" class="collapse">
+              <div id="web" class="collapse" data-parent="#tutorials">
 
                   <div class="row">
                       <div class="col-6" >
@@ -171,7 +173,7 @@
 
               <hr>
             </div>
-              <div id="Installation" class="collapse">
+              <div id="Installation" class="collapse" data-parent="#tutorials">
 
 {#              <h1 id="features">Features</h1>#}
 {#          <ol class="formatted">#}
