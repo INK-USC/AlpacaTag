@@ -173,8 +173,8 @@ def create_batches(dataset, batch_size, order='keep', str_words=False, tag_padde
         words_lengths = np.array([len(s) for s in words_seqs])
 
         words_padded = np.array([pad_seq(s, np.max(words_lengths)) for s in words_seqs])
-        caps_padded = np.array([pad_seq(s, np.max(words_lengths)) for s in caps_seqs])
 
+        caps_padded = np.array([pad_seq(s, np.max(words_lengths)) for s in caps_seqs])
         if tag_padded:
             target_padded = np.array([pad_seq(s, np.max(words_lengths)) for s in target_seqs])
         else:

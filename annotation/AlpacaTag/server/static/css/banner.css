@@ -1,5 +1,3 @@
-
-
 .c-text-secondary {
 	 color: #8c9296;
 }
@@ -58,9 +56,7 @@
 	 -ms-flex-align: center;
 	 align-items: center;
 	 -webkit-justify-content: center;
-	 -ms-justify-content: center;0..
-	 33+2
-	 0
+	 -ms-justify-content: center;
 	 justify-content: center;
 	 text-align: center;
 	 min-height: 26.25em;
