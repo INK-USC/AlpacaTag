@@ -20,10 +20,12 @@
           <div class="control column is-narrow">
               <div class="select">
                   <select v-model="selectedKey">
-                    <option disabled value="">Please select one</option>
-                    {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}
-                    <option>{{ ch }}</option>
-                    {% endfor %}
+                    <option>Glove (default)</option>
+                    <option>Word2Vec</option>
+                    <option>FastText</option>
+                    <option>Bert</option>
+                    <option>Elmo</option>
+                    <option>GPT</option>
                   </select>
               </div>
           </div>
