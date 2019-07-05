@@ -30,16 +30,21 @@
   <div class="card-content model__content ">
     <div >
 
-
         <div class="field is-horizontal bordered-row">
             <div class="form__instructions">
                 <span>Embedding</span>
                 <select v-model="selectedKey">
 {#                    <option disabled value="">default: Glove</option>#}
                      <option>default: Glove</option>
-                     {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}
-                    <option>{{ ch }}</option>
-                    {% endfor %}
+                    <option>Glove</option>
+                    <option>Word2Vec</option>
+                    <option>FastText</option>
+                    <option>Bert</option>
+                    <option>Elmo</option>
+                    <option>GPT</option>
+{#                     {% for ch in 'abcdefghijklmnopqrstuvwxyz' %}#}
+{#                    <option>{{ ch }}</option>#}
+{#                    {% endfor %}#}
                 </select>
             </div>
 {#        <div class="column is-3 mb0">#}
