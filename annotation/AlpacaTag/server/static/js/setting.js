@@ -1,9 +1,29 @@
-function activeon() {
-  // Get the checkbox
-  var checkBox = document.getElementById("onlinelearning");
-  if (checkBox.checked == true){
-    $('.active').attr('disabled',!(checkBox));
-  } else {
-    $('.active').attr('disabled',checkBox);
-  }
-}
+import Vue from 'vue';
+import HTTP from './http';
+
+const vm = new Vue({
+  el: '#mail-app',
+  delimiters: ['[[', ']]'],
+  data: {
+    embedding: 'glove',
+    recommendation: [],
+    active: '',
+    batch: '',
+    epoch: '',
+    activeset: true,
+  },
+  methods: {
+    created() {
+    },
+  },
+  watch: {
+    recommendation() {
+      if (this.recommendation.includes("onlinelearning")){
+        this.activeset = false;
+      }
+      else{
+        this.activeset = true;
+      }
+    },
+  },
+});

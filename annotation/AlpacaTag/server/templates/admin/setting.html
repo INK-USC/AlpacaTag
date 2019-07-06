@@ -2,18 +2,6 @@
 {% load static %}
 {% block content-area %}
 
-
-<head>
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
-
-  <!-- For event dropdown -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css">
- <script type="text/javascript" src="{% static 'js/setting.js' %}"></script>
-</head>
-
 <div class="card">
   <header class="card-header">
       <div class="model__content">
@@ -26,13 +14,13 @@
           <label class="label column is-3 mb0">Embedding</label>
           <div class="control column is-narrow">
               <div class="select">
-                  <select v-model="selectedKey">
-                    <option>Glove (default)</option>
-                    <option>Word2Vec</option>
-                    <option>FastText</option>
-                    <option>Bert</option>
-                    <option>Elmo</option>
-                    <option>GPT</option>
+                  <select v-model="embedding">
+                    <option value="glove">Glove (default)</option>
+                    <option value="word2vec">Word2Vec</option>
+                    <option value="fasttext">FastText</option>
+                    <option value="bert">Bert</option>
+                    <option value="elmo">Elmo</option>
+                    <option value="gpt">GPT</option>
                   </select>
               </div>
           </div>
@@ -40,15 +28,15 @@
       <div class="field is-horizontal bordered-row">
           <label class="label column is-3 mb0">Recommendation</label>
           <div class="is-narrow">
-              <input class="is-checkradio" type="checkbox" id="nounchunk" value="nounchunk" v-model="checkedKey">
+              <input class="is-checkradio" type="checkbox" id="nounchunk" value="nounchunk" v-model="recommendation">
               <label for="nounchunk"><kbd>Noun Chunk</kbd></label>
           </div>
           <div class="is-narrow">
-              <input class="is-checkradio" type="checkbox" id="onlinelearning" value="onlinelearning" v-model="checkedKey" onclick="activeon()">
+              <input class="is-checkradio" type="checkbox" id="onlinelearning" value="onlinelearning" v-model="recommendation">
               <label for="onlinelearning"><kbd>Online Learning</kbd></label>
           </div>
           <div class="is-narrow">
-              <input class="is-checkradio" type="checkbox" id="history" value="history" v-model="checkedKey">
+              <input class="is-checkradio" type="checkbox" id="history" value="history" v-model="recommendation">
               <label for="history"><kbd>Annotation History</kbd></label>
           </div>
       </div>
@@ -57,32 +45,32 @@
           <div class="field is-horizontal bordered-row">
               <label class="label column is-3 mb0">Active learning</label>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="checkbox" id="random" value="random" v-model="checkedKey" disabled="disabled">
+                  <input class="active is-checkradio" type="radio" id="random" value="random" v-model="active" :disabled="activeset">
                   <label for="random"><kbd>Random</kbd></label>
               </div>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="checkbox" id="mnlp" value="mnlp" v-model="checkedKey" disabled="disabled">
+                  <input class="active is-checkradio" type="radio" id="mnlp" value="mnlp" v-model="active" :disabled="activeset">
                   <label for="mnlp"><kbd>MNLP</kbd></label>
               </div>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="checkbox" id="mc" value="mc" v-model="checkedKey" disabled="disabled">
+                  <input class="active is-checkradio" type="radio" id="mc" value="mc" v-model="active" :disabled="activeset">
                   <label for="mc"><kbd>MNLP + MC</kbd></label>
               </div>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="checkbox" id="bb" value="bb" v-model="checkedKey" disabled="disabled">
+                  <input class="active is-checkradio" type="radio" id="bb" value="bb" v-model="active" :disabled="activeset">
                   <label for="bb"><kbd>MNLP + BB</kbd></label>
               </div>
           </div>
           <div class="field is-horizontal bordered-row">
               <label class="label column is-3 mb0">Batch Size</label>
               <div class="control column is-5">
-                  <input class="active input" type="text" placeholder="# of instances per online learning (Default: 10)" v-model="batch" disabled="disabled">
+                  <input class="active input" type="text" placeholder="# of instances per online learning (Default: 10)" v-model="batch" :disabled="activeset">
               </div>
           </div>
           <div class="field is-horizontal bordered-row">
               <label class="label column is-3 mb0">Epoch per batch</label>
               <div class="control column is-5">
-                  <input class="active input" type="text" placeholder="Epoch per each learning (Default: 10)" v-model="epoch" disabled="disabled">
+                  <input class="active input" type="text" placeholder="Epoch per each learning (Default: 10)" v-model="epoch" :disabled="activeset">
               </div>
           </div>
       </div>
@@ -98,4 +86,5 @@
 </div>
 {% endblock %}
 {% block footer %}
+<script src="{% static 'bundle/setting.js' %}"></script>
 {% endblock %}
