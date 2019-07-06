@@ -28,15 +28,15 @@
       <div class="field is-horizontal bordered-row">
           <label class="label column is-3 mb0">Recommendation</label>
           <div class="is-narrow">
-              <input class="is-checkradio" type="checkbox" id="nounchunk" value="nounchunk" v-model="recommendation">
+              <input class="is-checkradio" type="checkbox" id="nounchunk" value="nounchunk" v-model="nounchunk">
               <label for="nounchunk"><kbd>Noun Chunk</kbd></label>
           </div>
           <div class="is-narrow">
-              <input class="is-checkradio" type="checkbox" id="onlinelearning" value="onlinelearning" v-model="recommendation">
+              <input class="is-checkradio" type="checkbox" id="onlinelearning" value="onlinelearning" v-model="onlinelearning">
               <label for="onlinelearning"><kbd>Online Learning</kbd></label>
           </div>
           <div class="is-narrow">
-              <input class="is-checkradio" type="checkbox" id="history" value="history" v-model="recommendation">
+              <input class="is-checkradio" type="checkbox" id="history" value="history" v-model="history">
               <label for="history"><kbd>Annotation History</kbd></label>
           </div>
       </div>
@@ -76,7 +76,7 @@
       </div>
       <div class="field is-grouped">
           <div class="control">
-              <button class="btn btn--icon-disclosure" @click="addLabel()">SAVE</button>
+              <button class="btn btn--icon-disclosure" @click="save()">SAVE</button>
           </div>
           <div class="control">
               <button class="button is-text" @click="reset()">RESET</button>

@@ -15,7 +15,7 @@ class SettingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Setting
-        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch', 'project', 'user')
+        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch')
 
 
 class DocumentSerializer(serializers.ModelSerializer):
