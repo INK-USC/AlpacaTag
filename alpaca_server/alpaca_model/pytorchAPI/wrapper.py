@@ -28,6 +28,7 @@ class SequenceTaggingModel(object):
         self.fc_dim = fc_dim
         self.dropout = dropout
         self.embeddings = load_glove('glove.6B.100d.txt')
+        # self.embeddings = load_glove_embedding()
         self.use_char = use_char
         self.use_crf = use_crf
         self.initial_vocab = initial_vocab
@@ -118,9 +119,7 @@ class SequenceTaggingModel(object):
         self.acquisition.obtain_data(data=dataset, model=self.model, acquire=size, method='mnlp')
         return [i for i in self.acquisition.return_index]
 
-
     def online_learning(self, x_train, y_train, epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
-
         dataset = prepare_dataset(x_train, y_train, self.p)
         learning_rate = 0.01
 
