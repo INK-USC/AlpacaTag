@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import SequenceAnnotation
-from .models import Label, Project, Document
+from .models import Label, Project, Document, Setting
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -9,6 +9,13 @@ class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
         fields = ('id', 'text', 'shortcut', 'background_color', 'text_color')
+
+
+class SettingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Setting
+        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch', 'project', 'user')
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -28,6 +35,7 @@ class DocumentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         docs = [Document(**item) for item in validated_data]
         return Document.objects.bulk_create(docs)
+
 
 class ProjectSerializer(serializers.ModelSerializer):
 

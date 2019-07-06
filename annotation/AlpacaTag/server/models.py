@@ -5,9 +5,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.storage import staticfiles_storage
 from .utils import get_key_choices
-import re
 import spacy
 nlp = spacy.load('en_core_web_sm')
+
 
 class Project(models.Model):
     SEQUENCE_LABELING = 'SequenceLabeling'
@@ -55,6 +55,7 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Label(models.Model):
     KEY_CHOICES = get_key_choices()
@@ -164,3 +165,14 @@ class RecommendationHistory(models.Model):
 
     class Meta:
         unique_together = ('user', 'word', 'label')
+
+
+class Setting(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name='settings', on_delete=models.CASCADE)
+    embedding = models.IntegerField() #1-glove 2-w2v 3-fasttext 4-bert 5-elmo 6-gpt
+    nounchunk = models.BooleanField()
+    onlinelearning = models.BooleanField()
+    history = models.BooleanField()
+    batch = models.IntegerField()
+    epoch = models.IntegerField()

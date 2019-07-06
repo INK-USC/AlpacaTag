@@ -10,9 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from .models import Project, Label, Document
+from .models import Project, Label, Document, Setting
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
-from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer
+from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer, SettingSerializer
 
 import sys
 sys.path.append("..")
@@ -187,6 +187,21 @@ class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
         self.check_object_permissions(self.request, obj)
 
         return obj
+
+
+class SettingList(generics.ListCreateAPIView):
+    queryset = Setting.objects.all()
+    serializer_class = SettingSerializer
+    pagination_class = None
+    permission_classes = (IsAuthenticated, IsProjectUser, IsAdminUserAndWriteOnly)
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(project=self.kwargs['project_id'])
+        return queryset
+
+    def perform_create(self, serializer):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        serializer.save(project=project)
 
 
 class RecommendationList(APIView):
