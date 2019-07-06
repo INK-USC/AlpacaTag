@@ -93,7 +93,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("$('#onlinelearning').click(function () {\n    var checked = this.checked;\n    console.log('111')\n    $('.active').each(function () {\n        $(this).prop('disabled', !checked);\n    });\n});\n\n//# sourceURL=webpack:///./static/js/setting.js?");
+eval("function activeon() {\n  // Get the checkbox\n  var checkBox = document.getElementById(\"onlinelearning\");\n  if (checkBox.checked == true){\n    $('.active').attr('disabled',!(checkBox));\n  } else {\n    $('.active').attr('disabled',checkBox);\n  }\n}\n\n//# sourceURL=webpack:///./static/js/setting.js?");
 
 /***/ })
 

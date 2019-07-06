@@ -305,6 +305,19 @@ const annotationMixin = {
       }
       return 'is-primary';
     },
+
+    serverOn() {
+      return 'is-danger';
+    },
+    nounOn() {
+      return 'is-primary';
+    },
+    onlineOn() {
+      return 'is-primary';
+    },
+    historyOn() {
+      return 'is-primary';
+    },
   },
 };
 

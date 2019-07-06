@@ -5,7 +5,7 @@
 
 
 <head>
-    <script type="text/javascript" src="{% static 'js/newscript.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/newscript.js' %}"></script>
 
 
   <title>AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging</title>
@@ -27,42 +27,15 @@
 
   <script type="text/javascript" src="{% static 'js/clientside.js' %}"></script>
 
-
-
-
 </head>
 
 
 <div id="projects_root" v-cloak>
 
 
-{#  <section class="hero project-image">#}
-{#    <div class="container">#}
-{#      <div class="columns">#}
-{#        <div class="column is-10 is-offset-1">#}
-{#          <h1 class="title is-1 has-text-white">#}
-{#            Hello, {{ user.get_username | title }}.#}
-{#          </h1>#}
-{#          <h2 class="subtitle is-4 has-text-white">#}
-{#            I hope you are having a great day!#}
-{#          </h2>#}
-{#          {% if user.is_superuser %}#}
-{#          <p>#}
-{#            <a class="button is-medium is-primary" @click="isActive=!isActive">#}
-{#              Create Project#}
-{#            </a>#}
-{#          </p>#}
-{#          {% endif %}#}
-{#        </div>#}
-{#      </div>#}
-{#    </div>#}
-{#  </section>#}
-
-
 
 <section class="hero banner banner--hero">
 <div class="banner--hero__content">
-{#      <h1 class="banner--hero__logo"><span class="u-hidden">AllenNLP</span></h1>#}
     <h1><span><b>Hello, {{ user.get_username | title }}.</b></span></h1>
   <h3><span>I hope you are having a great day!</span></h3>
   <div class="banner--hero__cta-container">
@@ -72,10 +45,7 @@
          </div>
 
 </div>
-{#    <div class="ai2-bar">AllenNLP is a free, open-source project from <a href="http://allenai.org/" target="_blank">AI2</a>.</div>#}
 </section>
-
-
 
   <!-- Modal card for creating project. -->
   <div class="modal" :class="{ 'is-active': isActive }">
