@@ -17,6 +17,7 @@ from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer,
 import sys
 sys.path.append("..")
 import spacy
+from alpaca_serving import *
 # import tensorflow as tf
 # from alpaca_model import kerasAPI
 #

@@ -5,3 +5,6 @@ annotation/ALONEA/server/static/bundle/*
 model/Active-NLP/wordvectors/*
 model/Active-NLP/datasets/conll/mapping_iobes.pkl
 glove*
+alpaca_client/alpaca_serving_client.egg-info
+alpaca_client/build
+alpaca_client/dist

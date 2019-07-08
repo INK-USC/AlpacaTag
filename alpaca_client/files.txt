@@ -1,0 +1,14 @@
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/EGG-INFO/PKG-INFO
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/EGG-INFO/not-zip-safe
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/EGG-INFO/SOURCES.txt
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/EGG-INFO/requires.txt
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/EGG-INFO/top_level.txt
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/EGG-INFO/dependency_links.txt
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/__init__.py
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/__pycache__/__init__.cpython-36.pyc
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/client/_py2_.py
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/client/_py3_.py
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/client/__init__.py
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/client/__pycache__/_py2_.cpython-36.pyc
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/client/__pycache__/_py3_.cpython-36.pyc
+/Users/dannylee/miniconda3/envs/alpaca/lib/python3.6/site-packages/alpaca_serving_client-1.0.1-py3.6.egg/alpaca_serving/client/__pycache__/__init__.cpython-36.pyc
