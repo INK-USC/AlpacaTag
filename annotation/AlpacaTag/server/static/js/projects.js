@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import axios from 'axios';
+import HTTP from "./http";
 
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -18,7 +19,6 @@ const vm = new Vue({
   },
 
   methods: {
-
     deleteProject() {
       axios.delete(`${baseUrl}/api/projects/${this.project.id}/`).then((response) => {
         this.isDelete = false;

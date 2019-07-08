@@ -15,12 +15,12 @@
           <div class="control column is-narrow">
               <div class="select">
                   <select v-model="embedding">
-                    <option value="glove">Glove (default)</option>
-                    <option value="word2vec">Word2Vec</option>
-                    <option value="fasttext">FastText</option>
-                    <option value="bert">Bert</option>
-                    <option value="elmo">Elmo</option>
-                    <option value="gpt">GPT</option>
+                    <option value="1">Glove (default)</option>
+                    <option value="2">Word2Vec</option>
+                    <option value="3">FastText</option>
+                    <option value="4">Bert</option>
+                    <option value="5">Elmo</option>
+                    <option value="6">GPT</option>
                   </select>
               </div>
           </div>
@@ -45,32 +45,32 @@
           <div class="field is-horizontal bordered-row">
               <label class="label column is-3 mb0">Active learning</label>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="radio" id="random" value="random" v-model="active" :disabled="activeset">
+                  <input class="active is-checkradio" type="radio" id="random" :value="1" v-model="active" :disabled="activeset">
                   <label for="random"><kbd>Random</kbd></label>
               </div>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="radio" id="mnlp" value="mnlp" v-model="active" :disabled="activeset">
+                  <input class="active is-checkradio" type="radio" id="mnlp" :value="2" v-model="active" :disabled="activeset">
                   <label for="mnlp"><kbd>MNLP</kbd></label>
               </div>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="radio" id="mc" value="mc" v-model="active" :disabled="activeset">
+                  <input class="active is-checkradio" type="radio" id="mc" :value="3" v-model="active" :disabled="activeset">
                   <label for="mc"><kbd>MNLP + MC</kbd></label>
               </div>
               <div class="is-narrow">
-                  <input class="active is-checkradio" type="radio" id="bb" value="bb" v-model="active" :disabled="activeset">
+                  <input class="active is-checkradio" type="radio" id="bb" :value="4" v-model="active" :disabled="activeset">
                   <label for="bb"><kbd>MNLP + BB</kbd></label>
               </div>
           </div>
           <div class="field is-horizontal bordered-row">
               <label class="label column is-3 mb0">Batch Size</label>
               <div class="control column is-5">
-                  <input class="active input" type="text" placeholder="# of instances per online learning (Default: 10)" v-model="batch" :disabled="activeset">
+                  <input class="active input" type="number" placeholder="# of instances per online learning (Default: 10)" v-model.number="batch" :disabled="activeset">
               </div>
           </div>
           <div class="field is-horizontal bordered-row">
               <label class="label column is-3 mb0">Epoch per batch</label>
               <div class="control column is-5">
-                  <input class="active input" type="text" placeholder="Epoch per each learning (Default: 10)" v-model="epoch" :disabled="activeset">
+                  <input class="active input" type="number" placeholder="Epoch per each learning (Default: 10)" v-model.number="epoch" :disabled="activeset">
               </div>
           </div>
       </div>

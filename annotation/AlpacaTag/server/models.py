@@ -174,5 +174,13 @@ class Setting(models.Model):
     nounchunk = models.BooleanField()
     onlinelearning = models.BooleanField()
     history = models.BooleanField()
+    active = models.IntegerField()
     batch = models.IntegerField()
     epoch = models.IntegerField()
+
+    def get_setting_serializer(self):
+        from .serializers import SettingSerializer
+        return SettingSerializer
+
+    class Meta:
+        unique_together = ('user', 'project')

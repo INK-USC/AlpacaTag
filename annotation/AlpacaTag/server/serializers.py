@@ -15,7 +15,18 @@ class SettingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Setting
-        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch')
+        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch', 'active')
+
+    def update(self, instance, validated_data):
+        instance.embedding = validated_data.get('embedding', instance.embedding)
+        instance.nounchunk = validated_data.get('nounchunk', instance.nounchunk)
+        instance.onlinelearning = validated_data.get('onlinelearning', instance.onlinelearning)
+        instance.history = validated_data.get('history', instance.history)
+        instance.active = validated_data.get('active', instance.active)
+        instance.batch = validated_data.get('batch', instance.batch)
+        instance.epoch = validated_data.get('epoch', instance.epoch)
+        instance.save()
+        return instance
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -80,4 +91,3 @@ class SequenceDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'text', 'annotations', 'annotated')
-

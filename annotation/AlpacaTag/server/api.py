@@ -3,7 +3,7 @@ from itertools import chain
 
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, generics, filters
+from rest_framework import viewsets, generics, filters, mixins
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -121,6 +121,7 @@ class DocumentList(generics.ListCreateAPIView):
 
         return queryset
 
+
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
@@ -138,6 +139,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
 
 class AnnotationList(generics.ListCreateAPIView):
     pagination_class = None
@@ -166,6 +168,7 @@ class AnnotationList(generics.ListCreateAPIView):
         doc.delete_annotations()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, IsProjectUser, IsOwnAnnotation)
 
@@ -189,19 +192,38 @@ class AnnotationDetail(generics.RetrieveUpdateDestroyAPIView):
         return obj
 
 
-class SettingList(generics.ListCreateAPIView):
+class SettingList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.UpdateModelMixin):
     queryset = Setting.objects.all()
     serializer_class = SettingSerializer
     pagination_class = None
-    permission_classes = (IsAuthenticated, IsProjectUser, IsAdminUserAndWriteOnly)
+    permission_classes = (IsAuthenticated, IsProjectUser)
 
     def get_queryset(self):
-        queryset = self.queryset.filter(project=self.kwargs['project_id'])
-        return queryset
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        self.queryset = self.queryset.filter(project=project, user=self.request.user)
+
+        return self.queryset
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def perform_create(self, serializer):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        serializer.save(project=project)
+        serializer.save(project=project, user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return Response(self.serializer_class(self.get_object()).data)
+
+    def put(self, request, *args, **kwargs):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        _, created = Setting.objects.get_or_create(project=project, user=self.request.user,
+                                                   defaults=self.request.data)
+        if not created:
+            return self.update(request, *args, **kwargs)
+
 
 
 class RecommendationList(APIView):
