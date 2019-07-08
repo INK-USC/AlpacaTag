@@ -57,6 +57,13 @@ const annotationMixin = {
       confirmtext: '',
       isLoading: true,
       loadingMsg: 'Loading...',
+      embedding: 1,
+      nounchunk: false,
+      onlinelearning: false,
+      history: false,
+      active: 1,
+      batch: null,
+      epoch: null,
     };
   },
 
@@ -246,9 +253,17 @@ const annotationMixin = {
   },
 
   created() {
+    HTTP.get('settings').then((response) => {
+      this.embedding = response.data.embedding;
+      this.nounchunk = response.data.nounchunk;
+      this.onlinelearning = response.data.onlinelearning;
+      this.history = response.data.history;
+      this.active = response.data.active;
+      this.batch = response.data.batch;
+      this.epoch = response.data.epoch;
+    });
     HTTP.get('labels').then((response) => {
       this.labels = response.data;
-
     });
     HTTP.get().then((response) => {
       this.guideline = response.data.guideline;
@@ -310,13 +325,25 @@ const annotationMixin = {
       return 'is-danger';
     },
     nounOn() {
-      return 'is-primary';
+      if (this.nounchunk === true) {
+        return 'is-primary';
+      } else {
+        return 'is-light';
+      }
     },
     onlineOn() {
-      return 'is-primary';
+      if (this.onlinelearning === true) {
+        return 'is-primary';
+      } else {
+        return 'is-light';
+      }
     },
     historyOn() {
-      return 'is-primary';
+      if (this.history === true) {
+        return 'is-primary';
+      } else {
+        return 'is-light';
+      }
     },
   },
 };

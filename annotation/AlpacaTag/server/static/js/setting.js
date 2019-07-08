@@ -18,6 +18,12 @@ const vm = new Vue({
   },
   methods: {
     save() {
+      if (this.active === null) {
+        this.active = 1;
+      }
+      else {
+        this.active = this.active;
+      }
       if (this.batch === null) {
         this.tmpbatch = 10;
       }
@@ -44,8 +50,10 @@ const vm = new Vue({
     },
     reset() {
       this.embedding = 1;
-      this.recommendation = [];
-      this.active = null;
+      this.nounchunk = false;
+      this.onlinelearning = false;
+      this.history = false;
+      this.active = 1;
       this.batch = null;
       this.epoch = null;
       this.activeset = true;
@@ -73,6 +81,10 @@ const vm = new Vue({
       this.active = response.data.active;
       this.batch = response.data.batch;
       this.epoch = response.data.epoch;
-      });
+      if (this.onlinelearning === false) {
+        this.batch = null;
+        this.epoch = null;
+      }
+    });
   },
 });
