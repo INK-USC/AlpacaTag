@@ -71,7 +71,8 @@ class SequenceTaggingModel(object):
         p_path = model_name + '.pre'
         m_path = model_name + '.pt'
         self.p = IndexTransformer.load(p_path)
-        embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
                                     self.word_embedding_dim,
                                     self.word_lstm_size,
@@ -95,7 +96,8 @@ class SequenceTaggingModel(object):
         self.p.label_fit(predefined_label)
         self.p.word_fit(x_train)
 
-        embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
                                     self.word_embedding_dim,
                                     self.word_lstm_size,

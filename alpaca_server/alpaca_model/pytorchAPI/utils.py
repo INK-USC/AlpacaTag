@@ -42,27 +42,6 @@ def load_sentences(sentences):
     return sents
 
 
-def filter_embeddings(embeddings, vocab, dim):
-    """Loads word vectors in numpy array.
-
-    Args:
-        embeddings (dict): a dictionary of numpy array.
-        vocab (dict): word_index lookup table.
-
-    Returns:
-        numpy array: an array of word embeddings.
-    """
-    if not isinstance(embeddings, dict):
-        return
-    _embeddings = np.zeros([len(vocab), dim])
-    for word in vocab:
-        if word in embeddings:
-            word_idx = vocab[word]
-            _embeddings[word_idx] = embeddings[word]
-
-    return _embeddings
-
-
 class Tqdm:
     # These defaults are the same as the argument defaults in tqdm.
     default_mininterval: float = 0.1
@@ -90,7 +69,9 @@ class Tqdm:
 
         return _tqdm(*args, **new_kwargs)
 
+
 log = logging.getLogger("AlpacaTag")
+
 
 def get_from_cache(url: str, cache_dir: Path = None) -> Path:
     """
@@ -143,7 +124,9 @@ def get_from_cache(url: str, cache_dir: Path = None) -> Path:
 
     return cache_path
 
+
 cache_root = os.path.expanduser(os.path.join("~", ".AlpacaTag"))
+
 
 def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
     """
@@ -172,25 +155,73 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
         )
 
 
-def load_glove_embedding():
-    """Loads GloVe vectors in numpy array.
+# def load_glove_embedding():
+#     """Loads GloVe vectors in numpy array.
+#
+#         Args:
+#             file (str): a path to a glove file.
+#
+#         Return:
+#             dict: a dict of numpy arrays.
+#     #     """
+#     old_base_path = ("https://s3.eu-central-1.amazonaws.com/alan-nlp/resources/embeddings/")
+#     cache_dir = Path("embeddings")
+#     cached_path(f"{old_base_path}glove.gensim.vectors.npy", cache_dir=cache_dir)
+#     embeddings_path = cached_path(f"{old_base_path}glove.gensim", cache_dir=cache_dir)
+#     precomputed_word_embeddings = gensim.models.KeyedVectors.load(
+#         str(embeddings_path)
+#     )
+#
+#
+#     # print(type(precomputed_word_embeddings))
+#     # print("here!!!!!!!!")
+#
+#
+#     model = {}
+#     for word in precomputed_word_embeddings:
+#         model[word] = precomputed_word_embeddings[word].numpy()
+#
+#     return model
 
-        Args:
-            file (str): a path to a glove file.
 
-        Return:
-            dict: a dict of numpy arrays.
-    #     """
+def get_embeddings(vocab, dim):
+
     old_base_path = ("https://s3.eu-central-1.amazonaws.com/alan-nlp/resources/embeddings/")
     cache_dir = Path("embeddings")
+    cached_path(f"{old_base_path}glove.gensim.vectors.npy", cache_dir=cache_dir)
     embeddings_path = cached_path(f"{old_base_path}glove.gensim", cache_dir=cache_dir)
-    precomputed_word_embeddings = gensim.models.KeyedVectors.load(str(embeddings_path))
-    model = {}
-    for word in precomputed_word_embeddings:
-        model[word] = precomputed_word_embeddings[word].numpy()
+    precomputed_word_embeddings = gensim.models.KeyedVectors.load(
+        str(embeddings_path)
+    )
 
-    return model
+    _embeddings = np.zeros([len(vocab), dim])
+    for word in vocab:
+        if word in precomputed_word_embeddings:
+            word_idx = vocab[word]
+            _embeddings[word_idx] = precomputed_word_embeddings[word]
 
+    return _embeddings
+
+
+def filter_embeddings(embeddings, vocab, dim):
+    """Loads word vectors in numpy array.
+
+    Args:
+        embeddings (dict): a dictionary of numpy array.
+        vocab (dict): word_index lookup table.
+
+    Returns:
+        numpy array: an array of word embeddings.
+    """
+    if not isinstance(embeddings, dict):
+        return
+    _embeddings = np.zeros([len(vocab), dim])
+    for word in vocab:
+        if word in embeddings:
+            word_idx = vocab[word]
+            _embeddings[word_idx] = embeddings[word]
+
+    return _embeddings
 
 
 def load_glove(file):
