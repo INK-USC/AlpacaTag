@@ -79,10 +79,11 @@ class SequenceTaggingModel(object):
 
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
         # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
-        embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
+        # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-                                    GPT_EMBEDDING_SIZE,
+                                    BERT_EMBEDDING_SIZE,
                                     self.word_lstm_size,
                                     self.p.char_vocab_size,
                                     self.char_embedding_dim,
@@ -108,9 +109,10 @@ class SequenceTaggingModel(object):
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
         # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
-        embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
+        # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
+        embeddings = get_Bert_embeddings(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-                                    GPT_EMBEDDING_SIZE,
+                                    BERT_EMBEDDING_SIZE,
                                     self.word_lstm_size,
                                     self.p.char_vocab_size,
                                     self.char_embedding_dim,

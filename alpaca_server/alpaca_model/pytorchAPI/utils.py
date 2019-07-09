@@ -172,7 +172,22 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
 
 
 def get_Bert_embeddings(vocab, dim):
-    pass
+    from flair.embeddings import BertEmbeddings
+    from flair.data import Sentence
+
+    _embeddings = np.zeros([len(vocab), dim])
+    temp = []
+    for each_word in vocab:
+        temp.append(each_word)
+    sentence = Sentence(' '.join(temp))
+
+    embedding = BertEmbeddings()
+
+    embedding.embed(sentence)
+    for token in sentence:
+        _embeddings[vocab[token.text]] = token.embedding
+
+    return _embeddings
 
 
 def get_GPT_embeddings(vocab, dim):
