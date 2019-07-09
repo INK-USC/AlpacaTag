@@ -81,6 +81,13 @@ const annotationMixin = {
           this.pageNumber = this.docs.length - 1;
         }
       }
+      console.log(this.onlineLearningIndices.size, this.onlineLearningPer)
+      if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+        this.onlinelearning().then((res) => {
+          this.onlineLearningIndices.clear();
+          this.onlineLearningNum = 0;
+        });
+      }
     },
 
     async prevPage() {
@@ -93,6 +100,13 @@ const annotationMixin = {
         } else {
           this.pageNumber = 0;
         }
+      }
+      console.log(this.onlineLearningIndices.size, this.onlineLearningPer)
+      if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+        this.onlinelearning().then((res) => {
+          this.onlineLearningIndices.clear();
+          this.onlineLearningNum = 0;
+        });
       }
     },
 
@@ -158,16 +172,7 @@ const annotationMixin = {
     },
 
     async search() {
-      if (this.onlineLearningIndices.size >= 5) {
-        this.onlinelearning().then((res) => {
-          HTTP.get(this.url).then((response) => this.process_data(response));
-          this.onlineLearningIndices.clear();
-          this.onlineLearningNum = 0;
-        });
-      }
-      else {
-        HTTP.get(this.url).then((response) => this.process_data(response));
-      }
+      HTTP.get(this.url).then((response) => this.process_data(response));
     },
 
     getState() {
@@ -187,7 +192,7 @@ const annotationMixin = {
       this.pageNumber = 0;
     },
 
-    async initiatelearning(){
+    async initiatelearning() {
       return await HTTP.get(`learninginitiate`).then((response) => {
         this.loadingMsg="initiate learning";
         console.log(response.data.isFirst);
@@ -226,11 +231,12 @@ const annotationMixin = {
     },
 
     onlinelearning(){
-      this.isLoading=true;
+      this.loadingMsg = "online learning";
+      this.isLoading = true;
       const indices = Array.from(this.onlineLearningIndices);
       return HTTP.post(`onlinelearning/`, { 'indices': indices }).then((response) => {
+        this.isLoading = false;
       });
-      this.isLoading=false;
     },
   },
 
@@ -271,6 +277,7 @@ const annotationMixin = {
       this.history = response.data.history;
       this.active = response.data.active;
       this.batch = response.data.batch;
+      this.onlineLearningPer = response.data.batch;
       this.epoch = response.data.epoch;
       this.connectServer().then((response) => {
         if (this.online === true && this.server === true){
@@ -354,8 +361,10 @@ const annotationMixin = {
       }
     },
     onlineOn() {
-      if (this.online === true) {
+      if (this.online === true && this.server === true) {
         return 'is-primary';
+      } else if (this.online === true && this.server === false) {
+        return 'is-danger';
       } else {
         return 'is-light';
       }

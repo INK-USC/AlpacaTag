@@ -304,7 +304,7 @@ class RecommendationList(APIView):
         setting_data = serializer_class(obj).data
         opt_n = setting_data['nounchunk']
         opt_o = setting_data['onlinelearning']
-        opt_h = setting_data['historhy']
+        opt_h = setting_data['history']
 
         nounchunks = self.chunking(document.text)
         nounchunks_entities = nounchunks['entities']
