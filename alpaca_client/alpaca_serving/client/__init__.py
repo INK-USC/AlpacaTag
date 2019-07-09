@@ -26,7 +26,7 @@ class AlpacaClient(object):
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
                  check_token_info=True, ignore_all_checks=False,
-                 timeout=15000):
+                 timeout=3000):
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -40,7 +40,8 @@ class AlpacaClient(object):
         self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
         self.request_id = 0
-        self.timeout = timeout
+        self.timeout_short = timeout
+        self.timeout_long = 100000
         self.pending_request = set()
         self.pending_response = {}
 
@@ -134,24 +135,49 @@ class AlpacaClient(object):
             'port_out': self.port_out,
             'server_ip': self.ip,
             'client_version': __version__,
-            'timeout': self.timeout
+            'timeout_short': self.timeout_short,
+            'timeout_long': self.timeout_long
         }
 
-    def _timeout(func):
+    def _timeout_short(func):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             if 'blocking' in kwargs and not kwargs['blocking']:
                 # override client timeout setting if `func` is called in non-blocking way
                 self.receiver.setsockopt(zmq.RCVTIMEO, -1)
             else:
-                self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+                self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout_short)
             try:
                 return func(self, *args, **kwargs)
             except zmq.error.Again as _e:
                 t_e = TimeoutError(
                     'no response from the server (with "timeout"=%d ms), please check the following:'
                     'is the server still online? is the network broken? are "port" and "port_out" correct? '
-                    'are you encoding a huge amount of data whereas the timeout is too small for that?' % self.timeout)
+                    'are you encoding a huge amount of data whereas the timeout is too small for that?' % self.timeout_short)
+                if _py2:
+                    raise t_e
+                else:
+                    _raise(t_e, _e)
+            finally:
+                self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+
+        return arg_wrapper
+
+    def _timeout_long(func):
+        @wraps(func)
+        def arg_wrapper(self, *args, **kwargs):
+            if 'blocking' in kwargs and not kwargs['blocking']:
+                # override client timeout setting if `func` is called in non-blocking way
+                self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+            else:
+                self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout_long)
+            try:
+                return func(self, *args, **kwargs)
+            except zmq.error.Again as _e:
+                t_e = TimeoutError(
+                    'no response from the server (with "timeout"=%d ms), please check the following:'
+                    'is the server still online? is the network broken? are "port" and "port_out" correct? '
+                    'are you encoding a huge amount of data whereas the timeout is too small for that?' % self.timeout_long)
                 if _py2:
                     raise t_e
                 else:
@@ -162,7 +188,7 @@ class AlpacaClient(object):
         return arg_wrapper
 
     @property
-    @_timeout
+    @_timeout_short
     def server_status(self):
         """
             Get the current status of the server connected to this client
@@ -172,35 +198,35 @@ class AlpacaClient(object):
         req_id = self._send(b'SHOW_CONFIG', b'SHOW_CONFIG')
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout
+    @_timeout_long
     def initiate(self, project_id):
         # model = Sequence()
         req_id = self._send(b'INITIATE', bytes(str(project_id), encoding='ascii'))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout
+    @_timeout_short
     def online_initiate(self, sentences, predefined_label):
         # model.online_word_build(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
         req_id = self._send(b'ONLINE_INITIATE', jsonapi.dumps([sentences, predefined_label]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout
+    @_timeout_short
     def online_learning(self, sentences, labels):
         assert len(sentences) == len(labels)
         req_id = self._send(b'ONLINE_LEARNING', jsonapi.dumps([sentences, labels]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout
+    @_timeout_short
     def active_learning(self, sentences, num_instances):
         req_id = self._send(b'ACTIVE_LEARNING', jsonapi.dumps([sentences, num_instances]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout
+    @_timeout_short
     def predict(self, sentences):
         req_id = self._send(b'PREDICT', jsonapi.dumps(sentences), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout
+    @_timeout_short
     def encode(self, texts, blocking=True, is_tokenized=False, show_tokens=False):
         req_id = self._send(jsonapi.dumps(texts), len(texts))
         r = self._recv_test(req_id)

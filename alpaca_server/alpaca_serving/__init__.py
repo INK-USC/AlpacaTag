@@ -331,7 +331,7 @@ class AlpacaSink(Process):
                 if msg_type == ServerCmd.error:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send error\tclient %s' % client_addr)
-                    sender.send_multipart([client_addr, msg_info, msg_type, req_id])
+                    sender.send_multipart([client_addr, jsonapi.dumps('error'), req_id])
 
 class SinkJob:
     def __init__(self, req_id):

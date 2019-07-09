@@ -14,18 +14,11 @@ from .models import Project, Label, Document, Setting
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
 from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer, SettingSerializer
 
-import sys
-sys.path.append("..")
 import spacy
-from alpaca_serving import *
-# import tensorflow as tf
-# from alpaca_model import kerasAPI
-#
-# projectid = 0
-# session = tf.Session()
-# graph = tf.get_default_graph()
-# alpaca_model = kerasAPI.Sequence()
+from alpaca_serving.client import *
+alpaca_client = None
 nlp = spacy.load('en_core_web_sm')
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -226,8 +219,23 @@ class SettingList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.Updat
             return self.update(request, *args, **kwargs)
 
 
+class ConnectToServer(APIView):
+    pagination_class = None
+    permission_classes = (IsAuthenticated, IsProjectUser,)
+
+    def get(self, request, *args, **kwargs):
+        global alpaca_client
+        try:
+            alpaca_client = AlpacaClient()
+            response = {'connection': True}
+        except TimeoutError:
+            response = {'connection': False}
+
+        return Response(response)
+
 
 class RecommendationList(APIView):
+
     pagination_class = None
     permission_classes = (IsAuthenticated, )
 
@@ -284,16 +292,25 @@ class RecommendationList(APIView):
 
 
     def get(self, request, *args, **kwargs):
+        #project, document
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
+
+        #settings
+        queryset = Setting.objects.all()
+        serializer_class = SettingSerializer
+        queryset = queryset.filter(project=project, user=self.request.user)
+        obj = get_object_or_404(queryset)
+        setting_data = serializer_class(obj).data
+        opt_n = setting_data['nounchunk']
+        opt_o = setting_data['onlinelearning']
+        opt_h = setting_data['historhy']
+
         nounchunks = self.chunking(document.text)
         nounchunks_entities = nounchunks['entities']
         nounchunks_words = nounchunks['words']
         chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
 
-        # global session
-        # global alpaca_model
-        # global graph
         #
         # nounchunks = alpaca_model.noun_chunks(document.text)
         # nounchunks_entities = nounchunks['entities']
@@ -330,28 +347,24 @@ class LearningInitiate(APIView):
     permission_classes = (IsAuthenticated, IsProjectUser,)
 
     def get(self, request, *args, **kwargs):
+
+        global alpaca_client
+
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
         labels = [label.text for label in p.labels.all()]
-        # predefined_label = []
-        # for i in labels:
-        #     predefined_label.append('B-' + str(i))
-        #     predefined_label.append('I-' + str(i))
-        # predefined_label.append('O')
-        # docs = [doc for doc in p.documents.all()]
-        # train_docs = [str.split(doc.text) for doc in docs]
-        # global projectid
-        # isFirst = False
-        # if projectid != self.kwargs['project_id']:
-        #     projectid = self.kwargs['project_id']
-        #     with session.as_default():
-        #         with graph.as_default():
-        #             alpaca_model.online_word_build(train_docs, predefined_label)
-        #             isFirst = True
-        #
-        # response = {'isFirst': isFirst}
-        #
-        # return Response(response)
-        response = {'isFirst': None}
+        alpaca_client.initiate(self.kwargs['project_id'])
+        predefined_label = []
+
+        for i in labels:
+            predefined_label.append('B-' + str(i))
+            predefined_label.append('I-' + str(i))
+        predefined_label.append('O')
+        docs = [doc for doc in p.documents.all()]
+        train_docs = [str.split(doc.text) for doc in docs]
+
+        alpaca_client.online_initiate(train_docs, [predefined_label])
+        response = {'initiated': True}
+
         return Response(response)
 
 
@@ -362,20 +375,14 @@ class OnlineLearning(APIView):
     def post(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
 
-        # docs_num = request.data.get('indices')
-        # docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
-        # annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
-        # train_docs = [str.split(doc.text) for doc in docs]
-        #
-        # if alpaca_model.alpaca_model is not None:
-        #     with session.as_default():
-        #         with graph.as_default():
-        #             alpaca_model.online_learning(train_docs, annotations)
-        #
-        # response = {'docs': train_docs,
-        #             'annotations': annotations}
-        #
-        # return Response(response)
-        response = {'docs': None,
-                    'annotations': None}
+        docs_num = request.data.get('indices')
+        docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
+        annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
+        train_docs = [str.split(doc.text) for doc in docs]
+
+
+        alpaca_client.online_learning(train_docs, annotations)
+        response = {'docs': train_docs,
+                    'annotations': annotations}
+
         return Response(response)

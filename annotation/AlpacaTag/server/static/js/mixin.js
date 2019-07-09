@@ -59,11 +59,13 @@ const annotationMixin = {
       loadingMsg: 'Loading...',
       embedding: 1,
       nounchunk: false,
-      onlinelearning: false,
+      online: false,
       history: false,
       active: 1,
       batch: null,
       epoch: null,
+      server: null,
+      serverMsg: 'OFF',
     };
   },
 
@@ -192,6 +194,12 @@ const annotationMixin = {
       });
     },
 
+    async connectServer(){
+      return await HTTP.get('connectserver').then((response) => {
+        this.server = response.data["connection"];
+      });
+    },
+
     removeLabel(annotation) {
       const docId = this.docs[this.pageNumber].id;
       HTTP.delete(`docs/${docId}/annotations/${annotation.id}`).then((response) => {
@@ -253,23 +261,31 @@ const annotationMixin = {
   },
 
   created() {
+    HTTP.get('labels').then((response) => {
+      this.labels = response.data;
+    });
     HTTP.get('settings').then((response) => {
       this.embedding = response.data.embedding;
       this.nounchunk = response.data.nounchunk;
-      this.onlinelearning = response.data.onlinelearning;
+      this.online = response.data.onlinelearning;
       this.history = response.data.history;
       this.active = response.data.active;
       this.batch = response.data.batch;
       this.epoch = response.data.epoch;
-    });
-    HTTP.get('labels').then((response) => {
-      this.labels = response.data;
+      this.connectServer().then((response) => {
+        if (this.online === true && this.server === true){
+          this.initiatelearning().then((response) => {
+            console.log("model server on");
+            this.submit();
+          });
+        } else {
+          console.log("model server off");
+          this.submit();
+        }
+      });
     });
     HTTP.get().then((response) => {
       this.guideline = response.data.guideline;
-    });
-    this.initiatelearning().then((response) => {
-      this.submit();
     });
   },
 
@@ -322,7 +338,13 @@ const annotationMixin = {
     },
 
     serverOn() {
-      return 'is-danger';
+      if (this.server === true) {
+        this.serverMsg = 'ON';
+        return 'is-primary';
+      } else {
+        this.serverMsg = 'OFF';
+        return 'is-danger';
+      }
     },
     nounOn() {
       if (this.nounchunk === true) {
@@ -332,7 +354,7 @@ const annotationMixin = {
       }
     },
     onlineOn() {
-      if (this.onlinelearning === true) {
+      if (this.online === true) {
         return 'is-primary';
       } else {
         return 'is-light';
