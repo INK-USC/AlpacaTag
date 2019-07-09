@@ -6,8 +6,10 @@ from .models import *
 from .tagger import *
 import torch
 
+GLOVE_EMBEDDING_SIZE = 100
 ELMO_EMBEDDING_SIZE = 768
 GPT_EMBEDDING_SIZE = 1536
+BERT_EMBEDDING_SIZE = 3072
 
 class SequenceTaggingModel(object):
 
@@ -76,23 +78,17 @@ class SequenceTaggingModel(object):
         self.p = IndexTransformer.load(p_path)
 
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
-        # self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-        #                             ELMO_EMBEDDING_SIZE,
-        #                             self.word_lstm_size,
-        #                             self.p.char_vocab_size,
-        #                             self.char_embedding_dim,
-        #                             self.char_lstm_size,
-        #                             self.p._label_vocab.vocab, pretrained=embeddings)
-
-        embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-                                    self.word_embedding_dim,
+                                    GPT_EMBEDDING_SIZE,
                                     self.word_lstm_size,
                                     self.p.char_vocab_size,
                                     self.char_embedding_dim,
                                     self.char_lstm_size,
                                     self.p._label_vocab.vocab, pretrained=embeddings)
+
         self.model.load_state_dict(torch.load(m_path))
         learning_rate = 0.01
         optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate, momentum=0.9)
@@ -109,21 +105,12 @@ class SequenceTaggingModel(object):
         self.p.label_fit(predefined_label)
         self.p.word_fit(x_train)
 
-
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
-        # self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-        #                             ELMO_EMBEDDING_SIZE,
-        #                             self.word_lstm_size,
-        #                             self.p.char_vocab_size,
-        #                             self.char_embedding_dim,
-        #                             self.char_lstm_size,
-        #                             self.p._label_vocab.vocab, pretrained=embeddings)
-
-
-        embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-                                    self.word_embedding_dim,
+                                    GPT_EMBEDDING_SIZE,
                                     self.word_lstm_size,
                                     self.p.char_vocab_size,
                                     self.char_embedding_dim,

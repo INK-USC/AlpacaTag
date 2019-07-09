@@ -13,9 +13,25 @@ from tqdm import tqdm as _tqdm
 import logging
 import shutil
 import gensim
+import flair
+
+
+from pytorch_pretrained_bert.modeling_openai import (
+    PRETRAINED_MODEL_ARCHIVE_MAP as OPENAI_GPT_PRETRAINED_MODEL_ARCHIVE_MAP,
+)
+
+from pytorch_pretrained_bert import (
+    BertTokenizer,
+    BertModel,
+    TransfoXLTokenizer,
+    TransfoXLModel,
+    OpenAIGPTModel,
+    OpenAIGPTTokenizer,
+)
 
 START_TAG = '<START>'
 STOP_TAG = '<STOP>'
+
 
 def load_data_and_labels(filename, encoding='utf-8'):
     sents, labels = [], []
@@ -155,8 +171,33 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
         )
 
 
-def get_GPT_embeddings(vocab, dim):
+def get_Bert_embeddings(vocab, dim):
     pass
+
+
+def get_GPT_embeddings(vocab, dim):
+    _embeddings = np.zeros([len(vocab), dim])
+
+    if "openai-gpt" not in OPENAI_GPT_PRETRAINED_MODEL_ARCHIVE_MAP.keys():
+        raise ValueError("Provided OpenAI GPT model is not available.")
+    tokenizer = OpenAIGPTTokenizer.from_pretrained("openai-gpt")
+    gpt_model = OpenAIGPTModel.from_pretrained("openai-gpt")
+
+    with torch.no_grad():
+        for word in vocab:
+            subwords = tokenizer.tokenize(word)
+            indexed_tokens = tokenizer.convert_tokens_to_ids(subwords)
+            tokens_tensor = torch.tensor([indexed_tokens])
+            tokens_tensor = tokens_tensor.to(flair.device)
+            hidden_states = gpt_model(tokens_tensor)
+
+            first_embedding = hidden_states[0][0]
+            last_embedding = hidden_states[0][len(hidden_states[0]) - 1]
+            final_embedding = torch.cat([first_embedding, last_embedding])
+
+            _embeddings[vocab[word]] = final_embedding
+
+    return _embeddings
 
 
 def get_Elmo_embeddings(vocab, dim):
