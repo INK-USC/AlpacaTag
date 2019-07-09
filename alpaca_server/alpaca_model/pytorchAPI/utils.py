@@ -155,36 +155,55 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
         )
 
 
-# def load_glove_embedding():
-#     """Loads GloVe vectors in numpy array.
-#
-#         Args:
-#             file (str): a path to a glove file.
-#
-#         Return:
-#             dict: a dict of numpy arrays.
-#     #     """
-#     old_base_path = ("https://s3.eu-central-1.amazonaws.com/alan-nlp/resources/embeddings/")
-#     cache_dir = Path("embeddings")
-#     cached_path(f"{old_base_path}glove.gensim.vectors.npy", cache_dir=cache_dir)
-#     embeddings_path = cached_path(f"{old_base_path}glove.gensim", cache_dir=cache_dir)
-#     precomputed_word_embeddings = gensim.models.KeyedVectors.load(
-#         str(embeddings_path)
-#     )
-#
-#
-#     # print(type(precomputed_word_embeddings))
-#     # print("here!!!!!!!!")
-#
-#
-#     model = {}
-#     for word in precomputed_word_embeddings:
-#         model[word] = precomputed_word_embeddings[word].numpy()
-#
-#     return model
+def get_GPT_embeddings(vocab, dim):
+    pass
 
 
-def get_embeddings(vocab, dim):
+def get_Elmo_embeddings(vocab, dim):
+
+    _embeddings = np.zeros([len(vocab), dim])
+
+    options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x1024_128_2048cnn_1xhighway/elmo_2x1024_128_2048cnn_1xhighway_options.json"
+    weight_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x1024_128_2048cnn_1xhighway/elmo_2x1024_128_2048cnn_1xhighway_weights.hdf5"
+
+    from flair import device
+    import allennlp.commands.elmo
+
+    if re.fullmatch(r"cuda:[0-9]+", str(device)):
+        cuda_device = int(str(device).split(":")[-1])
+    elif str(device) == "cpu":
+        cuda_device = -1
+    else:
+        cuda_device = 0
+
+    elmo_embeddings = allennlp.commands.elmo.ElmoEmbedder(
+        options_file=options_file, weight_file=weight_file, cuda_device=cuda_device
+    )
+
+    temp = []
+    for each_word in vocab:
+        temp.append(each_word)
+    sentences_words = [temp]
+
+    embeddings = elmo_embeddings.embed_batch(sentences_words)
+    sentence_embeddings = embeddings[0]
+    for token, token_idx in zip(sentences_words[0], range(len(sentences_words[0]))):
+
+        word_embedding = torch.cat(
+            [
+                torch.FloatTensor(sentence_embeddings[0, token_idx, :]),
+                torch.FloatTensor(sentence_embeddings[1, token_idx, :]),
+                torch.FloatTensor(sentence_embeddings[2, token_idx, :]),
+            ],
+            0,
+        )
+
+        _embeddings[vocab[token]] = word_embedding
+
+    return _embeddings
+
+
+def get_glove_embeddings(vocab, dim):
 
     old_base_path = ("https://s3.eu-central-1.amazonaws.com/alan-nlp/resources/embeddings/")
     cache_dir = Path("embeddings")
