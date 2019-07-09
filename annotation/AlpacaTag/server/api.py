@@ -98,6 +98,9 @@ class DocumentList(generics.ListCreateAPIView):
     search_fields = ('text', )
     permission_classes = (IsAuthenticated, IsProjectUser, IsAdminUserAndWriteOnly)
 
+    # 1. you sould get settings whether the 'active' field is Random or Mnlp or something.
+    # 2. if it is set to MNLP, you should call active_learning in here
+    # 3. and then, get documents with primrary key (document_id) (select where id = ~~)
     def get_serializer_class(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         self.serializer_class = project.get_document_serializer()
@@ -306,40 +309,42 @@ class RecommendationList(APIView):
         opt_o = setting_data['onlinelearning']
         opt_h = setting_data['history']
 
-        nounchunks = self.chunking(document.text)
-        nounchunks_entities = nounchunks['entities']
-        nounchunks_words = nounchunks['words']
-        chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
+        #recommendation history
+        final_list = []
+        n_list = []
+        o_list = []
+        h_list = []
 
-        #
-        # nounchunks = alpaca_model.noun_chunks(document.text)
-        # nounchunks_entities = nounchunks['entities']
-        # nounchunks_words = nounchunks['words']
-        # chunklist = self.index_word2char(nounchunks_entities, nounchunks_words)
-        #
-        # with session.as_default():
-        #     with graph.as_default():
-        #         response = alpaca_model.analyze(document.text)
-        #         entities = response['entities']
-        #         words = response['words']
-        #         modellist = self.index_word2char(entities, words)
-        #
-        # finallist = []
-        # is_dict = False
-        # for chunk in chunklist:
-        #     is_model = False
-        #     for recommend in modellist:
-        #         if chunk['start_offset'] <= recommend['start_offset'] and chunk['end_offset'] >= recommend['end_offset']:
-        #             print(chunk)
-        #             print(recommend)
-        #             finallist.append(recommend)
-        #             is_model = True
-        #     if not is_model:
-        #         finallist.append(chunk)
-        #
-        # return Response({"recommendation": finallist})
+        if opt_n:
+            response = self.chunking(document.text)
+            n_entities = response['entities']
+            n_words = response['words']
+            n_list = self.index_word2char(n_entities, n_words)
 
-        return Response({"recommendation": chunklist})
+        if opt_o:
+            response = alpaca_client.predict(document.text)
+            o_entities = response['entities']
+            o_words = response['words']
+            o_list = self.index_word2char(o_entities, o_words)
+
+        if opt_h:
+            h_list = []
+            None
+
+        if opt_n:
+            for n in n_list:
+                is_o = False
+                for o in o_list:
+                    if n['start_offset'] <= o['start_offset'] and n['end_offset'] >= o['end_offset']:
+                        final_list.append(o)
+                        is_o = True
+                if not is_o:
+                    final_list.append(n)
+        else:
+            for o in o_list:
+                final_list.append(o)
+
+        return Response({"recommendation": final_list})
 
 
 class LearningInitiate(APIView):
