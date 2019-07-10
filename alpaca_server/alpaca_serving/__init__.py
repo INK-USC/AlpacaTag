@@ -451,7 +451,7 @@ class AlpacaWorker(Process):
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
 
                     elif msg_type == ServerCmd.online_learning:
-                        self.model.online_learning(msg[0], msg[1])
+                        self.model.online_learning(msg[0], msg[1], msg[2], msg[3])
                         self.model.save('model'+self.modelid)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
                         helper.send_test(outputs, client_id, b'Online learning completed', msg_type)

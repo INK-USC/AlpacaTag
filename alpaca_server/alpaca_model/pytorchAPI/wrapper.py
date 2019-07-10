@@ -32,8 +32,7 @@ class SequenceTaggingModel(object):
         self.char_lstm_size = char_lstm_size
         self.fc_dim = fc_dim
         self.dropout = dropout
-        # self.embeddings = load_glove('glove.6B.100d.txt')
-        # self.embeddings = load_glove_embedding()
+        self.embedding = embeddings
         self.use_char = use_char
         self.use_crf = use_crf
         self.initial_vocab = initial_vocab
@@ -78,12 +77,12 @@ class SequenceTaggingModel(object):
         self.p = IndexTransformer.load(p_path)
 
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
-        # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
-        embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
+        # embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-                                    BERT_EMBEDDING_SIZE,
+                                    self.word_embedding_dim,
                                     self.word_lstm_size,
                                     self.p.char_vocab_size,
                                     self.char_embedding_dim,
@@ -95,24 +94,20 @@ class SequenceTaggingModel(object):
         optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate, momentum=0.9)
         self.trainer = Trainer(self.model, optimizer)
 
+    # initiate - if setting change -> must execute initiate
     # list of sentences into train_sentences [['EU rejects ~~'],[''],..]
     def online_word_build(self, x_train, predefined_label):
-        # pretrained_label = ['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']
-        # let's make it to text file and add it altogether!
-        # x_train = []
-        # for sentence in train_sentences:
-        #     x_train.append(str.split(sentence))
         self.p = IndexTransformer(initial_vocab=self.initial_vocab, use_char=self.use_char)
         self.p.label_fit(predefined_label)
         self.p.word_fit(x_train)
 
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
-        # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
-        embeddings = get_Bert_embeddings(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
+        # embeddings = get_Bert_embeddings(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
-                                    BERT_EMBEDDING_SIZE,
+                                    self.word_embedding_dim,
                                     self.word_lstm_size,
                                     self.p.char_vocab_size,
                                     self.char_embedding_dim,
@@ -134,10 +129,10 @@ class SequenceTaggingModel(object):
         self.acquisition.obtain_data(data=dataset, model=self.model, acquire=size, method='mnlp')
         return [i for i in self.acquisition.return_index]
 
-    def online_learning(self, x_train, y_train, epochs=5, batch_size=5, verbose=1, callbacks=None, shuffle=True):
+    def online_learning(self, x_train, y_train, epochs=5, batch_size=5):
         dataset = prepare_dataset(x_train, y_train, self.p)
         learning_rate = 0.01
 
-        self.model = self.trainer.train_model(num_epochs=3, train_data=dataset, learning_rate=learning_rate, batch_size=10, lr_decay=0.05)
+        self.model = self.trainer.train_model(num_epochs=epochs, train_data=dataset, learning_rate=learning_rate, batch_size=batch_size, lr_decay=0.05)
 
 

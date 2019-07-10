@@ -211,9 +211,9 @@ class AlpacaClient(object):
         return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout_short
-    def online_learning(self, sentences, labels):
+    def online_learning(self, sentences, labels, epoch, batch):
         assert len(sentences) == len(labels)
-        req_id = self._send(b'ONLINE_LEARNING', jsonapi.dumps([sentences, labels]), len(sentences))
+        req_id = self._send(b'ONLINE_LEARNING', jsonapi.dumps([sentences, labels, epoch, batch]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout_short

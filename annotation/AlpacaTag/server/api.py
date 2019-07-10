@@ -37,8 +37,8 @@ def alpaca_initiate(project_id):
     if response == 'error':
         print('error')
         time.sleep(3)
-        alpaca_client.initiate(project_id)
-
+        return alpaca_client.initiate(project_id)
+    return response
 
 def alpaca_online_initiate(train_docs, predefined_label):
     global alpaca_client
@@ -503,18 +503,21 @@ class LearningInitiate(APIView):
     def get(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
         labels = [label.text for label in p.labels.all()]
-        alpaca_initiate(self.kwargs['project_id'])
-        predefined_label = []
 
-        for i in labels:
-            predefined_label.append('B-' + str(i))
-            predefined_label.append('I-' + str(i))
-        predefined_label.append('O')
-        docs = [doc for doc in p.documents.all()]
-        train_docs = [str.split(doc.text) for doc in docs]
+        if alpaca_initiate(self.kwargs['project_id']) == "Model Loaded":
+            response = {'initiated': False, 'loaded': True}
 
-        alpaca_online_initiate(train_docs, predefined_label)
-        response = {'initiated': True}
+        else:
+            predefined_label = []
+            for i in labels:
+                predefined_label.append('B-' + str(i))
+                predefined_label.append('I-' + str(i))
+            predefined_label.append('O')
+            docs = [doc for doc in p.documents.all()]
+            train_docs = [str.split(doc.text) for doc in docs]
+
+            alpaca_online_initiate(train_docs, predefined_label)
+            response = {'initiated': True, 'loaded': False}
 
         return Response(response)
 
@@ -525,13 +528,18 @@ class OnlineLearning(APIView):
 
     def post(self, request, *args, **kwargs):
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        setting_queryset = Setting.objects.all()
+        serializer_class = SettingSerializer
+        setting_queryset = setting_queryset.filter(project=p, user=self.request.user)
+        setting_obj = get_object_or_404(setting_queryset)
+        setting_data = serializer_class(setting_obj).data
 
         docs_num = request.data.get('indices')
         docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
         annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
         train_docs = [str.split(doc.text) for doc in docs]
 
-        alpaca_online_learning(train_docs, annotations)
+        alpaca_online_learning(train_docs, annotations, setting_data['epoch'], setting_data['batch'])
         response = {'docs': train_docs,
                     'annotations': annotations}
 
