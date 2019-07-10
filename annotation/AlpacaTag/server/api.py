@@ -1,6 +1,7 @@
 from collections import Counter
 from itertools import chain
 
+from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, filters, mixins
@@ -272,8 +273,11 @@ class RecommendationHistoryList(generics.ListCreateAPIView):
         return self.queryset
 
     def perform_create(self, serializer):
-        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        serializer.save(project=project, user=self.request.user)
+        try:
+            project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+            serializer.save(project=project, user=self.request.user)
+        except IntegrityError:
+            print("The word with that label is already exist in history.")
 
 
 class RecommendationHistoryDetail(generics.RetrieveUpdateDestroyAPIView):

@@ -310,11 +310,11 @@ const vm = new Vue({
       this.$refs.annotator.addLabel(labelId);
     },
 
-    recommend_shortkey_offset(startoff, endoff){
+    recommend_shortkey_offset(startoff, endoff) {
       this.$refs.annotator.recommendShortkeyOffset(startoff, endoff);
     },
 
-    resetRange(){
+    resetRange() {
       this.$refs.annotator.resetRange();
     },
 
@@ -329,6 +329,13 @@ const vm = new Vue({
         }
         HTTP.patch(`docs/${docId}`, {'annotated': true}).then((response) => {
         });
+      });
+      const history = {
+        word: this.$refs.annotator.text.slice(annotation['start_offset'],annotation['end_offset']),
+        label: annotation['label']
+      };
+      HTTP.post(`history/`, history).then((response) => {
+        console.log(history);
       });
     },
   },
