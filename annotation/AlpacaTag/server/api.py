@@ -15,9 +15,47 @@ from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
 from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer, SettingSerializer, RecommendationHistorySerializer
 
 import spacy
+import time
 from alpaca_serving.client import *
 alpaca_client = None
 nlp = spacy.load('en_core_web_sm')
+
+
+def alpaca_recommend(text):
+    global alpaca_client
+    response = alpaca_client.predict(text)
+    if response == 'error':
+        print('error')
+        time.sleep(3)
+        return alpaca_recommend(text)
+    return response
+
+
+def alpaca_initiate(project_id):
+    global alpaca_client
+    response = alpaca_client.initiate(project_id)
+    if response == 'error':
+        print('error')
+        time.sleep(3)
+        alpaca_client.initiate(project_id)
+
+
+def alpaca_online_initiate(train_docs, predefined_label):
+    global alpaca_client
+    response = alpaca_client.online_initiate(train_docs, [predefined_label])
+    if response == 'error':
+        print('error')
+        time.sleep(3)
+        alpaca_client.online_initiate(train_docs, [predefined_label])
+
+
+def alpaca_online_learning(train_docs, annotations):
+    global alpaca_client
+    response = alpaca_client.online_learning(train_docs, annotations)
+    if response == 'error':
+        print('error')
+        time.sleep(3)
+        alpaca_client.online_learning(train_docs, annotations)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -354,7 +392,7 @@ class RecommendationList(APIView):
             n_list = self.index_word2char(n_entities, n_words)
 
         if opt_o and alpaca_client is not None:
-            response = alpaca_client.predict(document.text)
+            response = alpaca_recommend(document.text)
             o_entities = response['entities']
             o_words = response['words']
             o_list = self.index_word2char(o_entities, o_words)
@@ -397,16 +435,13 @@ class RecommendationList(APIView):
                             is_h = True
 
                 if len(tmp_h_list) > 0 and len(tmp_o_list) > 0:
-                    print(tmp_h_list, tmp_o_list)
                     for tmp_h in tmp_h_list:
                         for tmp_o in tmp_o_list[:]:
                             o_range = range(tmp_o['start_offset'],tmp_o['end_offset'])
                             h_range = range(tmp_h['start_offset'],tmp_h['end_offset'])
                             h_range_s = set(h_range)
                             if len(h_range_s.intersection(o_range)) > 0:
-                                print("intersect")
                                 tmp_o_list.remove(tmp_o)
-                    print(tmp_h_list, tmp_o_list)
                     tmp_list.extend(tmp_h_list)
                     tmp_list.extend(tmp_o_list)
 
@@ -442,16 +477,13 @@ class RecommendationList(APIView):
                         tmp_h_list.append(h_dict)
 
             if len(tmp_h_list) > 0 and len(tmp_o_list) > 0:
-                print(tmp_h_list, tmp_o_list)
                 for tmp_h in tmp_h_list:
                     for tmp_o in tmp_o_list[:]:
                         o_range = range(tmp_o['start_offset'], tmp_o['end_offset'])
                         h_range = range(tmp_h['start_offset'], tmp_h['end_offset'])
                         h_range_s = set(h_range)
                         if len(h_range_s.intersection(o_range)) > 0:
-                            print("intersect")
                             tmp_o_list.remove(tmp_o)
-                print(tmp_h_list, tmp_o_list)
                 tmp_list.extend(tmp_h_list)
                 tmp_list.extend(tmp_o_list)
 
@@ -461,8 +493,6 @@ class RecommendationList(APIView):
                 tmp_list = tmp_o_list
 
             final_list.extend(tmp_list)
-
-        print(final_list)
         return Response({"recommendation": final_list})
 
 
@@ -471,12 +501,9 @@ class LearningInitiate(APIView):
     permission_classes = (IsAuthenticated, IsProjectUser,)
 
     def get(self, request, *args, **kwargs):
-
-        global alpaca_client
-
         p = get_object_or_404(Project, pk=self.kwargs['project_id'])
         labels = [label.text for label in p.labels.all()]
-        alpaca_client.initiate(self.kwargs['project_id'])
+        alpaca_initiate(self.kwargs['project_id'])
         predefined_label = []
 
         for i in labels:
@@ -486,7 +513,7 @@ class LearningInitiate(APIView):
         docs = [doc for doc in p.documents.all()]
         train_docs = [str.split(doc.text) for doc in docs]
 
-        alpaca_client.online_initiate(train_docs, [predefined_label])
+        alpaca_online_initiate(train_docs, predefined_label)
         response = {'initiated': True}
 
         return Response(response)
@@ -504,8 +531,7 @@ class OnlineLearning(APIView):
         annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
         train_docs = [str.split(doc.text) for doc in docs]
 
-
-        alpaca_client.online_learning(train_docs, annotations)
+        alpaca_online_learning(train_docs, annotations)
         response = {'docs': train_docs,
                     'annotations': annotations}
 
