@@ -342,15 +342,6 @@ class RecommendationList(APIView):
         opt_o = setting_data['onlinelearning']
         opt_h = setting_data['history']
 
-        #recommendation history
-        history_queryset = RecommendationHistory.objects.all()
-        serializer_class = RecommendationHistorySerializer
-
-        history_queryset = history_queryset.filter(project=project, user=self.request.user)
-        history_obj = get_list_or_404(history_queryset)
-        history_data = serializer_class(history_obj, many=True).data
-        print(history_data)
-
         final_list = []
         n_list = []
         o_list = []
@@ -362,29 +353,116 @@ class RecommendationList(APIView):
             n_words = response['words']
             n_list = self.index_word2char(n_entities, n_words)
 
-        if opt_o:
+        if opt_o and alpaca_client is not None:
             response = alpaca_client.predict(document.text)
             o_entities = response['entities']
             o_words = response['words']
             o_list = self.index_word2char(o_entities, o_words)
 
         if opt_h:
-            h_list = []
-            None
+            history_queryset = RecommendationHistory.objects.all()
+            serializer_class = RecommendationHistorySerializer
+            history_queryset = history_queryset.filter(project=project, user=self.request.user)
+            history_obj = get_list_or_404(history_queryset)
+            h_list = serializer_class(history_obj, many=True).data
 
         if opt_n:
             for n in n_list:
+                is_h = False
                 is_o = False
-                for o in o_list:
-                    if n['start_offset'] <= o['start_offset'] and n['end_offset'] >= o['end_offset']:
-                        final_list.append(o)
-                        is_o = True
-                if not is_o:
+                tmp_h_list = []
+                tmp_o_list = []
+                tmp_list = []
+
+                # noun chunk covers results from model
+                if opt_o and alpaca_client is not None:
+                    for o in o_list:
+                        if n['start_offset'] <= o['start_offset'] and n['end_offset'] >= o['end_offset']:
+                            tmp_o_list.append(o)
+                            is_o = True
+
+                # noun chunk covers results from user annotation
+                if opt_h:
+                    for h in h_list:
+                        if h['word'].lower() in document.text[n['start_offset']:n['end_offset']].lower():
+                            label_queryset = Label.objects.all()
+                            serializer_class = LabelSerializer
+                            label_queryset = label_queryset.filter(project=self.kwargs['project_id'])
+                            label_obj = get_object_or_404(label_queryset, pk=h['label'])
+                            label_data = serializer_class(label_obj).data
+                            start_offset = n['start_offset'] + document.text[n['start_offset']:n['end_offset']].lower().find(h['word'].lower())
+                            end_offset = start_offset + len(h['word'])
+                            h_dict = {'document': self.kwargs['doc_id'], 'label': label_data['text'], 'start_offset': start_offset, 'end_offset': end_offset}
+                            tmp_h_list.append(h_dict)
+                            is_h = True
+
+                if len(tmp_h_list) > 0 and len(tmp_o_list) > 0:
+                    print(tmp_h_list, tmp_o_list)
+                    for tmp_h in tmp_h_list:
+                        for tmp_o in tmp_o_list[:]:
+                            o_range = range(tmp_o['start_offset'],tmp_o['end_offset'])
+                            h_range = range(tmp_h['start_offset'],tmp_h['end_offset'])
+                            h_range_s = set(h_range)
+                            if len(h_range_s.intersection(o_range)) > 0:
+                                print("intersect")
+                                tmp_o_list.remove(tmp_o)
+                    print(tmp_h_list, tmp_o_list)
+                    tmp_list.extend(tmp_h_list)
+                    tmp_list.extend(tmp_o_list)
+
+                if len(tmp_h_list) > 0 and len(tmp_o_list) == 0:
+                    tmp_list = tmp_h_list
+                if len(tmp_h_list) == 0 and len(tmp_o_list) > 0:
+                    tmp_list = tmp_o_list
+
+                final_list.extend(tmp_list)
+                if not is_o and not is_h:
                     final_list.append(n)
         else:
-            for o in o_list:
-                final_list.append(o)
+            tmp_h_list = []
+            tmp_o_list = []
+            tmp_list = []
 
+            if opt_o and alpaca_client is not None:
+                for o in o_list:
+                    tmp_o_list.append(o)
+
+            if opt_h:
+                for h in h_list:
+                    if h['word'].lower() in document.text.lower():
+                        label_queryset = Label.objects.all()
+                        serializer_class = LabelSerializer
+                        label_queryset = label_queryset.filter(project=self.kwargs['project_id'])
+                        label_obj = get_object_or_404(label_queryset, pk=h['label'])
+                        label_data = serializer_class(label_obj).data
+                        start_offset = document.text.lower().find(h['word'].lower())
+                        end_offset = start_offset + len(h['word'])
+                        h_dict = {'document': self.kwargs['doc_id'], 'label': label_data['text'],
+                                  'start_offset': start_offset, 'end_offset': end_offset}
+                        tmp_h_list.append(h_dict)
+
+            if len(tmp_h_list) > 0 and len(tmp_o_list) > 0:
+                print(tmp_h_list, tmp_o_list)
+                for tmp_h in tmp_h_list:
+                    for tmp_o in tmp_o_list[:]:
+                        o_range = range(tmp_o['start_offset'], tmp_o['end_offset'])
+                        h_range = range(tmp_h['start_offset'], tmp_h['end_offset'])
+                        h_range_s = set(h_range)
+                        if len(h_range_s.intersection(o_range)) > 0:
+                            print("intersect")
+                            tmp_o_list.remove(tmp_o)
+                print(tmp_h_list, tmp_o_list)
+                tmp_list.extend(tmp_h_list)
+                tmp_list.extend(tmp_o_list)
+
+            if len(tmp_h_list) > 0 and len(tmp_o_list) == 0:
+                tmp_list = tmp_h_list
+            if len(tmp_h_list) == 0 and len(tmp_o_list) > 0:
+                tmp_list = tmp_o_list
+
+            final_list.extend(tmp_list)
+
+        print(final_list)
         return Response({"recommendation": final_list})
 
 
