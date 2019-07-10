@@ -15,7 +15,7 @@ class SettingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Setting
-        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch', 'active')
+        fields = ('id', 'embedding', 'nounchunk', 'onlinelearning', 'history', 'batch', 'epoch', 'active', 'acquire')
 
     def update(self, instance, validated_data):
         instance.embedding = validated_data.get('embedding', instance.embedding)
@@ -25,6 +25,7 @@ class SettingSerializer(serializers.ModelSerializer):
         instance.active = validated_data.get('active', instance.active)
         instance.batch = validated_data.get('batch', instance.batch)
         instance.epoch = validated_data.get('epoch', instance.epoch)
+        instance.acquire = validated_data.get('acquire', instance.epoch)
         instance.save()
         return instance
 

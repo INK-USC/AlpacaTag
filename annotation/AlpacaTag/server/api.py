@@ -310,9 +310,8 @@ class ConnectToServer(APIView):
 
 
 class RecommendationList(APIView):
-
     pagination_class = None
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsProjectUser)
 
     def index_word2char(self, entities, words):
         res = []
@@ -379,7 +378,6 @@ class RecommendationList(APIView):
         opt_n = setting_data['nounchunk']
         opt_o = setting_data['onlinelearning']
         opt_h = setting_data['history']
-
         final_list = []
         n_list = []
         o_list = []
@@ -397,12 +395,14 @@ class RecommendationList(APIView):
             o_words = response['words']
             o_list = self.index_word2char(o_entities, o_words)
 
+
         if opt_h:
             history_queryset = RecommendationHistory.objects.all()
             serializer_class = RecommendationHistorySerializer
             history_queryset = history_queryset.filter(project=project, user=self.request.user)
-            history_obj = get_list_or_404(history_queryset)
-            h_list = serializer_class(history_obj, many=True).data
+            if len(history_queryset) > 0:
+                history_obj = get_list_or_404(history_queryset)
+                h_list = serializer_class(history_obj, many=True).data
 
         if opt_n:
             for n in n_list:
@@ -447,6 +447,7 @@ class RecommendationList(APIView):
 
                 if len(tmp_h_list) > 0 and len(tmp_o_list) == 0:
                     tmp_list = tmp_h_list
+
                 if len(tmp_h_list) == 0 and len(tmp_o_list) > 0:
                     tmp_list = tmp_o_list
 

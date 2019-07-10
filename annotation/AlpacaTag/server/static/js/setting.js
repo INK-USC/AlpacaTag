@@ -12,8 +12,10 @@ const vm = new Vue({
     active: 1,
     batch: null,
     epoch: null,
+    acquire: null,
     tmpbatch: null,
     tmpepoch: null,
+    tmpacquire : null,
     activeset: true,
   },
   methods: {
@@ -23,6 +25,12 @@ const vm = new Vue({
       }
       else {
         this.active = this.active;
+      }
+      if (this.acquire === null) {
+        this.tmpacquire = 5;
+      }
+      else {
+        this.tmpacquire = this.acquire;
       }
       if (this.batch === null) {
         this.tmpbatch = 10;
@@ -43,7 +51,8 @@ const vm = new Vue({
         history: this.history,
         active: this.active,
         batch: this.tmpbatch,
-        epoch: this.tmpepoch
+        epoch: this.tmpepoch,
+        acquire: this.tmpacquire
       };
       HTTP.put(`settings/`, payload).then((response) => {
       });
@@ -56,6 +65,7 @@ const vm = new Vue({
       this.active = 1;
       this.batch = null;
       this.epoch = null;
+      this.acquire = null;
       this.activeset = true;
     },
   },
@@ -65,9 +75,15 @@ const vm = new Vue({
         this.activeset = true;
         this.batch = null;
         this.epoch = null;
-        this.active = null;
+        this.acquire = null;
+        this.active = 1;
       } else {
         this.activeset = false;
+      }
+    },
+    active() {
+      if (this.active === 1) {
+        this.acquire = null;
       }
     },
   },
@@ -81,9 +97,14 @@ const vm = new Vue({
       this.active = response.data.active;
       this.batch = response.data.batch;
       this.epoch = response.data.epoch;
+      this.acquire = response.data.acquire;
       if (this.onlinelearning === false) {
         this.batch = null;
         this.epoch = null;
+        this.acquire = null;
+      }
+      if (this.active === 1) {
+        this.acquire = null;
       }
     });
   },

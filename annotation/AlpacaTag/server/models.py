@@ -178,6 +178,7 @@ class Setting(models.Model):
     active = models.IntegerField()
     batch = models.IntegerField()
     epoch = models.IntegerField()
+    acquire = models.IntegerField()
 
     def get_setting_serializer(self):
         from .serializers import SettingSerializer

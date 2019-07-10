@@ -73,14 +73,17 @@
                   <input class="active input" type="number" placeholder="Epoch per each learning (Default: 10)" v-model.number="epoch" :disabled="activeset">
               </div>
           </div>
+          <div class="field is-horizontal bordered-row">
+              <label class="label column is-3 mb0">Acquire size</label>
+              <div class="control column is-5">
+                  <input class="active input" type="number" placeholder="Acquire size for active learning (Default: 5)" v-model.number="acquire" :disabled="activeset==true || active==1">
+              </div>
+          </div>
       </div>
       <div class="field is-grouped">
           <div class="control">
               <button class="btn btn--icon-disclosure" @click="save()">SAVE</button>
           </div>
-{#          <div class="control">#}
-{#              <button class="button is-text" @click="reset()">RESET</button>#}
-{#          </div>#}
           <div class="control">
               <button class="btn btn--icon-disclosure" @click="reset()">RESET</button>
           </div>
