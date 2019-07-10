@@ -46,15 +46,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='RecommendationHistory',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('word', models.TextField()),
-                ('label', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='server.Label')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-            ],
-        ),
-        migrations.CreateModel(
             name='SequenceAnnotation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -80,10 +71,6 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='sequenceannotation',
             unique_together={('document', 'user', 'label', 'start_offset', 'end_offset')},
-        ),
-        migrations.AlterUniqueTogether(
-            name='recommendationhistory',
-            unique_together={('user', 'word', 'label')},
         ),
         migrations.AlterUniqueTogether(
             name='label',

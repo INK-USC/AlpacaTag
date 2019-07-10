@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import SequenceAnnotation
-from .models import Label, Project, Document, Setting
+from .models import Label, Project, Document, Setting, RecommendationHistory
 
 
 class LabelSerializer(serializers.ModelSerializer):
@@ -91,3 +91,9 @@ class SequenceDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'text', 'annotations', 'annotated')
+
+
+class RecommendationHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecommendationHistory
+        fields = ('id', 'word', 'label')

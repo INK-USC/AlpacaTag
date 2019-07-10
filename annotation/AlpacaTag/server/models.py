@@ -160,11 +160,12 @@ class SequenceAnnotation(Annotation):
 
 class RecommendationHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name='history', on_delete=models.CASCADE)
     word = models.TextField()
     label = models.ForeignKey(Label, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('user', 'word', 'label')
+        unique_together = ('user', 'project', 'word', 'label')
 
 
 class Setting(models.Model):

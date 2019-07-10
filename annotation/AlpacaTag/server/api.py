@@ -1,7 +1,7 @@
 from collections import Counter
 from itertools import chain
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics, filters, mixins
 from rest_framework.decorators import action
@@ -10,9 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from .models import Project, Label, Document, Setting
+from .models import Project, Label, Document, Setting, RecommendationHistory
 from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
-from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer, SettingSerializer
+from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer, SettingSerializer, RecommendationHistorySerializer
 
 import spacy
 from alpaca_serving.client import *
@@ -222,6 +222,40 @@ class SettingList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.Updat
             return self.update(request, *args, **kwargs)
 
 
+class RecommendationHistoryList(generics.ListCreateAPIView):
+    queryset = RecommendationHistory.objects.all()
+    pagination_class = None
+    permission_classes = (IsAuthenticated, IsProjectUser)
+    serializer_class = RecommendationHistorySerializer
+
+    def get_queryset(self):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        self.queryset = self.queryset.filter(project=project, user=self.request.user)
+        return self.queryset
+
+    def perform_create(self, serializer):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        serializer.save(project=project, user=self.request.user)
+
+
+class RecommendationHistoryDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = RecommendationHistory.objects.all()
+    permission_classes = (IsAuthenticated, IsProjectUser)
+    serializer_class = RecommendationHistorySerializer
+
+    def get_queryset(self):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        self.queryset = self.queryset.filter(project=project, user=self.request.user)
+        return self.queryset
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        obj = get_object_or_404(queryset, pk=self.kwargs['history_id'])
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+
 class ConnectToServer(APIView):
     pagination_class = None
     permission_classes = (IsAuthenticated, IsProjectUser,)
@@ -293,23 +327,30 @@ class RecommendationList(APIView):
 
         return res
 
-
     def get(self, request, *args, **kwargs):
         #project, document
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         document = project.documents.get(id=self.kwargs['doc_id'])
 
         #settings
-        queryset = Setting.objects.all()
+        setting_queryset = Setting.objects.all()
         serializer_class = SettingSerializer
-        queryset = queryset.filter(project=project, user=self.request.user)
-        obj = get_object_or_404(queryset)
-        setting_data = serializer_class(obj).data
+        setting_queryset = setting_queryset.filter(project=project, user=self.request.user)
+        setting_obj = get_object_or_404(setting_queryset)
+        setting_data = serializer_class(setting_obj).data
         opt_n = setting_data['nounchunk']
         opt_o = setting_data['onlinelearning']
         opt_h = setting_data['history']
 
         #recommendation history
+        history_queryset = RecommendationHistory.objects.all()
+        serializer_class = RecommendationHistorySerializer
+
+        history_queryset = history_queryset.filter(project=project, user=self.request.user)
+        history_obj = get_list_or_404(history_queryset)
+        history_data = serializer_class(history_obj, many=True).data
+        print(history_data)
+
         final_list = []
         n_list = []
         o_list = []
