@@ -12,7 +12,7 @@ MIT License
 
 ## Requirements
 
-* Python 3.6+
+* Python 3.6.5+
 * django 2.0.5+
 * Google Chrome(highly recommended)
 * Pytorch
@@ -24,10 +24,23 @@ MIT License
 First we need to install the dependencies. Run the following commands:
 
 ```bash
-conda create -n alpaca python==3.6
+conda create -n alpaca python==3.6.5
 conda activate alpaca
 pip install -r requirements.txt
 cd AlpacaTag
+```
+
+Install the server and client.
+
+```bash
+cd alpaca_client
+python setup.py install
+cd ..
+
+# server packaging is not implemented yet.
+cd alpaca_server
+python setup.py install
+cd ..
 ```
 
 ## Frontend (Django, Vue.js)
@@ -91,23 +104,28 @@ python manage.py runserver 0.0.0.0:8000
 **Server-side**
 
 ```bash
-cd alpaca_server/alpaca_serving/cli
+cd alpaca_server/alpaca_serving/server
 python main.py
 ```
 
 **Client-side**
 
 ```bash
-from alpaca_client.alpaca_serving import *
+# get data for example
 from alpaca_server.alpaca_model.pytorchAPI import *
 x_train, y_train = utils.load_data_and_labels('train.bio')
 sent = x_train[0:10]
 label = y_train[0:10]
+
+
+from alpaca_serving.client import *
 ac = AlpacaClient()
-ac.initiate(1)
 ac.online_initiate(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
-ac.online_learning(sent,label)
-ac.predict("New York and Paris")
+active_indices = ac.active_learning(sent, acquire=5)
+active_sent = [sent[a_i] for a_i in active_indices]
+active_label = [label[a_i] for a_i in active_indices]
+ac.online_learning(active_sent,active_label, epoch=5, batch=5)
+ac.predict(‘New York and Paris’)
 ```
 
 
