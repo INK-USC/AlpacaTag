@@ -26,7 +26,7 @@ class AlpacaClient(object):
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
                  check_token_info=True, ignore_all_checks=False,
-                 timeout=3000):
+                 timeout=50000):
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)

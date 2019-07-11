@@ -35,9 +35,9 @@ setup(
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ),
     entry_points={
-        'console_scripts': ['alpaca-serving-start=alpaca_server.cli:main']
-                            # 'bert-serving-benchmark=bert_serving.server.cli:benchmark',
-                            # 'bert-serving-terminate=bert_serving.server.cli:terminate'],
+        'console_scripts': ['alpaca-serving-start=alpaca_server.server:main']
+                            # 'bert-serving-benchmark=bert_serving.server.server:benchmark',
+                            # 'bert-serving-terminate=bert_serving.server.server:terminate'],
     },
     keywords='alpacatag',
 )
