@@ -161,7 +161,32 @@
             </div>
               <div id="api" class="collapse" data-parent="#tutorials">
               <p>
-                something api
+
+
+<h1 id="backend-pytorch-zeromq">Backend (Pytorch, ZeroMQ)</h1>
+<p><b>Server-side</b></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> alpaca_server/alpaca_serving/server
+python main.py
+</code></pre>
+<p><b>Client-side</b></p>
+<pre class=" language-bash"><code class="prism  language-bash"># get data for example
+from alpaca_server.alpaca_model.pytorchAPI <span class="token function">import</span> *
+x_train, y_train <span class="token operator">=</span> utils.load_data_and_labels<span class="token punctuation">(</span><span class="token string">'train.bio'</span><span class="token punctuation">)</span>
+sent <span class="token operator">=</span> x_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
+label <span class="token operator">=</span> y_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
+
+
+from alpaca_serving.client <span class="token function">import</span> *
+ac <span class="token operator">=</span> AlpacaClient<span class="token punctuation">(</span><span class="token punctuation">)</span> # connect to server
+ac.initiate<span class="token punctuation">(</span>1<span class="token punctuation">)</span> # initiate the model with project_id. if the model with the project_id is exists, load it
+active_indices = ac.active_learning<span class="token punctuation">(</span>sent, acquire=5<span class="token punctuation">)</span> # active sampling with acquire size
+active_sent = <span class="token punctuation">[</span>sent<span class="token punctuation">[</span>a_i<span class="token punctuation">]</span> for a_i in active_indices<span class="token punctuation">]</span>
+active_label = <span class="token punctuation">[</span>label<span class="token punctuation">[</span>a_i<span class="token punctuation">]</span> for a_i in active_indices<span class="token punctuation">]</span>
+ac.online_initiate<span class="token punctuation">(</span>active_sent,<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">'B-PER'</span>, <span class="token string">'I-PER'</span>, <span class="token string">'B-LOC'</span>, <span class="token string">'I-LOC'</span>, <span class="token string">'B-ORG'</span>, <span class="token string">'I-ORG'</span>, <span class="token string">'B-MISC'</span>, <span class="token string">'I-MISC'</span>, <span class="token string">'O'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> # if the model is firstly initiated, need to build preprocessor
+ac.online_learning<span class="token punctuation">(</span>active_sent,active_label<span class="token punctuation">,epoch=5,batch=5)</span> # online learning with epoch and batch size
+ac.predict<span class="token punctuation">(</span><span class="token string">"New York and Paris"</span><span class="token punctuation">)</span> # predict the named entity
+</code></pre>
+
               </p>
               <hr>
             </div>
@@ -285,42 +310,34 @@ If you run on your own server, use this command.</p>
               <em>Real-time model deployment:</em> users can deploy their models in downstream systems while new annotations are being made.
             </li>
               </ol>
-          <p>
-            AlpacaTag is a comprehensive solution for sequence labeling tasks, ranging from rapid tagging with recommendations powered by
-            active learning and auto-consolidation of crowd annotations to real-time model deployment.
-            We show that it ...
-          </p>
 
-          </div>
-
-        </div>
-
-
-
-      <div class="col-6">
-
-
-          <div class="constrained constrained--med">
-
-              <figure>
-            <div class="img-div">
-            <img class="figure-img img-fluid" src="{% static 'images/overview.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
-            <br>
-            <figcaption class="figure-caption">
-                The workflow for annotators to confirm a given tagging suggestion ("Hillary Clinton" as <span class="text-monospace">PER</span>).
-            </figcaption>
-            </div>
-        </figure>
-
-          <ul class="publications">
-              <li>
+              <ul class="publications">
                   <p class="publications__abstract">Read out paper for more:</p>
                   <a href="https://homes.cs.washington.edu/~msap/pdfs/rashkin2018event2mind.pdf" class="publications__title"> AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging. ACL  </a>
                   <span class="publications__authors">Bill Yuchen Lin, Dong-Ho Lee, Frank F. Xu, Ouyu Lan, Xiang Ren</span>
                   <span class="publications__year">2019</span>
+              </ul>
+          </div>
 
-              </li>
-          </ul>
+        </div>
+
+      <div class="col-6">
+          <div class="constrained constrained--med">
+              <figure>
+                <div class="img-div">
+                <img class="figure-img img-fluid" src="{% static 'images/overview.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
+                <br>
+                <figcaption class="figure-caption">
+                    The workflow for annotators to confirm a given tagging suggestion ("Hillary Clinton" as <span class="text-monospace">PER</span>).
+                </figcaption>
+                </div>
+                <div class="img-div">
+                <img class="figure-img img-fluid" src="{% static 'images/consolidation.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
+                <figcaption class="figure-caption">
+                    Reducing inter-annotator disagreement by training personal models for personalized active sampling and constructing consensus models.
+                </figcaption>
+                </div>
+              </figure>
       </div>
 
 
@@ -328,66 +345,6 @@ If you run on your own server, use this command.</p>
     </div>
     <hr>
     <div class="row" style="margin-top: 20px;">
-
-
-      <div class="col-8">
-          <div class="tutorials__content constrained constrained--med">
-
-<h1 id="backend-pytorch-zeromq">Backend (Pytorch, ZeroMQ)</h1>
-<p><b>Server-side</b></p>
-<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> alpaca_server/alpaca_serving/cli
-python main.py
-</code></pre>
-<p><b>Client-side</b></p>
-<pre class=" language-bash"><code class="prism  language-bash">from alpaca_client.alpaca_serving <span class="token function">import</span> *
-from alpaca_server.alpaca_model.pytorchAPI <span class="token function">import</span> *
-x_train, y_train <span class="token operator">=</span> utils.load_data_and_labels<span class="token punctuation">(</span><span class="token string">'train.bio'</span><span class="token punctuation">)</span>
-sent <span class="token operator">=</span> x_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
-label <span class="token operator">=</span> y_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
-ac <span class="token operator">=</span> AlpacaClient<span class="token punctuation">(</span><span class="token punctuation">)</span>
-ac.initiate<span class="token punctuation">(</span>1<span class="token punctuation">)</span>
-ac.online_initiate<span class="token punctuation">(</span>sent,<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">'B-PER'</span>, <span class="token string">'I-PER'</span>, <span class="token string">'B-LOC'</span>, <span class="token string">'I-LOC'</span>, <span class="token string">'B-ORG'</span>, <span class="token string">'I-ORG'</span>, <span class="token string">'B-MISC'</span>, <span class="token string">'I-MISC'</span>, <span class="token string">'O'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
-ac.online_learning<span class="token punctuation">(</span>sent,label<span class="token punctuation">)</span>
-ac.predict<span class="token punctuation">(</span><span class="token string">"New York and Paris"</span><span class="token punctuation">)</span>
-</code></pre>
-            </div>
-        </div>
-
-
-
-
-
-      <div class="col-4 ">
-        <figure>
-          <div class="img-div">
-            <img class="figure-img img-fluid" src="{% static 'images/crop_recom.png' %}" alt="see caption" style="width: 100%;max-width:none;">
-            <img class="hoverlarge" src="{% static 'images/crop_recom.png' %}" alt="see caption" style="left:-120px;top:0px; border-radius: 0%;">
-            <figcaption class="figure-caption">
-              The workflow for annotators to confirm a given tagging suggestion ("Hillary Clinton" as <span class="text-monospace">PER</span>).
-            </figcaption>
-          </div>
-        </figure>
-        <hr>
-        <figure>
-          <div class="img-div">
-            <img class="figure-img img-fluid" src="{% static 'images/normal_anno.png' %}" alt="see caption" style="width: 100%;max-width:none;">
-            <img class="hoverlarge" src="{% static 'images/normal_anno.png' %}" alt="see caption" style="left: -120px; top: 250px; border-radius: 0%;">
-            <figcaption class="figure-caption">
-                Annotating a span without recommendations.
-            </figcaption>
-          </div>
-        </figure>
-        <hr>
-        <figure>
-          <div class="img-div">
-            <img class="figure-img img-fluid" src="{% static 'images/consolidation.png' %}" alt="see caption" style="width: 100%;max-width:none;">
-            <img class="hoverlarge" src="{% static 'images/consolidation.png' %}" alt="see caption" style="left: -120px; top: 250px; border-radius: 0%;">
-            <figcaption class="figure-caption">
-                Reducing inter-annotator disagreement by training personal models for personalized active sampling and constructing consensus models.
-            </figcaption>
-          </div>
-        </figure>
-      </div>
     </div>
   </div>
 </body>
