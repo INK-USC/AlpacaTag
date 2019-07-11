@@ -41,6 +41,7 @@ def alpaca_initiate(project_id):
         return alpaca_client.initiate(project_id)
     return response
 
+
 def alpaca_online_initiate(train_docs, predefined_label):
     global alpaca_client
     response = alpaca_client.online_initiate(train_docs, [predefined_label])
@@ -57,6 +58,16 @@ def alpaca_online_learning(train_docs, annotations):
         print('error')
         time.sleep(3)
         alpaca_client.online_learning(train_docs, annotations)
+
+
+def alpaca_active_learning(train_docs, acquire):
+    global alpaca_client
+    response = alpaca_client.active_learning(train_docs, acquire)
+    if response == 'error':
+        print('error')
+        time.sleep(3)
+        return alpaca_client.active_learning(train_docs, acquire)
+    return response
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -462,7 +473,6 @@ class RecommendationList(APIView):
             tmp_h_list = []
             tmp_o_list = []
             tmp_list = []
-
             if opt_o and alpaca_client is not None:
                 for o in o_list:
                     tmp_o_list.append(o)

@@ -64,6 +64,7 @@ const annotationMixin = {
       active: 1,
       batch: null,
       epoch: null,
+      acquire: null,
       server: null,
       serverMsg: 'OFF',
     };
@@ -187,7 +188,7 @@ const annotationMixin = {
 
     async submit() {
       const state = this.getState();
-      this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}`;
+      this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}`;
       await this.search();
       this.pageNumber = 0;
     },
@@ -279,6 +280,7 @@ const annotationMixin = {
       this.batch = response.data.batch;
       this.onlineLearningPer = response.data.batch;
       this.epoch = response.data.epoch;
+      this.acquire = response.data.acquire;
       this.connectServer().then((response) => {
         if (this.online === true && this.server === true){
           this.initiatelearning().then((response) => {
