@@ -120,6 +120,7 @@ label = y_train[0:10]
 
 from alpaca_serving.client import *
 ac = AlpacaClient()
+ac.initiate(1)
 ac.online_initiate(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
 active_indices = ac.active_learning(sent, acquire=5)
 active_sent = [sent[a_i] for a_i in active_indices]
