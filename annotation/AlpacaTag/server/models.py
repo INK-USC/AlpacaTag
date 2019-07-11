@@ -42,6 +42,11 @@ class Project(models.Model):
         docs = docs.filter(annotated=False)
         return docs
 
+    def get_index_documents(self, indices):
+        docs = self.documents.all()
+        docs = docs.filter(pk__in=indices)
+        return docs
+
     def get_document_serializer(self):
         from .serializers import SequenceDocumentSerializer
         return SequenceDocumentSerializer

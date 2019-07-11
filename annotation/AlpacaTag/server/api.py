@@ -148,9 +148,6 @@ class DocumentList(generics.ListCreateAPIView):
     search_fields = ('text', )
     permission_classes = (IsAuthenticated, IsProjectUser, IsAdminUserAndWriteOnly)
 
-    # 1. you sould get settings whether the 'active' field is Random or Mnlp or something.
-    # 2. if it is set to MNLP, you should call active_learning in here
-    # 3. and then, get documents with primrary key (document_id) (select where id = ~~)
     def get_serializer_class(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         self.serializer_class = project.get_document_serializer()
@@ -159,13 +156,19 @@ class DocumentList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(project=self.kwargs['project_id'])
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+
+        if not self.request.query_params.get('active_indices'):
+            return queryset
+        active_indices = self.request.query_params.get('active_indices')
+        active_indices = list(map(int, active_indices.split(",")))
+        queryset = project.get_index_documents(active_indices).distinct()
+
         if not self.request.query_params.get('is_checked'):
             return queryset
 
-        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         is_null = self.request.query_params.get('is_checked') == 'true'
         queryset = project.get_documents(is_null).distinct()
-
         return queryset
 
 
@@ -557,5 +560,26 @@ class OnlineLearning(APIView):
         alpaca_online_learning(train_docs, annotations, setting_data['epoch'], setting_data['batch'])
         response = {'docs': train_docs,
                     'annotations': annotations}
+
+        return Response(response)
+
+
+class ActiveLearning(APIView):
+    pagination_class = None
+    permission_classes = (IsAuthenticated, IsProjectUser,)
+
+    def get(self, request, *args, **kwargs):
+        p = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        docs = [doc for doc in p.documents.all()]
+        train_docs = [str.split(doc.text) for doc in docs]
+
+        setting_queryset = Setting.objects.all()
+        serializer_class = SettingSerializer
+        setting_queryset = setting_queryset.filter(project=p, user=self.request.user)
+        setting_obj = get_object_or_404(setting_queryset)
+        setting_data = serializer_class(setting_obj).data
+
+        active_indices = alpaca_active_learning(train_docs, setting_data['acquire'])
+        response = {'indices': active_indices}
 
         return Response(response)

@@ -6,7 +6,7 @@ from .views import ProjectView, DatasetView, DataUpload, LabelView, StatsView, S
 from .views import ProjectsView, DataDownload, DataDownloadFile
 from .api import ProjectViewSet, LabelList, ProjectStatsAPI, LabelDetail, \
     AnnotationList, AnnotationDetail, DocumentList, RecommendationList, LearningInitiate, OnlineLearning, DocumentDetail, \
-    SettingList, ConnectToServer, RecommendationHistoryList, RecommendationHistoryDetail
+    SettingList, ConnectToServer, RecommendationHistoryList, RecommendationHistoryDetail, ActiveLearning
 
 
 router = routers.DefaultRouter()
@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/projects/<int:project_id>/connectserver/', ConnectToServer.as_view(), name='connect'),
     path('api/projects/<int:project_id>/learninginitiate/', LearningInitiate.as_view(), name='initiate'),
     path('api/projects/<int:project_id>/onlinelearning/', OnlineLearning.as_view(), name='learning'),
+    path('api/projects/<int:project_id>/activelearning/', ActiveLearning.as_view(), name='active'),
     path('api/projects/<int:project_id>/docs/<int:doc_id>/annotations/', AnnotationList.as_view(), name='annotations'),
     path('api/projects/<int:project_id>/docs/<int:doc_id>/recommendations/', RecommendationList.as_view(), name='recommendations'),
     path('api/projects/<int:project_id>/docs/<int:doc_id>/annotations/<int:annotation_id>', AnnotationDetail.as_view(), name='ann'),

@@ -67,6 +67,8 @@ const annotationMixin = {
       acquire: null,
       server: null,
       serverMsg: 'OFF',
+      activeIndices: [],
+      activeIndicesPerPage: [],
     };
   },
 
@@ -78,11 +80,13 @@ const annotationMixin = {
           this.url = this.next;
           await this.search();
           this.pageNumber = 0;
+        } else if (this.active != 1) {
+          this.activeIndicesPerPage.push(this.activeIndices);
+          await this.submit();
         } else {
           this.pageNumber = this.docs.length - 1;
         }
       }
-      console.log(this.onlineLearningIndices.size, this.onlineLearningPer)
       if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
         this.onlinelearning().then((res) => {
           this.onlineLearningIndices.clear();
@@ -98,11 +102,16 @@ const annotationMixin = {
           this.url = this.prev;
           await this.search();
           this.pageNumber = this.docs.length - 1;
+        } else if (this.active != 1) {
+          const state = this.getState();
+          const last = this.activeIndicesPerPage.pop();
+          this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${last}`;
+          await this.search();
+          this.pageNumber = 0;
         } else {
           this.pageNumber = 0;
         }
       }
-      console.log(this.onlineLearningIndices.size, this.onlineLearningPer)
       if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
         this.onlinelearning().then((res) => {
           this.onlineLearningIndices.clear();
@@ -188,8 +197,16 @@ const annotationMixin = {
 
     async submit() {
       const state = this.getState();
-      this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}`;
-      await this.search();
+      if (this.active != 1){
+        this.activelearning().then((response) => {
+            this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${this.activeIndices}`;
+            this.search();
+          });
+      }
+      else {
+        this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}`;
+        await this.search();
+      }
       this.pageNumber = 0;
     },
 
@@ -197,6 +214,14 @@ const annotationMixin = {
       return await HTTP.get(`learninginitiate`).then((response) => {
         this.loadingMsg="initiate learning";
         console.log(response.data.isFirst);
+      });
+    },
+
+    async activelearning() {
+      return await HTTP.get(`activelearning`).then((response) => {
+        this.loadingMsg="active learning";
+        this.activeIndices = response.data.indices;
+        console.log(this.activeIndices);
       });
     },
 
