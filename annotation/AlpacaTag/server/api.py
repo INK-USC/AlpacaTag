@@ -51,13 +51,13 @@ def alpaca_online_initiate(train_docs, predefined_label):
         alpaca_client.online_initiate(train_docs, [predefined_label])
 
 
-def alpaca_online_learning(train_docs, annotations):
+def alpaca_online_learning(train_docs, annotations, epoch, batch):
     global alpaca_client
-    response = alpaca_client.online_learning(train_docs, annotations)
+    response = alpaca_client.online_learning(train_docs, annotations, epoch, batch)
     if response == 'error':
         print('error')
         time.sleep(3)
-        alpaca_client.online_learning(train_docs, annotations)
+        alpaca_client.online_learning(train_docs, annotations, epoch, batch)
 
 
 def alpaca_active_learning(train_docs, acquire):

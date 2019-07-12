@@ -443,8 +443,6 @@ class AlpacaWorker(Process):
                             logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
 
                     elif msg_type == ServerCmd.online_initiate:
-                        #django side -> directly read from database as the msg[0[ / msg[1] could be so huge.
-                        #since we already know the project id.
                         self.model.online_word_build(msg[0],msg[1]) # whole unlabeled training sentences / predefined_labels
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
                         helper.send_test(outputs, client_id, b'Online word build completed', msg_type)

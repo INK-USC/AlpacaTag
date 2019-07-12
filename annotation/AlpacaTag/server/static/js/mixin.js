@@ -78,7 +78,16 @@ const annotationMixin = {
       if (this.pageNumber === this.docs.length) {
         if (this.next) {
           this.url = this.next;
-          await this.search();
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+            this.onlinelearning().then((res) => {
+              this.onlineLearningIndices.clear();
+              this.onlineLearningNum = 0;
+              this.search();
+            });
+          }
+          else {
+            await this.search();
+          }
           this.pageNumber = 0;
         } else if (this.active != 1) {
           this.activeIndicesPerPage.push(this.activeIndices);
@@ -87,12 +96,6 @@ const annotationMixin = {
           this.pageNumber = this.docs.length - 1;
         }
       }
-      if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
-        this.onlinelearning().then((res) => {
-          this.onlineLearningIndices.clear();
-          this.onlineLearningNum = 0;
-        });
-      }
     },
 
     async prevPage() {
@@ -100,7 +103,16 @@ const annotationMixin = {
       if (this.pageNumber === -1) {
         if (this.prev) {
           this.url = this.prev;
-          await this.search();
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+            this.onlinelearning().then((res) => {
+              this.onlineLearningIndices.clear();
+              this.onlineLearningNum = 0;
+              this.search();
+            });
+          }
+          else{
+            await this.search();
+          }
           this.pageNumber = this.docs.length - 1;
         } else if (this.active != 1) {
           const state = this.getState();
@@ -111,12 +123,6 @@ const annotationMixin = {
         } else {
           this.pageNumber = 0;
         }
-      }
-      if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
-        this.onlinelearning().then((res) => {
-          this.onlineLearningIndices.clear();
-          this.onlineLearningNum = 0;
-        });
       }
     },
 
