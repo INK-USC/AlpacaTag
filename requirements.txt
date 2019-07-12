@@ -17,3 +17,5 @@ tornado==5.0.2
 spacy
 pyzmq >= 17.1.0
 termcolor
+flair
+pytorch
