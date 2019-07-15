@@ -16,3 +16,9 @@
   background-color: transparent;
   text-decoration: none;
 }
+
+.thumbnail:hover {
+  transform: scale(1.5);
+  position: relative;
+  z-index: 1;
+}
