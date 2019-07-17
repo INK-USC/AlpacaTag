@@ -26,7 +26,7 @@ class AlpacaClient(object):
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
                  check_token_info=True, ignore_all_checks=False,
-                 timeout=50000):
+                 timeout=1000):
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -204,29 +204,29 @@ class AlpacaClient(object):
         req_id = self._send(b'INITIATE', bytes(str(project_id), encoding='ascii'))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout_short
+    @_timeout_long
     def online_initiate(self, sentences, predefined_label):
         # model.online_word_build(sent,[['B-PER', 'I-PER', 'B-LOC', 'I-LOC', 'B-ORG', 'I-ORG', 'B-MISC', 'I-MISC', 'O']])
         req_id = self._send(b'ONLINE_INITIATE', jsonapi.dumps([sentences, predefined_label]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout_short
+    @_timeout_long
     def online_learning(self, sentences, labels, epoch, batch):
         assert len(sentences) == len(labels)
         req_id = self._send(b'ONLINE_LEARNING', jsonapi.dumps([sentences, labels, epoch, batch]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout_short
+    @_timeout_long
     def active_learning(self, sentences, num_instances):
         req_id = self._send(b'ACTIVE_LEARNING', jsonapi.dumps([sentences, num_instances]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout_short
+    @_timeout_long
     def predict(self, sentences):
         req_id = self._send(b'PREDICT', jsonapi.dumps(sentences), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
-    @_timeout_short
+    @_timeout_long
     def encode(self, texts, blocking=True, is_tokenized=False, show_tokens=False):
         req_id = self._send(jsonapi.dumps(texts), len(texts))
         r = self._recv_test(req_id)

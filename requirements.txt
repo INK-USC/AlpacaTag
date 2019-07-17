@@ -18,4 +18,4 @@ spacy
 pyzmq >= 17.1.0
 termcolor
 flair
-pytorch
+pandas
