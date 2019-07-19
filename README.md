@@ -1,5 +1,6 @@
 # AlpacaTag
 An Active Learning-based Crowd Annotation Framework for Sequence Tagging 
+in Proc. of ACL 2019 (Demo Track) 
 
 MIT License
 
