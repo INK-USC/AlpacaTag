@@ -14,11 +14,20 @@
   </header>
 
   <div class="card-content model__content ">
-      <div class="field is-horizontal bordered-row tooltip-content">
-          <div class="help-tip">
-                <p>Something about embedding explanation</p>
+      <div class="field is-horizontal bordered-row ">
+
+          <div class="tooltip-content column is-3 mb0">
+              <label class="label column is-3 mb0">Embedding</label>
+              <div class="help-tip">
+                  <p>Something about embedding explanation</p>
+              </div>
           </div>
-          <label class="label column is-3 mb0">Embedding</label>
+
+{#          <div class="help-tip">#}
+{#                <p>Something about embedding explanation</p>#}
+{#          </div>#}
+{#          <label class="label column is-3 mb0">Embedding</label>#}
+
           <div class="control column is-narrow">
               <div class="select">
                   <select v-model="embedding">
@@ -33,10 +42,19 @@
           </div>
       </div>
       <div class="field is-horizontal bordered-row tooltip-content">
-          <div class="help-tip">
-                <p>Something about recommendation explanation</p>
+
+          <div class="tooltip-content column is-3 mb0">
+              <label class="label column is-3 mb0">Recommendation</label>
+              <div class="help-tip">
+                  <p>Something about recommendation explanation</p>
+              </div>
           </div>
-          <label class="label column is-3 mb0">Recommendation</label>
+
+{#          <div class="help-tip">#}
+{#                <p>Something about recommendation explanation</p>#}
+{#          </div>#}
+{#          <label class="label column is-3 mb0">Recommendation</label>#}
+
           <div class="is-narrow">
               <input class="is-checkradio" type="checkbox" id="nounchunk" value="nounchunk" v-model="nounchunk">
               <label for="nounchunk"><kbd>Noun Chunk</kbd></label>
@@ -53,10 +71,18 @@
 
       <div id="activesetting">
           <div class="field is-horizontal bordered-row tooltip-content">
-              <div class="help-tip">
-                <p>Something about active learning type explanation</p>
+
+              <div class="tooltip-content column is-3 mb0">
+                  <label class="label column is-12 mb0">Active learning</label>
+                  <div class="help-tip">
+                      <p>Something about active learning type explanation</p>
+                  </div>
               </div>
-              <label class="label column is-3 mb0">Active learning</label>
+
+{#              <div class="help-tip">#}
+{#                <p>Something about active learning type explanation</p>#}
+{#              </div>#}
+{#              <label class="label column is-3 mb0">Active learning</label>#}
               <div class="is-narrow">
                   <input class="active is-checkradio" type="radio" id="random" :value="1" v-model="active" :disabled="activeset">
                   <label for="random"><kbd>Random</kbd></label>
@@ -75,32 +101,54 @@
               </div>
           </div>
           <div class="field is-horizontal bordered-row tooltip-content">
-              <div class="help-tip">
-                <p>Something about batch size explanation</p>
+              <div class="tooltip-content column is-3 mb0">
+                  <label class="label column is-12 mb0">Batch Size</label>
+                  <div class="help-tip">
+                      <p>Something about batch size explanation</p>
+                  </div>
               </div>
-              <label class="label column is-3 mb0">Batch Size</label>
+{#              <div class="help-tip">#}
+{#                <p>Something about batch size explanation</p>#}
+{#              </div>#}
+{#              <label class="label column is-3 mb0">Batch Size</label>#}
               <div class="control column is-5">
                   <input class="active input" type="number" placeholder="# of instances per online learning (Default: 10)" v-model.number="batch" :disabled="activeset">
               </div>
           </div>
+
           <div class="field is-horizontal bordered-row tooltip-content">
-              <div class="help-tip">
-                <p>Something about epoch explanation</p>
+              <div class="tooltip-content column is-3 mb0">
+                  <label class="label column is-12 mb0">Epoch per batch</label>
+                  <div class="help-tip">
+                      <p>Something about epoch explanation</p>
+                  </div>
               </div>
-              <label class="label column is-3 mb0">Epoch per batch</label>
+{#              <div class="help-tip">#}
+{#                <p>Something about epoch explanation</p>#}
+{#              </div>#}
+{#              <label class="label column is-3 mb0">Epoch per batch</label>#}
               <div class="control column is-5">
                   <input class="active input" type="number" placeholder="Epoch per each learning (Default: 10)" v-model.number="epoch" :disabled="activeset">
               </div>
           </div>
+
+
           <div class="field is-horizontal bordered-row tooltip-content">
-              <div class="help-tip">
-                <p>Something about acquire size explanation</p>
+              <div class="tooltip-content column is-3 mb0">
+                  <label class="label column is-12 mb0">Acquire size</label>
+                  <div class="help-tip">
+                      <p>Something about acquire size explanation</p>
+                  </div>
               </div>
-              <label class="label column is-3 mb0">Acquire size</label>
+{#              <div class="help-tip">#}
+{#                <p>Something about acquire size explanation</p>#}
+{#              </div>#}
+{#              <label class="label column is-3 mb0">Acquire size</label>#}
               <div class="control column is-5">
                   <input class="active input" type="number" placeholder="Acquire size for active learning (Default: 5)" v-model.number="acquire" :disabled="activeset==true || active==1">
               </div>
           </div>
+
       </div>
       <div class="field is-grouped">
           <div class="control">
