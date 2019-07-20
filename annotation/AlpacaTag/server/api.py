@@ -441,22 +441,29 @@ class RecommendationList(APIView):
                 if opt_h:
                     for h in h_list:
                         if h['word'].lower() in document.text[n['start_offset']:n['end_offset']].lower():
-                            label_queryset = Label.objects.all()
-                            serializer_class = LabelSerializer
-                            label_queryset = label_queryset.filter(project=self.kwargs['project_id'])
-                            label_obj = get_object_or_404(label_queryset, pk=h['label'])
-                            label_data = serializer_class(label_obj).data
                             start_offset = n['start_offset'] + document.text[n['start_offset']:n['end_offset']].lower().find(h['word'].lower())
                             end_offset = start_offset + len(h['word'])
-                            h_dict = {'document': self.kwargs['doc_id'], 'label': label_data['text'], 'start_offset': start_offset, 'end_offset': end_offset}
-                            tmp_h_list.append(h_dict)
-                            is_h = True
-
+                            if document.text[end_offset] != ' ' or (document.text[start_offset-1] != ' ' and start_offset != 0):
+                                continue
+                            else:
+                                label_queryset = Label.objects.all()
+                                serializer_class = LabelSerializer
+                                label_queryset = label_queryset.filter(project=self.kwargs['project_id'])
+                                label_obj = get_object_or_404(label_queryset, pk=h['label'])
+                                label_data = serializer_class(label_obj).data
+                                h_dict = {'document': self.kwargs['doc_id'], 'label': label_data['text'], 'start_offset': start_offset, 'end_offset': end_offset}
+                                for tmp_h in tmp_h_list:
+                                    if h_dict['start_offset'] <= tmp_h['start_offset'] and h_dict['end_offset'] >= tmp_h['end_offset']:
+                                        tmp_h_list.remove(tmp_h)
+                                        continue
+                                tmp_h_list.append(h_dict)
+                                is_h = True
+                                
                 if len(tmp_h_list) > 0 and len(tmp_o_list) > 0:
                     for tmp_h in tmp_h_list:
                         for tmp_o in tmp_o_list[:]:
-                            o_range = range(tmp_o['start_offset'],tmp_o['end_offset'])
-                            h_range = range(tmp_h['start_offset'],tmp_h['end_offset'])
+                            o_range = range(tmp_o['start_offset'], tmp_o['end_offset'])
+                            h_range = range(tmp_h['start_offset'], tmp_h['end_offset'])
                             h_range_s = set(h_range)
                             if len(h_range_s.intersection(o_range)) > 0:
                                 tmp_o_list.remove(tmp_o)
