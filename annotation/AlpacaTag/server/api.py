@@ -458,7 +458,7 @@ class RecommendationList(APIView):
                                         continue
                                 tmp_h_list.append(h_dict)
                                 is_h = True
-                                
+
                 if len(tmp_h_list) > 0 and len(tmp_o_list) > 0:
                     for tmp_h in tmp_h_list:
                         for tmp_o in tmp_o_list[:]:

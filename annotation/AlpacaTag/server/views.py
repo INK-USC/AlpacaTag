@@ -16,30 +16,34 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
 from .permissions import SuperUserMixin
-from .models import Document, Project
+from .models import Document, Project, RecommendationHistory
 
 import spacy
 nlp = spacy.load('en_core_web_sm')
 
 logger = logging.getLogger(__name__)
 
+
 class IndexView(TemplateView):
     template_name = 'index.html'
 
-class ProjectView(LoginRequiredMixin, TemplateView):
 
+class ProjectView(LoginRequiredMixin, TemplateView):
     def get_template_names(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
         return project.get_template_name()
+
 
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ('name', 'description', 'users')
 
+
 class ProjectsView(LoginRequiredMixin, CreateView):
     form_class = ProjectForm
     template_name = 'projects.html'
+
 
 class DatasetView(SuperUserMixin, LoginRequiredMixin, ListView):
     template_name = 'admin/dataset.html'
@@ -50,12 +54,24 @@ class DatasetView(SuperUserMixin, LoginRequiredMixin, ListView):
         return project.documents.all()
 
 
+class DictionaryView(SuperUserMixin, LoginRequiredMixin, ListView):
+    template_name = 'admin/dictionary.html'
+    paginate_by = 10
+    queryset = RecommendationHistory.objects.all()
+
+    def get_queryset(self):
+        project = get_object_or_404(Project, pk=self.kwargs['project_id'])
+        self.queryset = self.queryset.filter(project=project, user=self.request.user)
+        return self.queryset
+
+
 class LabelView(SuperUserMixin, LoginRequiredMixin, TemplateView):
     template_name = 'admin/label.html'
 
 
 class StatsView(SuperUserMixin, LoginRequiredMixin, TemplateView):
     template_name = 'admin/stats.html'
+
 
 #need fix
 class SettingView(SuperUserMixin, LoginRequiredMixin, TemplateView):

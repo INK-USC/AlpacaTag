@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework import routers
 
 from .views import IndexView
-from .views import ProjectView, DatasetView, DataUpload, LabelView, StatsView, SettingView
+from .views import ProjectView, DatasetView, DataUpload, LabelView, StatsView, SettingView, DictionaryView
 from .views import ProjectsView, DataDownload, DataDownloadFile
 from .api import ProjectViewSet, LabelList, ProjectStatsAPI, LabelDetail, \
     AnnotationList, AnnotationDetail, DocumentList, RecommendationList, LearningInitiate, OnlineLearning, DocumentDetail, \
@@ -39,4 +39,5 @@ urlpatterns = [
     path('projects/<int:project_id>/labels/', LabelView.as_view(), name='label-management'),
     path('projects/<int:project_id>/stats/', StatsView.as_view(), name='stats'),
     path('projects/<int:project_id>/setting/', SettingView.as_view(), name='setting'),
+    path('projects/<int:project_id>/dictionary/', DictionaryView.as_view(), name='dictionary'),
 ]
