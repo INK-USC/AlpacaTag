@@ -212,8 +212,8 @@ class AlpacaClient(object):
         return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout_long
-    def active_learning(self, sentences, num_instances):
-        req_id = self._send(b'ACTIVE_LEARNING', jsonapi.dumps([sentences, num_instances]), len(sentences))
+    def active_learning(self, sentences, acquire):
+        req_id = self._send(b'ACTIVE_LEARNING', jsonapi.dumps([sentences, acquire]), len(sentences))
         return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout_long

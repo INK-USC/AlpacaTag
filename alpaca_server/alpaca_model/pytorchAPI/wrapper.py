@@ -127,12 +127,11 @@ class SequenceTaggingModel(object):
             self.acquisition = Acquisition(dataset, size=size, seed=0, acq_mode='d')
 
         self.acquisition.obtain_data(data=dataset, model=self.model, acquire=size, method='mnlp')
-        return [i for i in self.acquisition.return_index]
+        print(self.acquisition.return_index)
+        return self.acquisition.return_index, self.acquisition.return_score
 
     def online_learning(self, x_train, y_train, epochs=5, batch_size=5):
         dataset = prepare_dataset(x_train, y_train, self.p)
         learning_rate = 0.01
 
         self.model = self.trainer.train_model(num_epochs=epochs, train_data=dataset, learning_rate=learning_rate, batch_size=batch_size, lr_decay=0.05)
-
-

@@ -10,30 +10,28 @@ import pandas as pd
 
 class Acquisition(object):
     
-    def __init__(self, train_data, acq_mode='d', size=2, seed=0, usecuda= True):
+    def __init__(self, train_data, acq_mode='d', size=2, seed=0, usecuda=False):
         self.tokenlen = sum([len(x['words']) for x in train_data])
         self.train_index = set()
-        self.return_index = set()
+        self.return_index = []
+        self.return_score = []
         self.npr = np.random.RandomState(seed)
-        self.obtain_data(train_data, acquire=size)
         self.acq_mode = acq_mode
         self.usecuda = usecuda
         
     def get_random(self, data, num_instances):
         test_indices = self.npr.permutation(len(data))
-        cur_tokens = 0
         cur_indices = set()
         i = 0
         while len(cur_indices) < num_instances:
             if test_indices[i] not in self.train_index:
                 cur_indices.add(test_indices[i])
-                cur_tokens += len(data[test_indices[i]]['words'])
             i+=1
         self.train_index.update(cur_indices)
         self.return_index = set()
         self.return_index.update(cur_indices)
                  
-    def get_mnlp(self, dataset, model, decoder, num_instances, batch_size = 50):
+    def get_mnlp(self, dataset, model, num_instances, batch_size = 50):
 
         model.train(False)
         tm = time.time()
@@ -78,20 +76,19 @@ class Acquisition(object):
         probs[new_datapoints] = np.array(probscores)
         
         test_indices = np.argsort(probs)
-        cur_tokens=0
         cur_indices = set()
         i = 0
+        self.return_index = []
+        self.return_score = []
         while len(cur_indices) < num_instances:
             cur_indices.add(test_indices[i])
-            cur_tokens += len(dataset[test_indices[i]]['words'])
-            i+=1
+            self.return_index.append(test_indices[i])
+            self.return_score.append(probs[test_indices[i]])
+            i += 1
         self.train_index.update(cur_indices)
-        self.return_index = set()
-        self.return_index.update(cur_indices)
-
         print ('D Acquisition took %d seconds:' %(time.time()-tm))
         
-    def get_mnlp_mc(self, dataset, model, decoder, num_instances, nsamp=100, batch_size = 50):
+    def get_mnlp_mc(self, dataset, model, num_instances, nsamp=100, batch_size = 50):
 
         model.train(True)
         tm = time.time()
@@ -171,7 +168,7 @@ class Acquisition(object):
         print ('MC Acquisition took %d seconds:' %(time.time()-tm))
         print ('*'*80)
         
-    def get_mnlp_bb(self, dataset, model, decoder, num_instances, nsamp=100, batch_size = 50):
+    def get_mnlp_bb(self, dataset, model, num_instances, nsamp=100, batch_size = 50):
 
         model.train(True)
         tm = time.time()
@@ -252,29 +249,30 @@ class Acquisition(object):
         print ('MC Acquisition took %d seconds:' %(time.time()-tm))
         print ('*'*80)
         
-    def obtain_data(self, data, model=None, model_name=None, acquire=2, method='random', num_samples=100):
+    def obtain_data(self, data, model, acquire, method, num_samples=100):
 
         num_instances = acquire
-        if model is None or model_name is None:
+        if model is None:
             method = 'random'
-        
+            print('1r')
         if method=='random':
             self.get_random(data, num_instances)
+            print('2r')
         else:
-            decoder = model_name.split('_')[2]
             if self.acq_mode == 'd':
                 if method=='mnlp':
-                    self.get_mnlp(data, model, decoder, num_instances)
+                    print('3m')
+                    self.get_mnlp(data, model, num_instances)
                 else:
                     raise NotImplementedError()
             elif self.acq_mode == 'm':
                 if method=='mnlp':
-                    self.get_mnlp_mc(data, model, decoder, num_instances, nsamp = num_samples)
+                    self.get_mnlp_mc(data, model, num_instances, nsamp = num_samples)
                 else:
                     raise NotImplementedError()
             elif self.acq_mode == 'b':
                 if method=='mnlp':
-                    self.get_mnlp_bb(data, model, decoder, num_instances, nsamp = num_samples)
+                    self.get_mnlp_bb(data, model, num_instances, nsamp = num_samples)
                 else:
                     raise NotImplementedError()
             else:

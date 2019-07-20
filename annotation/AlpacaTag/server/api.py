@@ -586,7 +586,7 @@ class ActiveLearning(APIView):
         setting_obj = get_object_or_404(setting_queryset)
         setting_data = serializer_class(setting_obj).data
 
-        active_indices = alpaca_active_learning(train_docs, setting_data['acquire'])
-        response = {'indices': active_indices}
+        active_data = alpaca_active_learning(train_docs, setting_data['acquire'])
+        response = {'indices': active_data['indices'], 'scores': active_data['scores']}
 
         return Response(response)

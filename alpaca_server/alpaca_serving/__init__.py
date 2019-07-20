@@ -462,10 +462,15 @@ class AlpacaWorker(Process):
                         logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
 
                     elif msg_type == ServerCmd.active_learning:
-                        indices = self.model.active_learning(msg[0], msg[1])
+                        indices, scores = self.model.active_learning(msg[0], msg[1])
                         json_indices = list(map(int, indices))
+                        json_scores = list(map(float, scores))
+                        active_data = {
+                            'indices': json_indices,
+                            'scores': json_scores,
+                        }
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
-                        helper.send_test(outputs, client_id, jsonapi.dumps(json_indices), msg_type)
+                        helper.send_test(outputs, client_id, jsonapi.dumps(active_data), msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
 
 
