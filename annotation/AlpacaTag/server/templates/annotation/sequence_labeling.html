@@ -24,6 +24,7 @@
   </header>
   <div class="card-content">
       <span class="tag">Annotating section</span>
+      <span class="tag" v-if="confidence">confidence : [[ confidenceElement ]]</span>
     <div class="content" v-if="docs[pageNumber] && annotations[pageNumber]">
       <annotator ref="annotator" v-bind:labels="labels" v-bind:entity-positions="annotations[pageNumber]" v-bind:text="docs[pageNumber].text"
         @remove-label="removeLabel" @add-label="addLabel"></annotator>

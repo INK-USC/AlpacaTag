@@ -69,6 +69,8 @@ const annotationMixin = {
       serverMsg: 'OFF',
       activeIndices: [],
       activeIndicesPerPage: [],
+      activeScores: [],
+      activeScoresPerPage: [],
     };
   },
 
@@ -91,6 +93,7 @@ const annotationMixin = {
           this.pageNumber = 0;
         } else if (this.active != 1) {
           this.activeIndicesPerPage.push(this.activeIndices);
+          this.activeScoresPerPage.push(this.activeScores);
           await this.submit();
         } else {
           this.pageNumber = this.docs.length - 1;
@@ -117,6 +120,7 @@ const annotationMixin = {
         } else if (this.active != 1) {
           const state = this.getState();
           const last = this.activeIndicesPerPage.pop();
+          const lastScore = this.activeScoresPerPage.pop();
           this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${last}`;
           await this.search();
           this.pageNumber = 0;
@@ -227,7 +231,12 @@ const annotationMixin = {
       return await HTTP.get(`activelearning`).then((response) => {
         this.loadingMsg="active learning";
         this.activeIndices = response.data.indices;
+        for (let i = 0; i < this.activeIndices.length; i++) {
+          this.activeIndices[i] = this.activeIndices[i] + 1;
+        }
+        this.activeScores = response.data.scores;
         console.log(this.activeIndices);
+        console.log(this.activeScores);
       });
     },
 
@@ -408,6 +417,16 @@ const annotationMixin = {
       } else {
         return 'is-light';
       }
+    },
+    confidence() {
+      if (this.active === 1) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    confidenceElement(){
+      return this.activeScores[this.pageNumber];
     },
   },
 };

@@ -71,7 +71,7 @@ class Acquisition(object):
             norm_scores = score/np.array(wordslen)
             assert len(norm_scores) == len(words)
             probscores.extend(list(norm_scores[np.array(sort_info)]))
-            
+
         assert len(new_datapoints) == len(probscores)
         probs[new_datapoints] = np.array(probscores)
         
