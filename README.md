@@ -51,6 +51,7 @@ We need to compile the frontend. Run the following commands:
 
 ```bash
 cd annotation/AlpacaTag/server
+# npm install -g npm  # To install the newest version.
 npm install
 npm run build
 cd ..
