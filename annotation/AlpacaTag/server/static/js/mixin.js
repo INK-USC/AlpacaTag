@@ -211,7 +211,9 @@ const annotationMixin = {
       if (this.active != 1){
         this.activelearning().then((response) => {
             this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${this.activeIndices}`;
-            this.search();
+            (async () => {
+              await this.search();
+            })();
           });
       }
       else {
