@@ -45,7 +45,7 @@ class ProjectsView(LoginRequiredMixin, CreateView):
     template_name = 'projects.html'
 
 
-class DatasetView(SuperUserMixin, LoginRequiredMixin, ListView):
+class DatasetView(LoginRequiredMixin, ListView):
     template_name = 'admin/dataset.html'
     paginate_by = 10
 
@@ -54,7 +54,7 @@ class DatasetView(SuperUserMixin, LoginRequiredMixin, ListView):
         return project.documents.all()
 
 
-class DictionaryView(SuperUserMixin, LoginRequiredMixin, ListView):
+class DictionaryView(LoginRequiredMixin, ListView):
     template_name = 'admin/dictionary.html'
     paginate_by = 10
     queryset = RecommendationHistory.objects.all()
@@ -74,7 +74,7 @@ class StatsView(SuperUserMixin, LoginRequiredMixin, TemplateView):
 
 
 #need fix
-class SettingView(SuperUserMixin, LoginRequiredMixin, TemplateView):
+class SettingView(LoginRequiredMixin, TemplateView):
     template_name = 'admin/setting.html'
 
 
@@ -164,7 +164,7 @@ class DataDownload(SuperUserMixin, LoginRequiredMixin, TemplateView):
     template_name = 'admin/dataset_download.html'
 
 
-class DataDownloadFile(SuperUserMixin, LoginRequiredMixin, View):
+class DataDownloadFile(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         project_id = self.kwargs['project_id']
