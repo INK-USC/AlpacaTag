@@ -171,7 +171,7 @@ ac.predict<span class="token punctuation">(</span><span class="token string">"Ne
                       </div>
                       <div class="col-6">
                           <p style="margin-left: 10px">
-                            select the spans you want to tag in the annotating section and click or press the associated type
+                            Select the spans you want to tag in the annotating section and click or press the associated type
                           </p>
                       </div>
                   </div>
@@ -182,7 +182,7 @@ ac.predict<span class="token punctuation">(</span><span class="token string">"Ne
                       </div>
                       <div class="col-6">
                           <p style="margin-left: 10px">
-                            tagging suggestions are shown as underlined spans in the recommendation section.
+                            Tagging suggestions are shown as underlined spans in the recommendation section.
                               after click on a suggested span, a floating window will show up near for confirming the types
                               (suggested type is bounded with red line).
                               after click a suggested type or press a shortcut key, confirmed annotations will show up in the upper annotation section
@@ -269,29 +269,40 @@ If you run on your own server, use this command.</p>
 
           <div class="tutorials__content constrained constrained--med">
 
-          <h1>Project description</h1>
+          <h1>AlpacaTag</h1>
           <p>
             <em>AlpacaTag</em> is an open-source web-based data annotation framework for sequence tagging tasks, such as named-entity recognition (NER).
             Its distinctive advantages are three-fold:
           </p>
 
               <ol class="formatted">
-                  <li><b>Active intelligent recommendation:</b> dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model;
+                  <li><b>Active intelligent recommendation:</b> dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model.
             </li>
                   <li>
-              <b>Automatic crowd consolidation:</b> enhancing real-time interannotator agreement by merging inconsistent labels from multiple annotators;
+              <b>Automatic crowd consolidation:</b> enhancing real-time interannotator agreement by merging inconsistent labels from multiple annotators.
             </li>
                   <li>
               <b>Real-time model deployment:</b> users can deploy their models in downstream systems while new annotations are being made.
             </li>
               </ol>
-
-              <ul class="publications">
-                  <p class="publications__abstract">Read out paper for more:</p>
-                  <a href="https://homes.cs.washington.edu/~msap/pdfs/rashkin2018event2mind.pdf" class="publications__title"> AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging. ACL  </a>
-                  <span class="publications__authors">Bill Yuchen Lin, Dong-Ho Lee, Frank F. Xu, Ouyu Lan, Xiang Ren</span>
-                  <span class="publications__year">2019</span>
-              </ul>
+              <br/>
+              <h4>Video</h4>
+              <br/>
+              <iframe width="500" height="315" src="https://www.youtube.com/embed/DI5LNVts9nc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <br/><br/>
+              <h4>Links</h4>
+              <!-- <ul class="publications"> -->
+                  <!-- <li> -->
+                  	<!-- <p class="publications__abstract">Paper:</p> -->
+                  <ul>
+                 <li> <a href="{% static 'file/paper.pdf' %}"> AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging.</a>   <br>
+                  <span class="publications__authors">Bill Yuchen Lin*, Dong-Ho Lee*, Frank F. Xu, Ouyu Lan, Xiang Ren</span> 
+                  <span class="publications__year">In Proc. of ACL 2019 (Demo Track) </span>
+                  </li>
+                  <li>
+                  Github repo: <a href="https://github.com/INK-USC/AlpacaTag/" target="blank">https://github.com/INK-USC/AlpacaTag/</a> 
+                  </li>
+                  </ul>
           </div>
 
         </div>
@@ -302,21 +313,21 @@ If you run on your own server, use this command.</p>
                 <div class="img-div">
                 <img class="figure-img img-fluid" src="{% static 'images/overview.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
                 <br>
-                <figcaption class="figure-caption">
+                <!-- <figcaption class="figure-caption">
                     The overview of the AlpacaTag framework.
-                </figcaption>
+                </figcaption> -->
                 </div>
                 <div class="img-div">
                 <img class="figure-img img-fluid" src="{% static 'images/consolidation.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
-                <figcaption class="figure-caption">
+                <!-- <figcaption class="figure-caption">
                     Reducing inter-annotator disagreement by training personal models for personalized active sampling and constructing consensus models (beta ver.).
-                </figcaption>
+                </figcaption> -->
                 </div>
 
                 <div class="img-div">
                 <img class="figure-img img-fluid" src="{% static 'images/implemenations.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
                 <figcaption class="figure-caption">
-                    The framework implmentations.
+                    <!-- The framework implmentations. -->
                 </figcaption>
                 </div>
 
