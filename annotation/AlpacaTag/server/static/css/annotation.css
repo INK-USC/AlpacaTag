@@ -411,13 +411,10 @@ body {
 
 
 .help-tip{
-	position: absolute;
-	right: 215px;
+	position: relative;
 	text-align: center;
 	background-color: #BCDBEA;
-	border-radius: 50%;
-	width: 24px;
-	height: 24px;
+	border-radius: 1%;
 	font-size: 14px;
 	line-height: 26px;
 	cursor: default;
