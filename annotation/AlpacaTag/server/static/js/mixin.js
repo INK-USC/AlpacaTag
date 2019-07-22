@@ -142,26 +142,27 @@ const annotationMixin = {
       if (!check) {
         this.annotatedCheck(true);
         this.docs[this.pageNumber].annotated = true;
-        this.$refs["confirm"].style.backgroundColor = "#3cb371";
+        // this.$refs["confirm"].style.backgroundColor = "#3cb371";
         this.confirmtext = "Confirmed";
         if (!this.onlineLearningIndices.has(docId)) {
           this.onlineLearningIndices.add(docId);
           this.onlineLearningNum = this.onlineLearningNum + 1;
         }
       }
-      else {
-        this.annotatedCheck(false);
-        this.docs[this.pageNumber].annotated = false;
-        this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
-        this.confirmtext = "Press this button if the sentence has no entities";
-        HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
-          this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
-          if (this.onlineLearningIndices.has(docId)) {
-            this.onlineLearningIndices.delete(docId);
-            this.onlineLearningNum = this.onlineLearningNum - 1;
-          }
-        });
-      }
+      this.nextPage();
+      // else {
+      //   this.annotatedCheck(false);
+      //   this.docs[this.pageNumber].annotated = false;
+      //   this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
+      //   this.confirmtext = "Press this button if the sentence has no entities";
+      //   HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
+      //     this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
+      //     if (this.onlineLearningIndices.has(docId)) {
+      //       this.onlineLearningIndices.delete(docId);
+      //       this.onlineLearningNum = this.onlineLearningNum - 1;
+      //     }
+      //   });
+      // }
       HTTP.get('progress').then((response) => {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
@@ -289,11 +290,11 @@ const annotationMixin = {
     annotations() {
       const check = this.docs[this.pageNumber].annotated;
       if (!check) {
-        this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
+        // this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
         this.confirmtext = "Press this button if the sentence has no entities";
       }
       else {
-        this.$refs["confirm"].style.backgroundColor = "#3cb371";
+        // this.$refs["confirm"].style.backgroundColor = "#3cb371";
         this.confirmtext = "confirmed";
       }
       HTTP.get('progress').then((response) => {

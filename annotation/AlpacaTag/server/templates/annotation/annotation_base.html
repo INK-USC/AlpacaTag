@@ -113,7 +113,6 @@
           <span> to annotate </span>
       </div>
 
-
         <div class="column is-0 has-text-right">
           <span class="tag is-small" v-bind:class="nounOn" v-bind:value="achievementTrain" disabled="">Noun Chunk</span>
           <span class="tag is-small" v-bind:class="onlineOn" v-bind:value="achievementTrain" disabled="">Online Learning</span>
@@ -133,18 +132,26 @@
         </span>
         <span>Prev</span>
       </a>
-        <a class="confirmbutton level-center" ref="confirm" v-on:click="confirm">
-            <span class="confirmbuttontext" ref="confirmtext">[[ confirmtext ]]</span>
-        </a>
-      <a class="button level-right" v-on:click="nextPage" v-shortkey="{next1: ['ctrl', 'n'], next2: ['arrowdown'], next3: ['arrowright']}"
+      <div class="level-right">
+          <div>
+        <a class="button level-right" v-on:click="nextPage" v-shortkey="{next1: ['ctrl', 'n'], next2: ['arrowdown'], next3: ['arrowright']}"
         @shortkey="nextPage">
-        <span>Next</span>
-        <span class="icon">
-          <i class="fas fa-chevron-right"></i>
-        </span>
-      </a>
+            <span>Next</span>
+            <span class="icon">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+        </a></div>
+      </div>
     </div>
-
+    <div class="level mt30">
+        <a class="level-left"></a>
+        <a class="button level-right" ref="confirm" v-on:click="confirm">
+            <span>Skip (No entity)</span>
+            <span class="icon">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+        </a>
+    </div>
   </div>
 </div>
 {% endblock %}
