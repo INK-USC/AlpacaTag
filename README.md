@@ -7,9 +7,9 @@ MIT License
 Code credit for UI-framework: <https://github.com/chakki-works/doccano>
 ## Features
 
-* Collaborative annotation
-* Language independent
 * Active Learning & Online learning
+* Crowd Annotation Consolidation
+* Real-time APIs for accessing backend models
 
 ## Requirements
 
