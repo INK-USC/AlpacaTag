@@ -108,6 +108,7 @@ python manage.py runserver 0.0.0.0:8000
 **Server-side**
 
 ```bash
+cd ../../
 cd alpaca_server/alpaca_serving/server
 python main.py
 ```
