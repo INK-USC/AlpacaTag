@@ -1,10 +1,10 @@
 # AlpacaTag
 An Active Learning-based Crowd Annotation Framework for Sequence Tagging 
-in Proc. of ACL 2019 (Demo Track) 
 
 MIT License
 
-Code credit for UI-framework: <https://github.com/chakki-works/doccano>
+Code credit for the UI-framework: <https://github.com/chakki-works/doccano>
+
 ## Features
 
 * Active Learning & Online learning
@@ -15,7 +15,7 @@ Code credit for UI-framework: <https://github.com/chakki-works/doccano>
 
 * Python 3.6.5+
 * django 2.0.5+
-* Google Chrome(highly recommended)
+* Chrome (highly recommended)
 * Pytorch
 
 ## Installation
