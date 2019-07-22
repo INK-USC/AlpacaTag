@@ -250,7 +250,7 @@ class SettingList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.Updat
 
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_id'])
-        self.queryset = self.queryset.filter(project=project)
+        self.queryset = self.queryset.filter(project=project, user=self.request.user)
 
         return self.queryset
 
