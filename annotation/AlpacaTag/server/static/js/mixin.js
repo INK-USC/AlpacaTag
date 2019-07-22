@@ -312,6 +312,7 @@ const annotationMixin = {
     HTTP.get('labels').then((response) => {
       this.labels = response.data;
     });
+
     HTTP.get('settings').then((response) => {
       this.embedding = response.data.embedding;
       this.nounchunk = response.data.nounchunk;
@@ -332,6 +333,22 @@ const annotationMixin = {
           console.log("model server off");
           this.submit();
         }
+      });
+    }).catch( (error) => {
+      window.location.reload(true);
+      const payload = {
+        embedding: 1,
+        nounchunk: false,
+        onlinelearning: false,
+        history: false,
+        active: 1,
+        batch: 10,
+        epoch: 10,
+        acquire: 5
+      };
+      HTTP.put('settings/', payload).then((response) => {
+        console.log("asdfadsfads");
+        window.location.reload(true);
       });
     });
     HTTP.get().then((response) => {
