@@ -288,15 +288,6 @@ const annotationMixin = {
     },
 
     annotations() {
-      const check = this.docs[this.pageNumber].annotated;
-      if (!check) {
-        // this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
-        this.confirmtext = "Press this button if the sentence has no entities";
-      }
-      else {
-        // this.$refs["confirm"].style.backgroundColor = "#3cb371";
-        this.confirmtext = "confirmed";
-      }
       HTTP.get('progress').then((response) => {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
