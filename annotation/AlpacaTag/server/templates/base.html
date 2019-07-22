@@ -67,7 +67,7 @@
       </div>
       <div id="topNav" class="navbar-menu">
         <div class="navbar-end">
-          {% if not user.is_authenticated %}
+          <!-- {% if not user.is_authenticated %} -->
           <a class="navbar-item" href="https://github.com/INK-USC">
             <span>GitHub</span>
           </a>
@@ -79,7 +79,7 @@
           {% endif %}
           {% if not user.is_authenticated %}
           <a class="navbar-item" href="{% url 'login' %}">
-            <span>Login</span>
+            <span>Live Demo</span>
           </a>
           {% else %}
           <a class="navbar-item" href="{% url 'logout' %}">
