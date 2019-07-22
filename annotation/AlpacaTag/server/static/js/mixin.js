@@ -172,6 +172,7 @@ const annotationMixin = {
     async process_data(response) {
       this.isLoading = true;
       this.loadingMsg="recommending";
+      console.log(response.data);
       this.docs = response.data.results;
       this.next = response.data.next;
       this.prev = response.data.previous;
@@ -211,9 +212,7 @@ const annotationMixin = {
       if (this.active != 1){
         this.activelearning().then((response) => {
             this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${this.activeIndices}`;
-            (async () => {
-              await this.search();
-            })();
+            this.search();
           });
       }
       else {
@@ -234,9 +233,6 @@ const annotationMixin = {
       return await HTTP.get(`activelearning`).then((response) => {
         this.loadingMsg="active learning";
         this.activeIndices = response.data.indices;
-        for (let i = 0; i < this.activeIndices.length; i++) {
-          this.activeIndices[i] = this.activeIndices[i] + 1;
-        }
         this.activeScores = response.data.scores;
         console.log(this.activeIndices);
         console.log(this.activeScores);

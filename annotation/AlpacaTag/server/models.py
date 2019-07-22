@@ -44,7 +44,10 @@ class Project(models.Model):
 
     def get_index_documents(self, indices):
         docs = self.documents.all()
-        docs = docs.filter(pk__in=indices)
+        docs_indices = [d.id for d in docs]
+        active_indices = [docs_indices[i-1] for i in indices]
+        docs = list(docs.filter(pk__in=active_indices))
+        docs.sort(key=lambda t: active_indices.index(t.pk))
         return docs
 
     def get_document_serializer(self):

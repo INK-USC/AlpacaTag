@@ -162,7 +162,8 @@ class DocumentList(generics.ListCreateAPIView):
             return queryset
         active_indices = self.request.query_params.get('active_indices')
         active_indices = list(map(int, active_indices.split(",")))
-        queryset = project.get_index_documents(active_indices).distinct()
+
+        queryset = project.get_index_documents(active_indices)
 
         if not self.request.query_params.get('is_checked'):
             return queryset
