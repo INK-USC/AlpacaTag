@@ -32,15 +32,16 @@
     <h1><span><b>AlpacaTag</b></span></h1>
     <h3><span>An Active Learning-based Crowd Annotation Framework for Sequence Tagging</span></h3>
     <div class="banner--hero__cta-container">
-        <a class="btn" id='test' href="{% static 'file/AlpacaTag.pdf' %}">ACL paper</a>
-      <a class="btn" href="data/rashkin2018event2mind_poster.pdf">Slides</a>
-      <a class="btn" href="https://github.com/INK-USC/AlpacaTag">Source Code</a>
-      <a class="btn"  href="" data-target="#contactUs" data-toggle="collapse" onclick="return false">Contact Us</a>
-    </div>
-    <div class="banner--hero__cta-container">
-      <a class="btn" data-toggle="collapse" data-target="#api">API TUTORIAL</a>
-      <a class="btn" data-toggle="collapse" data-target="#web">Web Tutorial</a>
-      <a class="btn" data-toggle="collapse" data-target="#Installation">Installation guide</a>
+        <a class="btn" id='test' href="{% static 'file/paper.pdf' %}">ACL paper</a>
+      <a class="btn" href="{% static 'file/poster.pdf' %}">Poster</a>
+      <a class="btn" data-toggle="collapse" data-target="#web">Tutorial</a>
+      
+    <!-- </div>
+    <div class="banner--hero__cta-container"> -->
+      <!-- <a class="btn" data-toggle="collapse" data-target="#api">API TUTORIAL</a> -->
+      
+      <a class="btn" id='test'href="https://github.com/INK-USC/AlpacaTag/blob/master/README.md">Installation guide</a>
+      <a class="btn" href="https://github.com/INK-USC/AlpacaTag">Github</a>
     </div>
     </div>
 </section>
@@ -270,18 +271,18 @@ If you run on your own server, use this command.</p>
 
           <h1>Project description</h1>
           <p>
-            In <em>AlpacaTag</em>, we introduce an open-source web-based data annotation framework for sequence tagging tasks such as named-entity recognition (NER).
-            The distinctive advantages of AlpacaTag are three-fold.
+            <em>AlpacaTag</em> is an open-source web-based data annotation framework for sequence tagging tasks, such as named-entity recognition (NER).
+            Its distinctive advantages are three-fold:
           </p>
 
               <ol class="formatted">
-                  <li><em>Active intelligent recommendation:</em> dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model;
+                  <li><b>Active intelligent recommendation:</b> dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model;
             </li>
                   <li>
-              <em>Automatic crowd consolidation:</em> enhancing real-time interannotator agreement by merging inconsistent labels from multiple annotators;
+              <b>Automatic crowd consolidation:</b> enhancing real-time interannotator agreement by merging inconsistent labels from multiple annotators;
             </li>
                   <li>
-              <em>Real-time model deployment:</em> users can deploy their models in downstream systems while new annotations are being made.
+              <b>Real-time model deployment:</b> users can deploy their models in downstream systems while new annotations are being made.
             </li>
               </ol>
 
@@ -302,15 +303,23 @@ If you run on your own server, use this command.</p>
                 <img class="figure-img img-fluid" src="{% static 'images/overview.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
                 <br>
                 <figcaption class="figure-caption">
-                    The workflow for annotators to confirm a given tagging suggestion ("Hillary Clinton" as <span class="text-monospace">PER</span>).
+                    The overview of the AlpacaTag framework.
                 </figcaption>
                 </div>
                 <div class="img-div">
                 <img class="figure-img img-fluid" src="{% static 'images/consolidation.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
                 <figcaption class="figure-caption">
-                    Reducing inter-annotator disagreement by training personal models for personalized active sampling and constructing consensus models.
+                    Reducing inter-annotator disagreement by training personal models for personalized active sampling and constructing consensus models (beta ver.).
                 </figcaption>
                 </div>
+
+                <div class="img-div">
+                <img class="figure-img img-fluid" src="{% static 'images/implemenations.png' %}" alt="see caption" style="margin-left: 20px; width: 100%; float: right;">
+                <figcaption class="figure-caption">
+                    The framework implmentations.
+                </figcaption>
+                </div>
+
               </figure>
       </div>
 
