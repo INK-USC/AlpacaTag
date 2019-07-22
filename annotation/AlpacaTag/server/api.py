@@ -273,6 +273,7 @@ class SettingList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.Updat
                                                    defaults=self.request.data)
         if not created:
             return self.update(request, *args, **kwargs)
+        return Response(created)
 
 
 class RecommendationHistoryList(generics.ListCreateAPIView):

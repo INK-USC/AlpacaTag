@@ -335,6 +335,7 @@ const annotationMixin = {
         }
       });
     }).catch( (error) => {
+      window.location.reload(true);
       const payload = {
         embedding: 1,
         nounchunk: false,
