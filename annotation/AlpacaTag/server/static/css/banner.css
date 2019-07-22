@@ -59,10 +59,10 @@
 	 -ms-justify-content: center;
 	 justify-content: center;
 	 text-align: center;
-	 min-height: 26.25em;
-	 height: 40vw;
+	 min-height: 20.25em;
+	 height: 300px;
 	 max-height: 37.5em;
-	 background: #1c292f url("../images/banner.jpg") center center no-repeat;
+	 background: #990000 center center no-repeat;
 	 background-size: cover;
 }
  .banner--hero__content {
