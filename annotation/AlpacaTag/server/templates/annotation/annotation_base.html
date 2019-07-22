@@ -6,7 +6,7 @@
 <script src="https://unpkg.com/lodash@4.16.0/lodash.js"></script>
 {% endblock %}
 {% block navigation %}
-{% if user.is_superuser %}
+{% if user.is_authenticated %}
 <a class="navbar-item" href="{% url 'dataset' view.kwargs.project_id %}">
   <span class="icon">
     <i class="fas fa-edit"></i>
