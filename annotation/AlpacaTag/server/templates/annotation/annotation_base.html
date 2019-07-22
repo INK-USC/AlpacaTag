@@ -97,9 +97,11 @@
             <span class="ml10"><strong>[[ onlineLearningIndices.size ]]</strong></span>/<span>[[ onlineLearningPer ]]</span>
             <span> to train </span>
         </div>
+
         <div class="column is-0 has-text-right">
           <span class="tag is-small" v-bind:class="serverOn" disabled="">MODEL SERVER [[ serverMsg ]]</span>
-      </div>
+          <span class="help-tip"><p>Something about embedding explanation</p></span>
+        </div>
       </div>
 
     <div class="columns is-multiline is-gapless is-mobile is-vertical-center">
@@ -116,6 +118,7 @@
           <span class="tag is-small" v-bind:class="nounOn" v-bind:value="achievementTrain" disabled="">Noun Chunk</span>
           <span class="tag is-small" v-bind:class="onlineOn" v-bind:value="achievementTrain" disabled="">Online Learning</span>
           <span class="tag is-small" v-bind:class="historyOn" v-bind:value="achievementTrain" disabled="">Annotation History</span>
+          <span class="help-tip"><p>Something about embedding explanation</p></span>
         </div>
 
     </div>

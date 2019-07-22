@@ -4,12 +4,12 @@ in Proc. of ACL 2019 (Demo Track)
 
 MIT License
 
-<https://github.com/chakki-works/doccano>
+Code credit for UI-framework: <https://github.com/chakki-works/doccano>
 ## Features
 
-* Collaborative annotation
-* Language independent
 * Active Learning & Online learning
+* Crowd Annotation Consolidation
+* Real-time APIs for accessing backend models
 
 ## Requirements
 
