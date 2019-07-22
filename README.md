@@ -25,10 +25,11 @@ MIT License
 First we need to install the dependencies. Run the following commands:
 
 ```bash
+git clone https://github.com/INK-USC/AlpacaTag.git
+cd AlpacaTag
 conda create -n alpaca python==3.6.5
 conda activate alpaca
 pip install -r requirements.txt
-cd AlpacaTag
 ```
 
 Install the server and client.
