@@ -30,6 +30,7 @@ cd AlpacaTag
 conda create -n alpaca python==3.6.5
 conda activate alpaca
 pip install -r requirements.txt
+python -m spacy download en
 ```
 
 Install the server and client.
