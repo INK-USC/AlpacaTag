@@ -23,7 +23,7 @@ class Project(models.Model):
         return reverse('upload', args=[self.id])
 
     def get_progress(self, user):
-        docs = self.get_documents(is_null=True, user=user)
+        docs = self.get_annotated_documents(is_null=True, user=user)
         total = self.documents.count()
         remaining = docs.count()
         return {'total': total, 'remaining': remaining}
@@ -37,7 +37,11 @@ class Project(models.Model):
         template_name = 'annotation/sequence_labeling.html'
         return template_name
 
-    def get_documents(self, is_null=True, user=None):
+    def get_documents(self):
+        docs = self.documents.all()
+        return docs
+
+    def get_annotated_documents(self):
         docs = self.documents.all()
         docs = docs.filter(annotated=False)
         return docs
@@ -95,7 +99,8 @@ class Document(models.Model):
         self.seq_annotations.all().delete()
 
     def get_annotations(self, user_id):
-        seq_annotation = self.seq_annotations.filter(user_id=user_id)
+        seq_annotation = self.seq_annotations.filter(document_id=self.id, user_id=user_id)
+        print(seq_annotation)
         return seq_annotation
 
     def to_csv(self, user_id):
@@ -104,12 +109,11 @@ class Document(models.Model):
     def make_dataset(self, user_id):
         return self.make_dataset_for_sequence_labeling(user_id)
 
-    def make_dataset_for_sequence_labeling(self, user):
-        annotations = self.get_annotations(user)
+    def make_dataset_for_sequence_labeling(self, user_id):
+        annotations = self.get_annotations(user_id=user_id)
         doc = nlp(self.text)
         words = [token.text for token in doc]
         dataset = [[self.id, word, 'O', self.metadata] for word in words]
-        print(dataset)
         startoff_map = {}
         endoff_map = {}
 
@@ -119,13 +123,15 @@ class Document(models.Model):
             startoff_map[start_off] = word_index
             endoff_map[end_off] = word_index
             start_off = end_off + 1
-
+            
+        print(dataset)
         for a in annotations:
             if a.start_offset in startoff_map:
                 dataset[startoff_map[a.start_offset]][2] = 'B-{}'.format(a.label.text)
             if a.end_offset in endoff_map:
                 if endoff_map[a.end_offset] != startoff_map[a.start_offset]:
                     dataset[endoff_map[a.end_offset]][2] = 'I-{}'.format(a.label.text)
+
         return dataset
 
     def to_json(self, user_id):

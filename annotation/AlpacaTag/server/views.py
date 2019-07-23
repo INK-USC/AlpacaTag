@@ -170,7 +170,7 @@ class DataDownloadFile(LoginRequiredMixin, View):
         user_id = self.request.user.id
         project_id = self.kwargs['project_id']
         project = get_object_or_404(Project, pk=project_id)
-        docs = project.get_documents(is_null=False).distinct()
+        docs = project.get_documents().distinct()
         export_format = request.GET.get('format')
         filename = '_'.join(project.name.lower().split())
         try:
