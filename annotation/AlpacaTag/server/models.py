@@ -98,7 +98,11 @@ class Document(models.Model):
     def delete_annotations(self):
         self.seq_annotations.all().delete()
 
-    def get_annotations(self, user_id):
+    def get_annotations(self):
+        seq_annotation = self.seq_annotations.all()
+        return seq_annotation
+
+    def get_annotations_user(self, user_id):
         seq_annotation = self.seq_annotations.filter(document_id=self.id, user_id=user_id)
         print(seq_annotation)
         return seq_annotation
@@ -110,7 +114,7 @@ class Document(models.Model):
         return self.make_dataset_for_sequence_labeling(user_id)
 
     def make_dataset_for_sequence_labeling(self, user_id):
-        annotations = self.get_annotations(user_id=user_id)
+        annotations = self.get_annotations_user(user_id=user_id)
         doc = nlp(self.text)
         words = [token.text for token in doc]
         dataset = [[self.id, word, 'O', self.metadata] for word in words]
@@ -123,7 +127,7 @@ class Document(models.Model):
             startoff_map[start_off] = word_index
             endoff_map[end_off] = word_index
             start_off = end_off + 1
-            
+
         print(dataset)
         for a in annotations:
             if a.start_offset in startoff_map:
