@@ -76,7 +76,7 @@ const annotationMixin = {
 
   methods: {
     async nextPage() {
-      if (this.annotations[this.pageNumber] > 0){
+      if (this.annotations[this.pageNumber].length > 0){
         HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
           HTTP.get('progress').then((response) => {
             this.total = response.data.total;
@@ -119,7 +119,7 @@ const annotationMixin = {
     },
 
     async prevPage() {
-      if (this.annotations[this.pageNumber] > 0){
+      if (this.annotations[this.pageNumber].length > 0){
         HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
           HTTP.get('progress').then((response) => {
             this.total = response.data.total;
