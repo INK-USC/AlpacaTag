@@ -78,6 +78,10 @@ const annotationMixin = {
     async nextPage() {
       if (this.annotations[this.pageNumber] > 0){
         HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
+          HTTP.get('progress').then((response) => {
+            this.total = response.data.total;
+            this.remaining = response.data.remaining;
+          });
         });
       }
       this.pageNumber += 1;
@@ -117,6 +121,10 @@ const annotationMixin = {
     async prevPage() {
       if (this.annotations[this.pageNumber] > 0){
         HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
+          HTTP.get('progress').then((response) => {
+            this.total = response.data.total;
+            this.remaining = response.data.remaining;
+          });
         });
       }
       this.pageNumber -= 1;
@@ -293,13 +301,6 @@ const annotationMixin = {
   watch: {
     picked() {
       this.submit();
-    },
-
-    annotations() {
-      HTTP.get('progress').then((response) => {
-        this.total = response.data.total;
-        this.remaining = response.data.remaining;
-      });
     },
 
     offset() {
