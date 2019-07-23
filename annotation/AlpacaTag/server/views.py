@@ -20,6 +20,7 @@ from .models import Document, Project, RecommendationHistory
 
 import spacy
 from spacy.tokens import Doc
+
 class WhitespaceTokenizer(object):
     def __init__(self, vocab):
         self.vocab = vocab
