@@ -94,20 +94,22 @@ class Document(models.Model):
     def delete_annotations(self):
         self.seq_annotations.all().delete()
 
-    def get_annotations(self):
-        return self.seq_annotations.all()
+    def get_annotations(self, user_id):
+        seq_annotation = self.seq_annotations.filter(user_id=user_id)
+        return seq_annotation
 
-    def to_csv(self):
-        return self.make_dataset()
+    def to_csv(self, user_id):
+        return self.make_dataset(user_id)
 
-    def make_dataset(self):
-        return self.make_dataset_for_sequence_labeling()
+    def make_dataset(self, user_id):
+        return self.make_dataset_for_sequence_labeling(user_id)
 
-    def make_dataset_for_sequence_labeling(self):
-        annotations = self.get_annotations()
+    def make_dataset_for_sequence_labeling(self, user):
+        annotations = self.get_annotations(user)
         doc = nlp(self.text)
         words = [token.text for token in doc]
         dataset = [[self.id, word, 'O', self.metadata] for word in words]
+        print(dataset)
         startoff_map = {}
         endoff_map = {}
 
@@ -126,13 +128,13 @@ class Document(models.Model):
                     dataset[endoff_map[a.end_offset]][2] = 'I-{}'.format(a.label.text)
         return dataset
 
-    def to_json(self):
-        return self.make_dataset_json()
+    def to_json(self, user_id):
+        return self.make_dataset_json(user_id)
 
-    def make_dataset_json(self):
-        return self.make_dataset_for_sequence_labeling_json()
+    def make_dataset_json(self, user_id):
+        return self.make_dataset_for_sequence_labeling_json(user_id)
 
-    def make_dataset_for_sequence_labeling_json(self):
+    def make_dataset_for_sequence_labeling_json(self, user_id):
         annotations = self.get_annotations()
         entities = [(a.start_offset, a.end_offset, a.label.text) for a in annotations]
         username = annotations[0].user.username

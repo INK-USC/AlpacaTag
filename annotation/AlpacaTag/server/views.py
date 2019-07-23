@@ -167,6 +167,7 @@ class DataDownload(LoginRequiredMixin, TemplateView):
 class DataDownloadFile(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
+        user_id = self.request.user.id
         project_id = self.kwargs['project_id']
         project = get_object_or_404(Project, pk=project_id)
         docs = project.get_documents(is_null=False).distinct()
@@ -174,28 +175,28 @@ class DataDownloadFile(LoginRequiredMixin, View):
         filename = '_'.join(project.name.lower().split())
         try:
             if export_format == 'csv':
-                response = self.get_csv(filename, docs)
+                response = self.get_csv(filename, docs, user_id)
             elif export_format == 'json':
-                response = self.get_json(filename, docs)
+                response = self.get_json(filename, docs, user_id)
             return response
         except Exception as e:
             logger.exception(e)
             messages.add_message(request, messages.ERROR, "Something went wrong")
             return HttpResponseRedirect(reverse('download', args=[project.id]))
 
-    def get_csv(self, filename, docs):
+    def get_csv(self, filename, docs, user_id):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
         writer = csv.writer(response)
         for d in docs:
-            writer.writerows(d.to_csv())
+            writer.writerows(d.to_csv(user_id))
         return response
 
-    def get_json(self, filename, docs):
+    def get_json(self, filename, docs, user_id):
         response = HttpResponse(content_type='text/json')
         response['Content-Disposition'] = 'attachment; filename="{}.json"'.format(filename)
         for d in docs:
-            dump = json.dumps(d.to_json(), ensure_ascii=False)
+            dump = json.dumps(d.to_json(user_id), ensure_ascii=False)
             response.write(dump + '\n')  # write each json object end with a newline
         return response
 
