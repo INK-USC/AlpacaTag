@@ -188,6 +188,10 @@ const annotationMixin = {
     },
 
     async process_data(response) {
+      HTTP.get('progress').then((response) => {
+          this.total = response.data.total;
+          this.remaining = response.data.remaining;
+      });
       this.isLoading = true;
       this.loadingMsg="recommending";
       console.log(response.data);
