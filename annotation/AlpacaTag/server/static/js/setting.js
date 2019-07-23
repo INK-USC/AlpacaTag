@@ -39,7 +39,7 @@ const vm = new Vue({
         this.tmpbatch = this.batch;
       }
       if (this.epoch === null) {
-        this.tmpepoch = 10;
+        this.tmpepoch = 5;
       }
       else {
         this.tmpepoch = this.epoch;

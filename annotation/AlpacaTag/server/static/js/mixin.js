@@ -76,6 +76,10 @@ const annotationMixin = {
 
   methods: {
     async nextPage() {
+      if (this.annotations[this.pageNumber] > 0){
+        HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
+        });
+      }
       this.pageNumber += 1;
       if (this.pageNumber === this.docs.length) {
         if (this.next) {
@@ -94,7 +98,16 @@ const annotationMixin = {
         } else if (this.active != 1) {
           this.activeIndicesPerPage.push(this.activeIndices);
           this.activeScoresPerPage.push(this.activeScores);
-          await this.submit();
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+            this.onlinelearning().then((res) => {
+              this.onlineLearningIndices.clear();
+              this.onlineLearningNum = 0;
+              this.submit();
+            });
+          }
+          else {
+            await this.submit();
+          }
         } else {
           this.pageNumber = this.docs.length - 1;
         }
@@ -102,6 +115,10 @@ const annotationMixin = {
     },
 
     async prevPage() {
+      if (this.annotations[this.pageNumber] > 0){
+        HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
+        });
+      }
       this.pageNumber -= 1;
       if (this.pageNumber === -1) {
         if (this.prev) {
@@ -120,9 +137,17 @@ const annotationMixin = {
         } else if (this.active != 1) {
           const state = this.getState();
           const last = this.activeIndicesPerPage.pop();
-          const lastScore = this.activeScoresPerPage.pop();
           this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${last}`;
-          await this.search();
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+            this.onlinelearning().then((res) => {
+              this.onlineLearningIndices.clear();
+              this.onlineLearningNum = 0;
+              this.search();
+            });
+          }
+          else {
+            await this.search();
+          }
           this.pageNumber = 0;
         } else {
           this.pageNumber = 0;
@@ -142,27 +167,12 @@ const annotationMixin = {
       if (!check) {
         this.annotatedCheck(true);
         this.docs[this.pageNumber].annotated = true;
-        // this.$refs["confirm"].style.backgroundColor = "#3cb371";
-        this.confirmtext = "Confirmed";
         if (!this.onlineLearningIndices.has(docId)) {
           this.onlineLearningIndices.add(docId);
           this.onlineLearningNum = this.onlineLearningNum + 1;
         }
       }
       this.nextPage();
-      // else {
-      //   this.annotatedCheck(false);
-      //   this.docs[this.pageNumber].annotated = false;
-      //   this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
-      //   this.confirmtext = "Press this button if the sentence has no entities";
-      //   HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
-      //     this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
-      //     if (this.onlineLearningIndices.has(docId)) {
-      //       this.onlineLearningIndices.delete(docId);
-      //       this.onlineLearningNum = this.onlineLearningNum - 1;
-      //     }
-      //   });
-      // }
       HTTP.get('progress').then((response) => {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
@@ -250,7 +260,7 @@ const annotationMixin = {
       HTTP.delete(`docs/${docId}/annotations/${annotation.id}`).then((response) => {
         const index = this.annotations[this.pageNumber].indexOf(annotation);
         this.annotations[this.pageNumber].splice(index, 1);
-        if (this.annotations[this.pageNumber].length === 0) {
+        if (this.annotations[this.pageNumber].length === 0 && this.docs[this.pageNumber].annotated === false) {
           this.docs[this.pageNumber].annotated = false;
           if (this.onlineLearningIndices.has(docId)) {
             this.onlineLearningIndices.delete(docId);
@@ -332,11 +342,10 @@ const annotationMixin = {
         history: false,
         active: 1,
         batch: 10,
-        epoch: 10,
+        epoch: 5,
         acquire: 5
       };
       HTTP.put('settings/', payload).then((response) => {
-        console.log("asdfadsfads");
         window.location.reload(true);
       });
     });

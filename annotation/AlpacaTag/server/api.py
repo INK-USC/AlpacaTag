@@ -27,7 +27,7 @@ def alpaca_recommend(text):
     response = alpaca_client.predict(text)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         return alpaca_recommend(text)
     return response
 
@@ -37,7 +37,7 @@ def alpaca_initiate(project_id):
     response = alpaca_client.initiate(project_id)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         return alpaca_client.initiate(project_id)
     return response
 
@@ -47,7 +47,7 @@ def alpaca_online_initiate(train_docs, predefined_label):
     response = alpaca_client.online_initiate(train_docs, [predefined_label])
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         alpaca_client.online_initiate(train_docs, [predefined_label])
 
 
@@ -56,7 +56,7 @@ def alpaca_online_learning(train_docs, annotations, epoch, batch):
     response = alpaca_client.online_learning(train_docs, annotations, epoch, batch)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         alpaca_client.online_learning(train_docs, annotations, epoch, batch)
 
 
@@ -65,7 +65,7 @@ def alpaca_active_learning(train_docs, acquire):
     response = alpaca_client.active_learning(train_docs, acquire)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         return alpaca_client.active_learning(train_docs, acquire)
     return response
 
