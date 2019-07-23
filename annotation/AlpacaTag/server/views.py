@@ -160,7 +160,7 @@ class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse('upload', args=[project.id]))
 
 
-class DataDownload(SuperUserMixin, LoginRequiredMixin, TemplateView):
+class DataDownload(LoginRequiredMixin, TemplateView):
     template_name = 'admin/dataset_download.html'
 
 
