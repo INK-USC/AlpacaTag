@@ -3,16 +3,26 @@ An Active Learning-based Crowd Annotation Framework for Sequence Tagging
 
 MIT License
 
-The UI-framework is based on this awesome work: <https://github.com/chakki-works/doccano>
-
-## Features
-
-* Active Learning & Online learning
-* Crowd Annotation Consolidation
-* Real-time APIs for accessing backend models
+**_AlpacaTag is an open-source web-based data annotation framework for sequence tagging tasks, such as named-entity recognition (NER)._**
 
 
-## Installation
+The UI framework is based on the awesome work of [Doccano](https://github.com/chakki-works/doccano), while the distinctive advantages of AlpacaTag are three-fold:
 
-Please refer to our Wiki page for the [installation guide](https://github.com/INK-USC/AlpacaTag/wiki/Installation).
+* **Active intelligent recommendation**: 
+dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model.
+* **Automatic crowd consolidation**: enhancing real-time inter-annotator agreement by merging inconsistent labels from multiple annotators.
+* **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made. 
+
+
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/INK-USC/AlpacaTag/master/annotation/AlpacaTag/server/static/images/overview.png" width=450px> 
+</p>
+
+### Documentation Outline
+#### **[Installation](https://github.com/INK-USC/AlpacaTag/wiki/Installation)**
+#### **[Annotation Tutorial](https://github.com/INK-USC/AlpacaTag/wiki/Annotation-Tutorial)**
+#### **[Framework Customization](https://github.com/INK-USC/AlpacaTag/wiki/Framework-Customization)**
+#### **[Model Server APIs](https://github.com/INK-USC/AlpacaTag/wiki/Model-Server-API)**
+
 
