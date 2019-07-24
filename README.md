@@ -11,12 +11,6 @@ Code credit for the UI-framework: <https://github.com/chakki-works/doccano>
 * Crowd Annotation Consolidation
 * Real-time APIs for accessing backend models
 
-## Requirements
-
-* Python 3.6.5+
-* django 2.0.5+
-* Chrome (highly recommended)
-* Pytorch
 
 ## Installation
 
