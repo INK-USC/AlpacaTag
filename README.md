@@ -2,7 +2,7 @@
 **_AlpacaTag is an active learning-based crowd annotation framework for sequence tagging, such as named-entity recognition (NER)._**
 
 
-The UI framework is based on the awesome work of [Doccano](https://github.com/chakki-works/doccano), while the distinctive advantages of AlpacaTag are three-fold:
+The UI framework is based on the awesome work of [Doccano](https://github.com/chakki-works/doccano), while the distinctive advantages of [AlpacaTag](https://github.com/INK-USC/AlpacaTag/) are three-fold:
 
 * **Active intelligent recommendation**: 
 dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model.
