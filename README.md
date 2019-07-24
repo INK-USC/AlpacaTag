@@ -15,7 +15,7 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 <img src="https://raw.githubusercontent.com/INK-USC/AlpacaTag/master/annotation/AlpacaTag/server/static/images/overview.png" width=450px> 
 </p>
 
-### Documentation Outline
+# Documentation Outline
 #### **[Installation](https://github.com/INK-USC/AlpacaTag/wiki/Installation)**
 #### **[Annotation Tutorial](https://github.com/INK-USC/AlpacaTag/wiki/Annotation-Tutorial)**
 #### **[Framework Customization](https://github.com/INK-USC/AlpacaTag/wiki/Framework-Customization)**
