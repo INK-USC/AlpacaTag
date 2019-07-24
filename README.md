@@ -3,7 +3,7 @@ An Active Learning-based Crowd Annotation Framework for Sequence Tagging
 
 MIT License
 
-Code credit for the UI-framework: <https://github.com/chakki-works/doccano>
+The UI-framework is based on this awesome work: <https://github.com/chakki-works/doccano>
 
 ## Features
 
