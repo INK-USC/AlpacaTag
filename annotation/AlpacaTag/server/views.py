@@ -19,7 +19,20 @@ from .permissions import SuperUserMixin
 from .models import Document, Project, RecommendationHistory
 
 import spacy
-nlp = spacy.load('en_core_web_sm')
+from spacy.tokens import Doc
+
+class WhitespaceTokenizer(object):
+    def __init__(self, vocab):
+        self.vocab = vocab
+
+    def __call__(self, text):
+        words = text.split(' ')
+        # All tokens 'own' a subsequent space character in this tokenizer
+        spaces = [True] * len(words)
+        return Doc(self.vocab, words=words, spaces=spaces)
+
+nlp = spacy.load("en_core_web_sm")
+nlp.tokenizer = WhitespaceTokenizer(nlp.vocab)
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +58,7 @@ class ProjectsView(LoginRequiredMixin, CreateView):
     template_name = 'projects.html'
 
 
-class DatasetView(SuperUserMixin, LoginRequiredMixin, ListView):
+class DatasetView(LoginRequiredMixin, ListView):
     template_name = 'admin/dataset.html'
     paginate_by = 10
 
@@ -54,7 +67,7 @@ class DatasetView(SuperUserMixin, LoginRequiredMixin, ListView):
         return project.documents.all()
 
 
-class DictionaryView(SuperUserMixin, LoginRequiredMixin, ListView):
+class DictionaryView(LoginRequiredMixin, ListView):
     template_name = 'admin/dictionary.html'
     paginate_by = 10
     queryset = RecommendationHistory.objects.all()
@@ -74,7 +87,7 @@ class StatsView(SuperUserMixin, LoginRequiredMixin, TemplateView):
 
 
 #need fix
-class SettingView(SuperUserMixin, LoginRequiredMixin, TemplateView):
+class SettingView(LoginRequiredMixin, TemplateView):
     template_name = 'admin/setting.html'
 
 
@@ -160,42 +173,43 @@ class DataUpload(SuperUserMixin, LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse('upload', args=[project.id]))
 
 
-class DataDownload(SuperUserMixin, LoginRequiredMixin, TemplateView):
+class DataDownload(LoginRequiredMixin, TemplateView):
     template_name = 'admin/dataset_download.html'
 
 
-class DataDownloadFile(SuperUserMixin, LoginRequiredMixin, View):
+class DataDownloadFile(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
+        user_id = self.request.user.id
         project_id = self.kwargs['project_id']
         project = get_object_or_404(Project, pk=project_id)
-        docs = project.get_documents(is_null=False).distinct()
+        docs = project.get_documents().distinct()
         export_format = request.GET.get('format')
         filename = '_'.join(project.name.lower().split())
         try:
             if export_format == 'csv':
-                response = self.get_csv(filename, docs)
+                response = self.get_csv(filename, docs, user_id)
             elif export_format == 'json':
-                response = self.get_json(filename, docs)
+                response = self.get_json(filename, docs, user_id)
             return response
         except Exception as e:
             logger.exception(e)
             messages.add_message(request, messages.ERROR, "Something went wrong")
             return HttpResponseRedirect(reverse('download', args=[project.id]))
 
-    def get_csv(self, filename, docs):
+    def get_csv(self, filename, docs, user_id):
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
         writer = csv.writer(response)
         for d in docs:
-            writer.writerows(d.to_csv())
+            writer.writerows(d.to_csv(user_id))
         return response
 
-    def get_json(self, filename, docs):
+    def get_json(self, filename, docs, user_id):
         response = HttpResponse(content_type='text/json')
         response['Content-Disposition'] = 'attachment; filename="{}.json"'.format(filename)
         for d in docs:
-            dump = json.dumps(d.to_json(), ensure_ascii=False)
+            dump = json.dumps(d.to_json(user_id), ensure_ascii=False)
             response.write(dump + '\n')  # write each json object end with a newline
         return response
 

@@ -5,8 +5,22 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.storage import staticfiles_storage
 from .utils import get_key_choices
+
 import spacy
-nlp = spacy.load('en_core_web_sm')
+from spacy.tokens import Doc
+
+class WhitespaceTokenizer(object):
+    def __init__(self, vocab):
+        self.vocab = vocab
+
+    def __call__(self, text):
+        words = text.split(' ')
+        # All tokens 'own' a subsequent space character in this tokenizer
+        spaces = [True] * len(words)
+        return Doc(self.vocab, words=words, spaces=spaces)
+
+nlp = spacy.load("en_core_web_sm")
+nlp.tokenizer = WhitespaceTokenizer(nlp.vocab)
 
 
 class Project(models.Model):
@@ -23,7 +37,7 @@ class Project(models.Model):
         return reverse('upload', args=[self.id])
 
     def get_progress(self, user):
-        docs = self.get_documents(is_null=True, user=user)
+        docs = self.get_annotated_documents(is_null=True, user=user)
         total = self.documents.count()
         remaining = docs.count()
         return {'total': total, 'remaining': remaining}
@@ -37,14 +51,21 @@ class Project(models.Model):
         template_name = 'annotation/sequence_labeling.html'
         return template_name
 
-    def get_documents(self, is_null=True, user=None):
+    def get_documents(self):
+        docs = self.documents.all()
+        return docs
+
+    def get_annotated_documents(self):
         docs = self.documents.all()
         docs = docs.filter(annotated=False)
         return docs
 
     def get_index_documents(self, indices):
         docs = self.documents.all()
-        docs = docs.filter(pk__in=indices)
+        docs_indices = [d.id for d in docs]
+        active_indices = [docs_indices[i-1] for i in indices]
+        docs = list(docs.filter(pk__in=active_indices))
+        docs.sort(key=lambda t: active_indices.index(t.pk))
         return docs
 
     def get_document_serializer(self):
@@ -92,16 +113,22 @@ class Document(models.Model):
         self.seq_annotations.all().delete()
 
     def get_annotations(self):
-        return self.seq_annotations.all()
+        seq_annotation = self.seq_annotations.all()
+        return seq_annotation
 
-    def to_csv(self):
-        return self.make_dataset()
+    def get_annotations_user(self, user_id):
+        seq_annotation = self.seq_annotations.filter(document_id=self.id, user_id=user_id)
+        print(seq_annotation)
+        return seq_annotation
 
-    def make_dataset(self):
-        return self.make_dataset_for_sequence_labeling()
+    def to_csv(self, user_id):
+        return self.make_dataset(user_id)
 
-    def make_dataset_for_sequence_labeling(self):
-        annotations = self.get_annotations()
+    def make_dataset(self, user_id):
+        return self.make_dataset_for_sequence_labeling(user_id)
+
+    def make_dataset_for_sequence_labeling(self, user_id):
+        annotations = self.get_annotations_user(user_id=user_id)
         doc = nlp(self.text)
         words = [token.text for token in doc]
         dataset = [[self.id, word, 'O', self.metadata] for word in words]
@@ -115,21 +142,23 @@ class Document(models.Model):
             endoff_map[end_off] = word_index
             start_off = end_off + 1
 
+        print(dataset)
         for a in annotations:
             if a.start_offset in startoff_map:
                 dataset[startoff_map[a.start_offset]][2] = 'B-{}'.format(a.label.text)
             if a.end_offset in endoff_map:
                 if endoff_map[a.end_offset] != startoff_map[a.start_offset]:
                     dataset[endoff_map[a.end_offset]][2] = 'I-{}'.format(a.label.text)
+
         return dataset
 
-    def to_json(self):
-        return self.make_dataset_json()
+    def to_json(self, user_id):
+        return self.make_dataset_json(user_id)
 
-    def make_dataset_json(self):
-        return self.make_dataset_for_sequence_labeling_json()
+    def make_dataset_json(self, user_id):
+        return self.make_dataset_for_sequence_labeling_json(user_id)
 
-    def make_dataset_for_sequence_labeling_json(self):
+    def make_dataset_for_sequence_labeling_json(self, user_id):
         annotations = self.get_annotations()
         entities = [(a.start_offset, a.end_offset, a.label.text) for a in annotations]
         username = annotations[0].user.username

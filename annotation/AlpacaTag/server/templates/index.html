@@ -23,8 +23,12 @@
   <link rel="stylesheet" href="https://spin.js.org/spin.css">
 
   <script type="text/javascript" src="{% static 'js/clientside.js' %}"></script>
-
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <script type="text/javascript">
+      jQuery(document).ready(function(){
+         jQuery('#apiinclude').load('test_server.html');
+      });
+    </script>
 </head>
 
 <section class="hero banner banner--hero">
@@ -34,13 +38,10 @@
     <div class="banner--hero__cta-container">
         <a class="btn" id='test' href="{% static 'file/paper.pdf' %}">ACL paper</a>
       <a class="btn" href="{% static 'file/poster.pdf' %}">Poster</a>
-      <a class="btn" data-toggle="collapse" data-target="#web">Tutorial</a>
-      
-    <!-- </div>
-    <div class="banner--hero__cta-container"> -->
-      <!-- <a class="btn" data-toggle="collapse" data-target="#api">API TUTORIAL</a> -->
-      
-      <a class="btn" id='test'href="https://github.com/INK-USC/AlpacaTag/blob/master/README.md">Installation guide</a>
+      <a class="btn" data-toggle="collapse" data-target="#web">Web Tutorial</a>
+      <a class="btn" data-toggle="collapse" data-target="#api">API Tutorial</a>
+
+      <a class="btn" id='test'href="https://github.com/INK-USC/AlpacaTag/blob/master/README.md">Document</a>
       <a class="btn" href="https://github.com/INK-USC/AlpacaTag">Github</a>
     </div>
     </div>
@@ -120,37 +121,40 @@
 {#              </p>#}
               <hr>
             </div>
+{#              <div id="api" class="collapse" data-parent="#tutorials">#}
+{#              <p>#}
+{##}
+{##}
+{#<h1 id="backend-pytorch-zeromq">Backend (Pytorch, ZeroMQ)</h1>#}
+{#<p><b>Server-side</b></p>#}
+{#<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> alpaca_server/alpaca_serving/server#}
+{#python main.py#}
+{#</code></pre>#}
+{#<p><b>Client-side</b></p>#}
+{#<pre class=" language-bash"><code class="prism  language-bash"># get data for example#}
+{#from alpaca_server.alpaca_model.pytorchAPI <span class="token function">import</span> *#}
+{#x_train, y_train <span class="token operator">=</span> utils.load_data_and_labels<span class="token punctuation">(</span><span class="token string">'train.bio'</span><span class="token punctuation">)</span>#}
+{#sent <span class="token operator">=</span> x_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>#}
+{#label <span class="token operator">=</span> y_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>#}
+{##}
+{##}
+{#from alpaca_serving.client <span class="token function">import</span> *#}
+{#ac <span class="token operator">=</span> AlpacaClient<span class="token punctuation">(</span><span class="token punctuation">)</span> # connect to server#}
+{#ac.initiate<span class="token punctuation">(</span>1<span class="token punctuation">)</span> # initiate the model with project_id. if the model with the project_id is exists, load it#}
+{#active_data = ac.active_learning<span class="token punctuation">(</span>sent, acquire=5<span class="token punctuation">)</span> # active sampling with acquire size#}
+{#active_sent = <span class="token punctuation">[</span>sent<span class="token punctuation">[</span>a_i<span class="token punctuation">]</span> for a_i in active_data['indices']<span class="token punctuation">]</span>#}
+{#active_label = <span class="token punctuation">[</span>label<span class="token punctuation">[</span>a_i<span class="token punctuation">]</span> for a_i in active_data['indices']<span class="token punctuation">]</span>#}
+{#ac.online_initiate<span class="token punctuation">(</span>active_sent,<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">'B-PER'</span>, <span class="token string">'I-PER'</span>, <span class="token string">'B-LOC'</span>, <span class="token string">'I-LOC'</span>, <span class="token string">'B-ORG'</span>, <span class="token string">'I-ORG'</span>, <span class="token string">'B-MISC'</span>, <span class="token string">'I-MISC'</span>, <span class="token string">'O'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> # if the model is firstly initiated, need to build preprocessor#}
+{#ac.online_learning<span class="token punctuation">(</span>active_sent,active_label<span class="token punctuation">,epoch=5,batch=5)</span> # online learning with epoch and batch size#}
+{#ac.predict<span class="token punctuation">(</span><span class="token string">"New York and Paris"</span><span class="token punctuation">)</span> # predict the named entity#}
+{#</code></pre>#}
+{##}
+{#              </p>#}
+{#              <hr>#}
+{#            </div>#}
               <div id="api" class="collapse" data-parent="#tutorials">
-              <p>
-
-
-<h1 id="backend-pytorch-zeromq">Backend (Pytorch, ZeroMQ)</h1>
-<p><b>Server-side</b></p>
-<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> alpaca_server/alpaca_serving/server
-python main.py
-</code></pre>
-<p><b>Client-side</b></p>
-<pre class=" language-bash"><code class="prism  language-bash"># get data for example
-from alpaca_server.alpaca_model.pytorchAPI <span class="token function">import</span> *
-x_train, y_train <span class="token operator">=</span> utils.load_data_and_labels<span class="token punctuation">(</span><span class="token string">'train.bio'</span><span class="token punctuation">)</span>
-sent <span class="token operator">=</span> x_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
-label <span class="token operator">=</span> y_train<span class="token punctuation">[</span>0:10<span class="token punctuation">]</span>
-
-
-from alpaca_serving.client <span class="token function">import</span> *
-ac <span class="token operator">=</span> AlpacaClient<span class="token punctuation">(</span><span class="token punctuation">)</span> # connect to server
-ac.initiate<span class="token punctuation">(</span>1<span class="token punctuation">)</span> # initiate the model with project_id. if the model with the project_id is exists, load it
-active_data = ac.active_learning<span class="token punctuation">(</span>sent, acquire=5<span class="token punctuation">)</span> # active sampling with acquire size
-active_sent = <span class="token punctuation">[</span>sent<span class="token punctuation">[</span>a_i<span class="token punctuation">]</span> for a_i in active_data['indices']<span class="token punctuation">]</span>
-active_label = <span class="token punctuation">[</span>label<span class="token punctuation">[</span>a_i<span class="token punctuation">]</span> for a_i in active_data['indices']<span class="token punctuation">]</span>
-ac.online_initiate<span class="token punctuation">(</span>active_sent,<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">'B-PER'</span>, <span class="token string">'I-PER'</span>, <span class="token string">'B-LOC'</span>, <span class="token string">'I-LOC'</span>, <span class="token string">'B-ORG'</span>, <span class="token string">'I-ORG'</span>, <span class="token string">'B-MISC'</span>, <span class="token string">'I-MISC'</span>, <span class="token string">'O'</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> # if the model is firstly initiated, need to build preprocessor
-ac.online_learning<span class="token punctuation">(</span>active_sent,active_label<span class="token punctuation">,epoch=5,batch=5)</span> # online learning with epoch and batch size
-ac.predict<span class="token punctuation">(</span><span class="token string">"New York and Paris"</span><span class="token punctuation">)</span> # predict the named entity
-</code></pre>
-
-              </p>
-              <hr>
-            </div>
+                <div id="apiinclude"></div>
+              </div>
               <div id="web" class="collapse" data-parent="#tutorials">
 
                   <div class="row">
@@ -312,6 +316,7 @@ If you run on your own server, use this command.</p>
         </div>
 
       <div class="col-6">
+          <div id="apiinclude"></div>
           <div class="constrained constrained--med">
               <figure>
                 <div class="img-div">

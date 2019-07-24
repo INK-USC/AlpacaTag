@@ -16,18 +16,31 @@ from .permissions import IsAdminUserAndWriteOnly, IsProjectUser, IsOwnAnnotation
 from .serializers import ProjectSerializer, LabelSerializer, DocumentSerializer, SettingSerializer, RecommendationHistorySerializer
 
 import spacy
+from spacy.tokens import Doc
+
 import time
 from alpaca_serving.client import *
 alpaca_client = None
-nlp = spacy.load('en_core_web_sm')
 
+class WhitespaceTokenizer(object):
+    def __init__(self, vocab):
+        self.vocab = vocab
+
+    def __call__(self, text):
+        words = text.split(' ')
+        # All tokens 'own' a subsequent space character in this tokenizer
+        spaces = [True] * len(words)
+        return Doc(self.vocab, words=words, spaces=spaces)
+
+nlp = spacy.load("en_core_web_sm")
+nlp.tokenizer = WhitespaceTokenizer(nlp.vocab)
 
 def alpaca_recommend(text):
     global alpaca_client
     response = alpaca_client.predict(text)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         return alpaca_recommend(text)
     return response
 
@@ -37,7 +50,7 @@ def alpaca_initiate(project_id):
     response = alpaca_client.initiate(project_id)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         return alpaca_client.initiate(project_id)
     return response
 
@@ -47,7 +60,7 @@ def alpaca_online_initiate(train_docs, predefined_label):
     response = alpaca_client.online_initiate(train_docs, [predefined_label])
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         alpaca_client.online_initiate(train_docs, [predefined_label])
 
 
@@ -56,7 +69,7 @@ def alpaca_online_learning(train_docs, annotations, epoch, batch):
     response = alpaca_client.online_learning(train_docs, annotations, epoch, batch)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         alpaca_client.online_learning(train_docs, annotations, epoch, batch)
 
 
@@ -65,7 +78,7 @@ def alpaca_active_learning(train_docs, acquire):
     response = alpaca_client.active_learning(train_docs, acquire)
     if response == 'error':
         print('error')
-        time.sleep(3)
+        time.sleep(2)
         return alpaca_client.active_learning(train_docs, acquire)
     return response
 
@@ -162,7 +175,8 @@ class DocumentList(generics.ListCreateAPIView):
             return queryset
         active_indices = self.request.query_params.get('active_indices')
         active_indices = list(map(int, active_indices.split(",")))
-        queryset = project.get_index_documents(active_indices).distinct()
+
+        queryset = project.get_index_documents(active_indices)
 
         if not self.request.query_params.get('is_checked'):
             return queryset
@@ -273,6 +287,7 @@ class SettingList(generics.GenericAPIView, mixins.CreateModelMixin, mixins.Updat
                                                    defaults=self.request.data)
         if not created:
             return self.update(request, *args, **kwargs)
+        return Response(created)
 
 
 class RecommendationHistoryList(generics.ListCreateAPIView):
@@ -587,6 +602,7 @@ class ActiveLearning(APIView):
         setting_data = serializer_class(setting_obj).data
 
         active_data = alpaca_active_learning(train_docs, setting_data['acquire'])
+
         response = {'indices': active_data['indices'], 'scores': active_data['scores']}
 
         return Response(response)

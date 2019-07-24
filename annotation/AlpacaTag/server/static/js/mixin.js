@@ -76,11 +76,19 @@ const annotationMixin = {
 
   methods: {
     async nextPage() {
+      if (this.annotations[this.pageNumber].length > 0){
+        HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
+          HTTP.get('progress').then((response) => {
+            this.total = response.data.total;
+            this.remaining = response.data.remaining;
+          });
+        });
+      }
       this.pageNumber += 1;
       if (this.pageNumber === this.docs.length) {
         if (this.next) {
           this.url = this.next;
-          if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
             this.onlinelearning().then((res) => {
               this.onlineLearningIndices.clear();
               this.onlineLearningNum = 0;
@@ -94,7 +102,16 @@ const annotationMixin = {
         } else if (this.active != 1) {
           this.activeIndicesPerPage.push(this.activeIndices);
           this.activeScoresPerPage.push(this.activeScores);
-          await this.submit();
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
+            this.onlinelearning().then((res) => {
+              this.onlineLearningIndices.clear();
+              this.onlineLearningNum = 0;
+              this.submit();
+            });
+          }
+          else {
+            await this.submit();
+          }
         } else {
           this.pageNumber = this.docs.length - 1;
         }
@@ -102,11 +119,19 @@ const annotationMixin = {
     },
 
     async prevPage() {
+      if (this.annotations[this.pageNumber].length > 0){
+        HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
+          HTTP.get('progress').then((response) => {
+            this.total = response.data.total;
+            this.remaining = response.data.remaining;
+          });
+        });
+      }
       this.pageNumber -= 1;
       if (this.pageNumber === -1) {
         if (this.prev) {
           this.url = this.prev;
-          if (this.onlineLearningIndices.size >= this.onlineLearningPer) {
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
             this.onlinelearning().then((res) => {
               this.onlineLearningIndices.clear();
               this.onlineLearningNum = 0;
@@ -120,9 +145,17 @@ const annotationMixin = {
         } else if (this.active != 1) {
           const state = this.getState();
           const last = this.activeIndicesPerPage.pop();
-          const lastScore = this.activeScoresPerPage.pop();
           this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${last}`;
-          await this.search();
+          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
+            this.onlinelearning().then((res) => {
+              this.onlineLearningIndices.clear();
+              this.onlineLearningNum = 0;
+              this.search();
+            });
+          }
+          else {
+            await this.search();
+          }
           this.pageNumber = 0;
         } else {
           this.pageNumber = 0;
@@ -142,27 +175,12 @@ const annotationMixin = {
       if (!check) {
         this.annotatedCheck(true);
         this.docs[this.pageNumber].annotated = true;
-        // this.$refs["confirm"].style.backgroundColor = "#3cb371";
-        this.confirmtext = "Confirmed";
         if (!this.onlineLearningIndices.has(docId)) {
           this.onlineLearningIndices.add(docId);
           this.onlineLearningNum = this.onlineLearningNum + 1;
         }
       }
       this.nextPage();
-      // else {
-      //   this.annotatedCheck(false);
-      //   this.docs[this.pageNumber].annotated = false;
-      //   this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
-      //   this.confirmtext = "Press this button if the sentence has no entities";
-      //   HTTP.delete(`docs/${docId}/annotations/`).then((response) => {
-      //     this.annotations[this.pageNumber].splice(0, this.annotations[this.pageNumber].length);
-      //     if (this.onlineLearningIndices.has(docId)) {
-      //       this.onlineLearningIndices.delete(docId);
-      //       this.onlineLearningNum = this.onlineLearningNum - 1;
-      //     }
-      //   });
-      // }
       HTTP.get('progress').then((response) => {
         this.total = response.data.total;
         this.remaining = response.data.remaining;
@@ -170,8 +188,13 @@ const annotationMixin = {
     },
 
     async process_data(response) {
+      HTTP.get('progress').then((response) => {
+          this.total = response.data.total;
+          this.remaining = response.data.remaining;
+      });
       this.isLoading = true;
       this.loadingMsg="recommending";
+      console.log(response.data);
       this.docs = response.data.results;
       this.next = response.data.next;
       this.prev = response.data.previous;
@@ -208,7 +231,7 @@ const annotationMixin = {
 
     async submit() {
       const state = this.getState();
-      if (this.active != 1){
+      if (this.active != 1 && this.server === true){
         this.activelearning().then((response) => {
             this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${this.activeIndices}`;
             this.search();
@@ -232,9 +255,6 @@ const annotationMixin = {
       return await HTTP.get(`activelearning`).then((response) => {
         this.loadingMsg="active learning";
         this.activeIndices = response.data.indices;
-        for (let i = 0; i < this.activeIndices.length; i++) {
-          this.activeIndices[i] = this.activeIndices[i] + 1;
-        }
         this.activeScores = response.data.scores;
         console.log(this.activeIndices);
         console.log(this.activeScores);
@@ -252,7 +272,7 @@ const annotationMixin = {
       HTTP.delete(`docs/${docId}/annotations/${annotation.id}`).then((response) => {
         const index = this.annotations[this.pageNumber].indexOf(annotation);
         this.annotations[this.pageNumber].splice(index, 1);
-        if (this.annotations[this.pageNumber].length === 0) {
+        if (this.annotations[this.pageNumber].length === 0 && this.docs[this.pageNumber].annotated === false) {
           this.docs[this.pageNumber].annotated = false;
           if (this.onlineLearningIndices.has(docId)) {
             this.onlineLearningIndices.delete(docId);
@@ -287,22 +307,6 @@ const annotationMixin = {
       this.submit();
     },
 
-    annotations() {
-      const check = this.docs[this.pageNumber].annotated;
-      if (!check) {
-        // this.$refs["confirm"].style.backgroundColor = "#cd5c5c";
-        this.confirmtext = "Press this button if the sentence has no entities";
-      }
-      else {
-        // this.$refs["confirm"].style.backgroundColor = "#3cb371";
-        this.confirmtext = "confirmed";
-      }
-      HTTP.get('progress').then((response) => {
-        this.total = response.data.total;
-        this.remaining = response.data.remaining;
-      });
-    },
-
     offset() {
       storeOffsetInUrl(this.offset);
     },
@@ -312,6 +316,7 @@ const annotationMixin = {
     HTTP.get('labels').then((response) => {
       this.labels = response.data;
     });
+
     HTTP.get('settings').then((response) => {
       this.embedding = response.data.embedding;
       this.nounchunk = response.data.nounchunk;
@@ -332,6 +337,21 @@ const annotationMixin = {
           console.log("model server off");
           this.submit();
         }
+      });
+    }).catch( (error) => {
+      window.location.reload(true);
+      const payload = {
+        embedding: 1,
+        nounchunk: false,
+        onlinelearning: false,
+        history: false,
+        active: 1,
+        batch: 10,
+        epoch: 5,
+        acquire: 5
+      };
+      HTTP.put('settings/', payload).then((response) => {
+        window.location.reload(true);
       });
     });
     HTTP.get().then((response) => {
