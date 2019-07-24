@@ -1,9 +1,5 @@
 # AlpacaTag
-An Active Learning-based Crowd Annotation Framework for Sequence Tagging 
-
-MIT License
-
-**_AlpacaTag is an open-source web-based data annotation framework for sequence tagging tasks, such as named-entity recognition (NER)._**
+**_AlpacaTag is an active learning-based crowd annotation framework for sequence tagging, such as named-entity recognition (NER)._**
 
 
 The UI framework is based on the awesome work of [Doccano](https://github.com/chakki-works/doccano), while the distinctive advantages of AlpacaTag are three-fold:
