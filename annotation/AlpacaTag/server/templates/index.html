@@ -24,11 +24,8 @@
 
   <script type="text/javascript" src="{% static 'js/clientside.js' %}"></script>
   <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <script type="text/javascript">
-      jQuery(document).ready(function(){
-         jQuery('#apiinclude').load('test_server.html');
-      });
-    </script>
+  <link rel="import" href="test_server.html">
+
 </head>
 
 <section class="hero banner banner--hero">
@@ -38,10 +35,8 @@
     <div class="banner--hero__cta-container">
         <a class="btn" id='test' href="{% static 'file/paper.pdf' %}">ACL paper</a>
       <a class="btn" href="{% static 'file/poster.pdf' %}">Poster</a>
-      <a class="btn" data-toggle="collapse" data-target="#web">Web Tutorial</a>
-      <a class="btn" data-toggle="collapse" data-target="#api">API Tutorial</a>
-
-      <a class="btn" id='test'href="https://github.com/INK-USC/AlpacaTag/blob/master/README.md">Document</a>
+      <a class="btn" data-toggle="collapse" data-target="#api">Annotation Tutorial</a>
+      <a class="btn" id='test'href="https://github.com/INK-USC/AlpacaTag/wiki">Document</a>
       <a class="btn" href="https://github.com/INK-USC/AlpacaTag">Github</a>
     </div>
     </div>
@@ -153,7 +148,7 @@
 {#              <hr>#}
 {#            </div>#}
               <div id="api" class="collapse" data-parent="#tutorials">
-                <div id="apiinclude"></div>
+                {% include "tutorial.html" %}
               </div>
               <div id="web" class="collapse" data-parent="#tutorials">
 

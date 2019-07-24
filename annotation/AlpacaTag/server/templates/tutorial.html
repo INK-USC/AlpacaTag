@@ -1,0 +1,52 @@
+<h3 id="uploaddatasets">Upload Datasets</h3>
+
+<p>The admin needs to convert the dataset into CSV or JSON format. Then upload it to the server.</p>
+
+<pre><code class="python language-python">import json
+with open('dataset.txt', 'a') as dataset_file:
+    for I, sent in enumerate(sentences):
+        data = {}
+        data['text'] = sent
+        data['external_id'] = I
+        json.dump(data, dataset_file)
+        dataset_file.write('\n')
+</code></pre>
+
+<h3 id="definelabels">Define labels</h3>
+
+<p>When you first create the project, you need to pre-define the labels first for the online learning.
+Online learning needs mappings of words and labels to feature indices at the initial stage</p>
+
+<p><img src="https://i.ibb.co/8bDBrMV/2019-07-23-10-56-55.png" alt="" /></p>
+
+<h2 id="annotatethesentenceswiththeintelligentrecommendations">Annotate the sentences with the intelligent recommendations</h2>
+
+<p>There are two sections (Annotation, Recommendation section).</p>
+
+<ol>
+<li>You can directly annotate in the upper section by simply selecting the spans</li>
+
+<li>To use the recommendation in the lower section, click the suggested span which is underlined. suggested type is bounded with red line. to confirm the annotation, click a suggested type or press a shortcut key.</li>
+</ol>
+
+<p><a href="https://gifyu.com/image/EfiU"><img src="https://s3.gifyu.com/images/ezgif.com-video-to-gifbe0e8ff3d9c9cee4.gif" alt="ezgif.com-video-to-gifbe0e8ff3d9c9cee4.gif" /></a></p>
+
+<h2 id="settings">Settings</h2>
+
+<p>You can optionally enable the embeddings, recommendation options, active learning methods and set the batch size, epoch and acquire size.</p>
+
+<p><a href="https://gifyu.com/image/EfiG"><img src="https://s3.gifyu.com/images/ezgif.com-video-to-gif-23e0beda769d89d18.gif" alt="ezgif.com-video-to-gif-23e0beda769d89d18.gif" /></a></p>
+
+<ul>
+<li>Embedding supports : Glove, Word2Vec, FastText, ELMO, GPT, BERT</li>
+
+<li>Recommendation options : Noun Chunk, Model Inference, Dictionary Match</li>
+
+<li>Active Learning options : MNLP (Maximum Normalized Log-Probability)</li>
+</ul>
+
+<h3 id="recommendationdetails">Recommendation Details</h3>
+
+<p>Final recommendations are merged from three options with the priority: <br />
+<h5>Noun Chunk &lt; Model Inference &lt; Dictionary Match</h5><br />
+<img src="https://i.ibb.co/vJ5vqRZ/2019-07-23-11-39-42.png" alt="" /></p>
