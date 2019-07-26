@@ -1,3 +1,6 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = " "
+
 def main():
     from alpaca_serving import AlpacaServer
     from alpaca_serving.helper import get_run_args
