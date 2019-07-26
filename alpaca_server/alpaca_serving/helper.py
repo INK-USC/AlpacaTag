@@ -64,7 +64,7 @@ def check_max_seq_len(value):
         ivalue = int(value)
         if ivalue <= 3:
             raise argparse.ArgumentTypeError("%s is an invalid int value must be >3 "
-                                             "(account for maximum three special symbols in BERT alpaca_model) or NONE" % value)
+                                             "(account for maximum three special symbols in alpaca_model) or NONE" % value)
     except TypeError:
         raise argparse.ArgumentTypeError("%s is an invalid int value" % value)
     return ivalue
@@ -73,35 +73,20 @@ def check_max_seq_len(value):
 def get_args_parser():
     from . import __version__
 
-    parser = argparse.ArgumentParser(description='Start a BertServer for alpaca_server')
+    parser = argparse.ArgumentParser(description='Start a AlpacaServer for alpaca_server')
 
     group1 = parser.add_argument_group('File Paths',
-                                       'config the path, checkpoint and filename of a pretrained/fine-tuned BERT alpaca_model')
+                                       'config the path, checkpoint and filename of a pretrained/fine-tuned alpaca_model')
     # group1.add_argument('-model_dir', type=str, required=True,
-    #                     help='directory of a pretrained BERT alpaca_model')
+    #                     help='directory of a pretrained alpaca_model')
     group1.add_argument('-model_dir', type=str,
-                        help='directory of a pretrained BERT alpaca_model')
-    group1.add_argument('-tuned_model_dir', type=str,
-                        help='directory of a fine-tuned BERT alpaca_model')
-    group1.add_argument('-ckpt_name', type=str, default='bert_model.ckpt',
-                        help='filename of the checkpoint file. By default it is "bert_model.ckpt", but \
-                             for a fine-tuned alpaca_model the name could be different.')
-    group1.add_argument('-config_name', type=str, default='bert_config.json',
-                        help='filename of the JSON config file for BERT alpaca_model.')
-    group1.add_argument('-graph_tmp_dir', type=str, default=None,
-                        help='path to graph temp file')
+                        help='directory of a pretrained alpaca_model')
 
-    group2 = parser.add_argument_group('BERT Parameters',
-                                       'config how BERT alpaca_model and pooling works')
+    group2 = parser.add_argument_group('Parameters',
+                                       'config how alpaca_model and pooling works')
     group2.add_argument('-max_seq_len', type=check_max_seq_len, default=25,
                         help='maximum length of a sequence, longer sequence will be trimmed on the right side. '
                              'set it to NONE for dynamically using the longest sequence in a (mini)batch.')
-    group2.add_argument('-cased_tokenization', dest='do_lower_case', action='store_false', default=True,
-                        help='Whether tokenizer should skip the default lowercasing and accent removal.'
-                             'Should be used for e.g. the multilingual cased pretrained BERT alpaca_model.')
-    group2.add_argument('-show_tokens_to_client', action='store_true', default=False,
-                        help='sending tokenization results to client')
-
     group3 = parser.add_argument_group('Serving Configs',
                                        'config how server utilizes GPU/CPU resources')
     group3.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
@@ -120,11 +105,6 @@ def get_args_parser():
                         help='batch size')
     group3.add_argument('-epoch', type=int, default=256,
                         help='epoch')
-    # group3.add_argument('-max_batch_size', type=int, default=256,
-    #                     help='maximum number of sequences handled by each worker')
-    # group3.add_argument('-priority_batch_size', type=int, default=16,
-    #                     help='batch smaller than this size will be labeled as high priority,'
-    #                          'and jumps forward in the job queue')
     group3.add_argument('-cpu', action='store_true', default=False,
                         help='running on CPU (default on GPU)')
     group3.add_argument('-xla', action='store_true', default=False,
@@ -146,7 +126,7 @@ def get_args_parser():
                         help='when "max_seq_len" is set to None, the server determines the "max_seq_len" according to '
                              'the actual sequence lengths within each batch. When "pooling_strategy=NONE", '
                              'this may cause two ".encode()" from the same client results in different sizes [B, T, D].'
-                             'Turn this on to fix the "T" in [B, T, D] to "max_position_embeddings" in bert json config.')
+                             'Turn this on to fix the "T" in [B, T, D] to "max_position_embeddings" in  json config.')
 
     parser.add_argument('-version', action='version', version='%(prog)s ' + __version__)
     return parser
@@ -178,7 +158,7 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
 
 def get_benchmark_parser():
     parser = get_args_parser()
-    parser.description = 'Benchmark BertServer locally'
+    parser.description = 'Benchmark AlpacaServer locally'
 
     parser.set_defaults(num_client=1, client_batch_size=4096)
 
@@ -202,12 +182,12 @@ def get_benchmark_parser():
 
 def get_shutdown_parser():
     parser = argparse.ArgumentParser()
-    parser.description = 'Shutting down a BertServer instance running on a specific port'
+    parser.description = 'Shutting down a AlpacaServer instance running on a specific port'
 
     parser.add_argument('-ip', type=str, default='localhost',
-                        help='the ip address that a BertServer is running on')
+                        help='the ip address that a AlpacaServer is running on')
     parser.add_argument('-port', '-port_in', '-port_data', type=int, required=True,
-                        help='the port that a BertServer is running on')
+                        help='the port that a AlpacaServer is running on')
     parser.add_argument('-timeout', type=int, default=1000,
                         help='timeout (ms) for connecting to a server')
     return parser
