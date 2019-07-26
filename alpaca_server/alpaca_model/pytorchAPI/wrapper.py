@@ -14,7 +14,6 @@ BERT_EMBEDDING_SIZE = 3072
 class SequenceTaggingModel(object):
 
     def __init__(self,
-                 device_id,
                  word_embedding_dim=100,
                  char_embedding_dim=25,
                  word_lstm_size=100,
@@ -48,9 +47,6 @@ class SequenceTaggingModel(object):
         self.loss = None
         self.labeled = set()
         self.acquisition = None
-
-        if device_id >= 0:
-            torch.cuda.set_device(device_id)
 
         # model name like CNN_BiLSTM_CRF
         self.model_name = None
