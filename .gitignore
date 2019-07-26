@@ -8,3 +8,5 @@ glove*
 alpaca_client/alpaca_serving_client.egg-info
 alpaca_client/build
 alpaca_client/dist
+annotation/AlpacaTag/db.sqlite3
+annotation/AlpacaTag/db.sqlite3
