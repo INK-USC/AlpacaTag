@@ -36,8 +36,8 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('upload', args=[self.id])
 
-    def get_progress(self, user):
-        docs = self.get_annotated_documents(is_null=True, user=user)
+    def get_progress(self):
+        docs = self.get_annotated_documents()
         total = self.documents.count()
         remaining = docs.count()
         return {'total': total, 'remaining': remaining}
