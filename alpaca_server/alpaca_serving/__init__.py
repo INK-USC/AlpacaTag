@@ -75,8 +75,6 @@ class AlpacaServer(threading.Thread):
         self.processes = []
         self.logger.info('Initialize the alpaca_model... could take a while...')
         self.is_ready = threading.Event()
-        from multiprocessing import set_start_method
-        set_start_method('spawn')
 
     def __enter__(self):
         self.start()
