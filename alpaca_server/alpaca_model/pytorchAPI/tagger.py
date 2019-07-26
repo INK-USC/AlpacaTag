@@ -12,11 +12,11 @@ class Tagger(object):
         preprocessor: Transformer. Preprocessing data for feature extraction.
         tokenizer: Tokenize input sentence. Default tokenizer is `str.split`.
     """
-    def __init__(self, model, preprocessor, tokenizer=str.split, usecuda = False):
+    def __init__(self, model, preprocessor, tokenizer=str.split):
         self.model = model
         self.preprocessor = preprocessor
         self.tokenizer = tokenizer
-        self.usecuda = usecuda
+        self.usecuda = False
 
     def predict_proba(self, text):
         """Probability estimates.

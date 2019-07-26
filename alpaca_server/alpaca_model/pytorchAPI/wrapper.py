@@ -37,7 +37,6 @@ class SequenceTaggingModel(object):
         self.use_crf = use_crf
         self.initial_vocab = initial_vocab
         self.optimizer = optimizer
-        self.use_cuda = torch.cuda.is_available()
 
         self.trainer = None
         self.activemodel = None
@@ -62,7 +61,7 @@ class SequenceTaggingModel(object):
             res: dict.
         """
         if not self.tagger:
-            self.tagger = Tagger(self.model, preprocessor=self.p, tokenizer=tokenizer, usecuda=self.use_cuda)
+            self.tagger = Tagger(self.model, preprocessor=self.p, tokenizer=tokenizer)
 
         return self.tagger.analyze(text)
 
@@ -93,7 +92,7 @@ class SequenceTaggingModel(object):
         self.model.load_state_dict(torch.load(m_path))
         learning_rate = 0.01
         optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate, momentum=0.9)
-        self.trainer = Trainer(self.model, optimizer, usecuda=self.use_cuda)
+        self.trainer = Trainer(self.model, optimizer)
 
     # initiate - if setting change -> must execute initiate
     # list of sentences into train_sentences [['EU rejects ~~'],[''],..]
@@ -118,7 +117,7 @@ class SequenceTaggingModel(object):
         learning_rate = 0.01
         print('Initial learning rate is: %s' % (learning_rate))
         optimizer = torch.optim.SGD(self.model.parameters(), lr=learning_rate, momentum=0.9)
-        self.trainer = Trainer(self.model, optimizer, usecuda=self.use_cuda)
+        self.trainer = Trainer(self.model, optimizer)
 
         return self.p
 
