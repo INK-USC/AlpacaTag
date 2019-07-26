@@ -76,14 +76,6 @@ const annotationMixin = {
 
   methods: {
     async nextPage() {
-      if (this.annotations[this.pageNumber].length > 0){
-        HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
-          HTTP.get('progress').then((response) => {
-            this.total = response.data.total;
-            this.remaining = response.data.remaining;
-          });
-        });
-      }
       this.pageNumber += 1;
       if (this.pageNumber === this.docs.length) {
         if (this.next) {
@@ -108,14 +100,6 @@ const annotationMixin = {
     },
 
     async prevPage() {
-      if (this.annotations[this.pageNumber].length > 0){
-        HTTP.patch(`docs/${this.docs[this.pageNumber].id}`, {'annotated': true}).then((response) => {
-          HTTP.get('progress').then((response) => {
-            this.total = response.data.total;
-            this.remaining = response.data.remaining;
-          });
-        });
-      }
       this.pageNumber -= 1;
       if (this.pageNumber === -1) {
         if (this.prev) {
@@ -166,10 +150,6 @@ const annotationMixin = {
     },
 
     async process_data(response) {
-      HTTP.get('progress').then((response) => {
-          this.total = response.data.total;
-          this.remaining = response.data.remaining;
-      });
       this.isLoading = true;
       this.loadingMsg="recommending";
       console.log(response.data);
@@ -284,7 +264,12 @@ const annotationMixin = {
     picked() {
       this.submit();
     },
-
+    annotations() {
+      HTTP.get('progress').then((response) => {
+        this.total = response.data.total;
+        this.remaining = response.data.remaining;
+      });
+    },
     offset() {
       storeOffsetInUrl(this.offset);
     },
