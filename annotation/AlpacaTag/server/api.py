@@ -576,7 +576,7 @@ class OnlineLearning(APIView):
 
         docs_num = request.data.get('indices')
         docs = [doc for doc in p.documents.filter(pk__in=docs_num)]
-        annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling()] for doc in docs]
+        annotations = [[label[2] for label in doc.make_dataset_for_sequence_labeling(self.request.user.id)] for doc in docs]
         train_docs = [str.split(doc.text) for doc in docs]
 
         alpaca_online_learning(train_docs, annotations, setting_data['epoch'], setting_data['batch'])

@@ -142,7 +142,6 @@ class Document(models.Model):
             endoff_map[end_off] = word_index
             start_off = end_off + 1
 
-        print(dataset)
         for a in annotations:
             if a.start_offset in startoff_map:
                 dataset[startoff_map[a.start_offset]][2] = 'B-{}'.format(a.label.text)
@@ -152,13 +151,13 @@ class Document(models.Model):
 
         return dataset
 
-    def to_json(self, user_id):
-        return self.make_dataset_json(user_id)
+    def to_json(self):
+        return self.make_dataset_json()
 
-    def make_dataset_json(self, user_id):
-        return self.make_dataset_for_sequence_labeling_json(user_id)
+    def make_dataset_json(self):
+        return self.make_dataset_for_sequence_labeling_json()
 
-    def make_dataset_for_sequence_labeling_json(self, user_id):
+    def make_dataset_for_sequence_labeling_json(self):
         annotations = self.get_annotations()
         entities = [(a.start_offset, a.end_offset, a.label.text) for a in annotations]
         username = annotations[0].user.username
