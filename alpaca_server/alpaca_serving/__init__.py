@@ -6,7 +6,6 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
-import torch
 import os.path
 import json
 
@@ -76,7 +75,7 @@ class AlpacaServer(threading.Thread):
         self.processes = []
         self.logger.info('Initialize the alpaca_model... could take a while...')
         self.is_ready = threading.Event()
-        torch.multiprocessing.set_start_method('spawn')
+
 
     def __enter__(self):
         self.start()
@@ -432,7 +431,7 @@ class AlpacaWorker(Process):
                     msg = jsonapi.loads(raw_msg)
 
                     if msg_type == ServerCmd.initiate:
-                        self.model = SequenceTaggingModel()
+                        self.model = SequenceTaggingModel(self.device_id)
                         self.modelid = str(msg)
                         if os.path.isfile(os.path.join('.','model'+self.modelid+'.pre')) and os.path.isfile(os.path.join('.','model'+self.modelid+'.pt')):
                             self.model.load('model'+self.modelid)
