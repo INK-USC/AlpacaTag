@@ -88,33 +88,22 @@ const annotationMixin = {
       if (this.pageNumber === this.docs.length) {
         if (this.next) {
           this.url = this.next;
-          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
-            this.onlinelearning().then((res) => {
-              this.onlineLearningIndices.clear();
-              this.onlineLearningNum = 0;
-              this.search();
-            });
-          }
-          else {
-            await this.search();
-          }
+          await this.search();
           this.pageNumber = 0;
         } else if (this.active != 1) {
           this.activeIndicesPerPage.push(this.activeIndices);
           this.activeScoresPerPage.push(this.activeScores);
-          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
-            this.onlinelearning().then((res) => {
-              this.onlineLearningIndices.clear();
-              this.onlineLearningNum = 0;
-              this.submit();
-            });
-          }
-          else {
-            await this.submit();
-          }
+          await this.submit();
         } else {
           this.pageNumber = this.docs.length - 1;
         }
+      }
+      if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
+        this.onlinelearning().then((res) => {
+          this.onlineLearningIndices.clear();
+          this.onlineLearningNum = 0;
+          this.search();
+        });
       }
     },
 
@@ -131,35 +120,24 @@ const annotationMixin = {
       if (this.pageNumber === -1) {
         if (this.prev) {
           this.url = this.prev;
-          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
-            this.onlinelearning().then((res) => {
-              this.onlineLearningIndices.clear();
-              this.onlineLearningNum = 0;
-              this.search();
-            });
-          }
-          else{
-            await this.search();
-          }
+          await this.search();
           this.pageNumber = this.docs.length - 1;
         } else if (this.active != 1) {
           const state = this.getState();
           const last = this.activeIndicesPerPage.pop();
           this.url = `docs/?q=${this.searchQuery}&is_checked=${state}&offset=${this.offset}&limit=${this.acquire}&active_indices=${last}`;
-          if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
-            this.onlinelearning().then((res) => {
-              this.onlineLearningIndices.clear();
-              this.onlineLearningNum = 0;
-              this.search();
-            });
-          }
-          else {
-            await this.search();
-          }
           this.pageNumber = 0;
+          await this.search();
         } else {
           this.pageNumber = 0;
         }
+      }
+      if (this.onlineLearningIndices.size >= this.onlineLearningPer && this.online === true) {
+        this.onlinelearning().then((res) => {
+          this.onlineLearningIndices.clear();
+          this.onlineLearningNum = 0;
+          this.search();
+        });
       }
     },
 
