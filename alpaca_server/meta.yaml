@@ -1,0 +1,35 @@
+{% set version = "1.0.1" %}
+
+package:
+  name: alpaca-serving-server
+  version: {{ version }}
+
+source:
+  path: .
+
+build:
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed .
+  entry_points:
+    - alpaca-serving-start=alpaca_serving.server:main
+  noarch: python
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools
+
+  run:
+    - pyzmq>=17.1.0
+    - GPUtil>=1.3.0
+    - termcolor>=1.1
+    - torch
+
+test:
+  imports:
+    - alpaca_serving
+
+about:
+  home: https://github.com/INK-USC/AlpacaTag
+  license: MIT

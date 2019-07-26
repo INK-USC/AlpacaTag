@@ -384,6 +384,7 @@ class AlpacaWorker(Process):
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.use_fp16 = args.fp16
+        self.show_tokens_to_client = args.show_tokens_to_client
         self.is_ready = multiprocessing.Event()
 
         self.model = model
