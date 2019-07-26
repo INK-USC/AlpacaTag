@@ -25,7 +25,7 @@ class AlpacaClient(object):
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
-                 check_token_info=True, ignore_all_checks=False,
+                 ignore_all_checks=False,
                  timeout=1000):
 
         self.context = zmq.Context()
@@ -52,7 +52,7 @@ class AlpacaClient(object):
         self.length_limit = 0
         self.token_info_available = False
 
-        if not ignore_all_checks and (check_version or show_server_config or check_length or check_token_info):
+        if not ignore_all_checks and (check_version or show_server_config or check_length):
             s_status = self.server_status
 
             if check_version and s_status['server_version'] != self.status['client_version']:
@@ -63,9 +63,6 @@ class AlpacaClient(object):
                     self.length_limit = int(s_status['max_seq_len'])
                 else:
                     self.length_limit = None
-
-            if check_token_info:
-                self.token_info_available = bool(s_status['show_tokens_to_client'])
 
             if show_server_config:
                 self._print_dict(s_status, 'server config:')
