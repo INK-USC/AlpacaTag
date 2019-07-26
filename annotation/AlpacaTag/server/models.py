@@ -118,7 +118,6 @@ class Document(models.Model):
 
     def get_annotations_user(self, user_id):
         seq_annotation = self.seq_annotations.filter(document_id=self.id, user_id=user_id)
-        print(seq_annotation)
         return seq_annotation
 
     def to_csv(self, user_id):
