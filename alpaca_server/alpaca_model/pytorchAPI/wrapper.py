@@ -4,6 +4,8 @@ from .trainer import *
 from .utils import *
 from .models import *
 from .tagger import *
+import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = " "
 import torch
 
 GLOVE_EMBEDDING_SIZE = 100
