@@ -5,6 +5,8 @@ import sys
 import os
 import numpy as np
 np.random.seed(0)
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = " "
 import torch
 import torch.nn as nn
 from .utils import *
