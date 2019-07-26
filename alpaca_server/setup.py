@@ -19,7 +19,7 @@ setup(
     author='Bill Yuchen Lin, Dong-Ho Lee',
     author_email='dongho.lee@usc.edu',
     license='MIT',
-    packages=['alpaca_serving','alpaca_serving.server'],
+    packages=find_packages(),
     zip_safe=False,
     install_requires=require_packages,
     classifiers=(

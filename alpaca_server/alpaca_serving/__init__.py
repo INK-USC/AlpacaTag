@@ -14,7 +14,6 @@ import zmq.decorators as zmqd
 from termcolor import colored
 from zmq.utils import jsonapi
 
-from alpaca_serving.server import *
 from alpaca_serving.helper import *
 from alpaca_serving.httpproxy import HTTPProxy
 from alpaca_serving.zmq_decor import multi_socket
