@@ -22,6 +22,7 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 #### **[Model Server APIs](https://github.com/INK-USC/AlpacaTag/wiki/Model-Server-API)**
 
 
+# Citation
 ```
 @InProceedings{acl19alpaca, 
      author = {Bill Yuchen Lin and Dongho Lee and Frank F. Xu and Ouyu Lan and Xiang Ren}, 
