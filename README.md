@@ -1,6 +1,7 @@
 # AlpacaTag
 **_AlpacaTag is an active learning-based crowd annotation framework for sequence tagging, such as named-entity recognition (NER)._**
-
+Website: http://inklab.usc.edu/AlpacaTag/
+Documenations: https://github.com/INK-USC/AlpacaTag/wiki/ 
 
 The UI is based on the awesome work of [Doccano](https://github.com/chakki-works/doccano), while the distinctive advantages of [AlpacaTag](https://github.com/INK-USC/AlpacaTag/) are three-fold:
 
@@ -10,10 +11,6 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 * **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made. 
 
 
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/INK-USC/AlpacaTag/master/annotation/AlpacaTag/server/static/images/overview.png" width=450px> 
-</p>
 
 # Documentations
 #### **[Installation](https://github.com/INK-USC/AlpacaTag/wiki/Installation)**
