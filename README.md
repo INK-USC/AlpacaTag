@@ -34,14 +34,14 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 ```
 
 # Demo
-- Back-end Model APIs
+## Back-end Model APIs
 
 ![](figures/api-fast.gif)
 
-- Crowd Consolidation
+## Crowd Consolidation
 
-![](figures/consolidation.png)
+<img src="figures/consolidation.png" width="500">
 
-- Performance Study
+## Performance Study
 
-![](figures/userevaluation.png)
+<img src="figures/userevaluation.png" width="500">
