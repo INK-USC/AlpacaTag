@@ -35,10 +35,13 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 
 # Demo
 - Back-end Model APIs
+
 ![](figures/api-fast.gif)
 
 - Crowd Consolidation
+
 ![](figures/consolidation.png)
 
 - Performance Study
+
 ![](figures/userevaluation.png)
