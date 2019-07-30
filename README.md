@@ -7,11 +7,16 @@
 The UI framework of AlpacaTag is based on the awesome work of [Doccano](https://github.com/chakki-works/doccano), while the distinctive advantages of [AlpacaTag](https://github.com/INK-USC/AlpacaTag/) are three-fold:
 
 * **Active intelligent recommendation**: 
-dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model.
-* **Automatic crowd consolidation**: enhancing real-time inter-annotator agreement by merging inconsistent labels from multiple annotators.
-* **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made. 
+dynamically suggesting annotations and sampling the most informative unlabeled instances with a back-end active learned model.  
 
 ![](figures/overall-fast.gif)
+* **Automatic crowd consolidation**: enhancing real-time inter-annotator agreement by merging inconsistent labels from multiple annotators.  
+
+![](figures/consolidation.png)
+* **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made.   
+![](figures/api-fast.gif)
+
+
 
 # Documentations
 #### **[Installation](https://github.com/INK-USC/AlpacaTag/wiki/Installation)**
