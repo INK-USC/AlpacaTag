@@ -12,18 +12,9 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 * **Automatic crowd consolidation**: enhancing real-time inter-annotator agreement by merging inconsistent labels from multiple annotators.  
 
 * **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made.  
-
+ 
 - Overall Workflow
 ![](figures/overall-fast.gif)
-
-- Back-end Model APIs
-![](figures/api-fast.gif)
-
-- Crowd Consolidation
-![](figures/consolidation.png)
-
-- Performance Study
-![](figures/userevaluation.png)
 
 # Documentations
 #### **[Installation](https://github.com/INK-USC/AlpacaTag/wiki/Installation)**
@@ -41,3 +32,13 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
      year = {2018} 
 }
 ```
+
+# Demo
+- Back-end Model APIs
+![](figures/api-fast.gif)
+
+- Crowd Consolidation
+![](figures/consolidation.png)
+
+- Performance Study
+![](figures/userevaluation.png)
