@@ -13,13 +13,16 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 
 * **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made.  
 
-
+- Overall Workflow
 ![](figures/overall-fast.gif)
 
+- Back-end Model APIs
 ![](figures/api-fast.gif)
 
+- Crowd Consolidation
 ![](figures/consolidation.png)
 
+- Performance Study
 ![](figures/userevaluation.png)
 
 # Documentations
