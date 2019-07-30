@@ -12,9 +12,14 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
 * **Automatic crowd consolidation**: enhancing real-time inter-annotator agreement by merging inconsistent labels from multiple annotators.  
 
 * **Real-time model deployment**: users can deploy their models in downstream systems while new annotations are being made.  
+
+
 ![](figures/overall-fast.gif)
+
 ![](figures/api-fast.gif)
+
 ![](figures/consolidation.png)
+
 ![](figures/userevaluation.png)
 
 # Documentations
