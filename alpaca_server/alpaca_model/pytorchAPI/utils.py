@@ -16,18 +16,18 @@ import gensim
 import flair
 
 
-from pytorch_pretrained_bert.modeling_openai import (
-    PRETRAINED_MODEL_ARCHIVE_MAP as OPENAI_GPT_PRETRAINED_MODEL_ARCHIVE_MAP,
-)
-
-from pytorch_pretrained_bert import (
-    BertTokenizer,
-    BertModel,
-    TransfoXLTokenizer,
-    TransfoXLModel,
-    OpenAIGPTModel,
-    OpenAIGPTTokenizer,
-)
+# from pytorch_pretrained_bert.modeling_openai import (
+#     PRETRAINED_MODEL_ARCHIVE_MAP as OPENAI_GPT_PRETRAINED_MODEL_ARCHIVE_MAP,
+# )
+#
+# from pytorch_pretrained_bert import (
+#     BertTokenizer,
+#     BertModel,
+#     TransfoXLTokenizer,
+#     TransfoXLModel,
+#     OpenAIGPTModel,
+#     OpenAIGPTTokenizer,
+# )
 
 START_TAG = '<START>'
 STOP_TAG = '<STOP>'
