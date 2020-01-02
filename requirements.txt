@@ -1,3 +1,4 @@
+tiny-tokenizer
 applicationinsights==0.11.7
 Django==2.1.7
 django-filter==2.0.0
