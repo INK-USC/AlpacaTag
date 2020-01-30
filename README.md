@@ -29,7 +29,7 @@ dynamically suggesting annotations and sampling the most informative unlabeled i
      author = {Bill Yuchen Lin and Dongho Lee and Frank F. Xu and Ouyu Lan and Xiang Ren}, 
      title = {AlpacaTag: An Active Learning-based Crowd Annotation Framework for Sequence Tagging.}, 
      booktitle = {Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (ACL), Demo Track},
-     year = {2018} 
+     year = {2019} 
 }
 ```
 
