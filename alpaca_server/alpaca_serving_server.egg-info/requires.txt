@@ -1,4 +1,0 @@
-pyzmq>=17.1.0
-GPUtil>=1.3.0
-termcolor>=1.1
-torch

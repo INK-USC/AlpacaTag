@@ -1,3 +1,0 @@
-[console_scripts]
-alpaca-serving-start = alpaca_serving.server:main
-
