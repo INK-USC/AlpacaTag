@@ -83,12 +83,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'alpacatag',
-        'USER': 'alpacatag',
-        'PASSWORD': 'alpacatag',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.path.join(BASE_DIR, './db.sqlite3'),
     }
 }
 
