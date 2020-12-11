@@ -47,7 +47,7 @@ COPY alpaca_client alpaca_client
 COPY alpaca_server alpaca_server
 
 RUN pip install --no-cache-dir \
-    ./alpaca_client \
-    ./alpaca_server && \
+    -e ./alpaca_client \
+    -e ./alpaca_server && \
     python -m spacy download en_core_web_sm
 
