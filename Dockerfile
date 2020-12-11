@@ -13,6 +13,17 @@ RUN npm install --no-cache && \
 
 FROM python:3.6-slim-buster as final
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libicu-dev \
+    git \
+    htop \
+    tmux \
+    ncdu \
+    # cleanup:
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /alpaca
 
 COPY --from=node-builder /annotation /alpaca/annotation
@@ -20,6 +31,7 @@ COPY --from=node-builder /annotation /alpaca/annotation
 COPY requirements.txt requirements.txt
 COPY alpaca_client alpaca_client
 COPY alpaca_server alpaca_server
+
 
 RUN pip install --no-cache-dir \
     ./alpaca_client \
