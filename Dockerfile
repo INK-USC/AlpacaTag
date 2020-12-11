@@ -54,4 +54,4 @@ RUN pip install --no-cache-dir \
 WORKDIR /alpaca/annotation/AlpacaTag
 
 EXPOSE 8000
-ENTRYPOINT ["alpaca-serving-start", "&", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/bin/bash", "-c", "alpaca-serving-start", "&", "python", "manage.py", "runserver", "0.0.0.0:8000"]
