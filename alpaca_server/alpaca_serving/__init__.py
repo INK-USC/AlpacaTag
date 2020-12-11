@@ -19,7 +19,6 @@ from alpaca_serving.httpproxy import HTTPProxy
 from alpaca_serving.zmq_decor import multi_socket
 from alpaca_model.pytorchAPI import SequenceTaggingModel
 
-__all__ = ['__version__']
 __version__ = '1.0.1'
 
 class ServerCmd:

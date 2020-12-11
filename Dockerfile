@@ -26,16 +26,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /alpaca
 
-COPY --from=node-builder /annotation /alpaca/annotation
-
 COPY requirements.txt requirements.txt
+COPY alpaca_client/requirements.txt alpaca_client/requirements.txt
+COPY alpaca_server/requirements.txt alpaca_server/requirements.txt
+RUN pip install --no-cache-dir \
+    -r requirements.txt \
+    -r alpaca_client/requirements.txt \
+    -r alpaca_server/requirements.txt
+
+COPY --from=node-builder /annotation /alpaca/annotation
 COPY alpaca_client alpaca_client
 COPY alpaca_server alpaca_server
 
-
 RUN pip install --no-cache-dir \
     ./alpaca_client \
-    ./alpaca_server \
-    -r requirements.txt && \
+    ./alpaca_server && \
     python -m spacy download en_core_web_sm
 

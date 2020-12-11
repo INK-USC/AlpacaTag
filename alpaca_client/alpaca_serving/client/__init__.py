@@ -9,7 +9,6 @@ import numpy as np
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['__version__', 'AlpacaClient', 'ConcurrentAlpacaClient']
 
 # in the future client version must match with server version
 __version__ = '1.0.1'
