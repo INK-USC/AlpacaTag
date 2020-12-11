@@ -5,7 +5,7 @@ Preprocessors.
 import re
 
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.externals import joblib
+import joblib
 import six
 from .utils import *
 
