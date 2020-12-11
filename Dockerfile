@@ -1,14 +1,3 @@
-FROM node:14.1.0-alpine as node-builder
-
-COPY annotation/AlpacaTag/server /annotation/server
-
-WORKDIR /annotation/server
-
-RUN npm install --no-cache && \
-    npm run build
-
-
-
 FROM python:3.6-slim-buster as final
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,6 +21,25 @@ RUN pip install --no-cache-dir \
     -r alpaca_client/requirements.txt \
     -r alpaca_server/requirements.txt
 
+
+
+
+FROM node:14.1.0-alpine as node-builder
+
+COPY annotation/AlpacaTag/server /annotation/server
+
+WORKDIR /annotation/server
+
+RUN npm install --no-cache && \
+    npm run build
+
+
+
+
+
+FROM final
+
+WORKDIR /alpaca
 
 COPY --from=node-builder /annotation/server /alpaca/annotation/server
 COPY annotation annotation
