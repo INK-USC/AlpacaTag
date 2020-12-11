@@ -51,3 +51,5 @@ RUN pip install --no-cache-dir \
     -e ./alpaca_client \
     -e ./alpaca_server
 
+WORKDIR /alpaca/annotation/AlpacaTag
+
