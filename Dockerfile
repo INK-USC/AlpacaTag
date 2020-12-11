@@ -1,10 +1,10 @@
 FROM node:14.1.0-alpine as node-builder
 
-WORKDIR /annotation
-
 COPY annotation/AlpacaTag /annotation
 
-RUN ls && pwd && npm install --no-cache && \
+WORKDIR /annotation/server
+
+RUN npm install --no-cache && \
     npm run build
 
 
