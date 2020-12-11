@@ -19,7 +19,8 @@ COPY alpaca_server/requirements.txt alpaca_server/requirements.txt
 RUN pip install --no-cache-dir \
     -r requirements.txt \
     -r alpaca_client/requirements.txt \
-    -r alpaca_server/requirements.txt
+    -r alpaca_server/requirements.txt && \
+    python -m spacy download en_core_web_sm
 
 
 
@@ -48,6 +49,5 @@ COPY alpaca_server alpaca_server
 
 RUN pip install --no-cache-dir \
     -e ./alpaca_client \
-    -e ./alpaca_server && \
-    python -m spacy download en_core_web_sm
+    -e ./alpaca_server
 
