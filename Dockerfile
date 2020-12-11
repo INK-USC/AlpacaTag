@@ -1,8 +1,8 @@
 FROM node:14.1.0-alpine as node-builder
 
-COPY annotation/AlpacaTag /annotation
-
 WORKDIR /annotation
+
+COPY annotation/AlpacaTag .
 
 RUN npm install --no-cache && \
     npm run build
@@ -10,12 +10,20 @@ RUN npm install --no-cache && \
 
 
 
-FROM python:3.7-slim-buster as final
 
-COPY --from=node-builder /annotation /annotation
+FROM python:3.6-slim-buster as final
 
-COPY alpaca_client /alpaca_client
-COPY alpaca_server /alpaca_server
+WORKDIR /alpaca
 
-RUN pip install --no-cache-dir django ./alpaca_client ./alpaca_server
+COPY --from=node-builder /annotation ./annotation
+
+COPY requirements.txt requirements.txt
+COPY alpaca_client alpaca_client
+COPY alpaca_server alpaca_server
+
+RUN pip install --no-cache-dir \
+    ./alpaca_client \
+    ./alpaca_server \
+    -r requirements.txt && \
+    python -m spacy download en_core_web_sm
 
