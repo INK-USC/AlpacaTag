@@ -1,13 +1,11 @@
 FROM node:14.1.0-alpine as node-builder
 
-COPY annotation/AlpacaTag /annotation
+COPY annotation/AlpacaTag/server /annotation/server
 
 WORKDIR /annotation/server
 
 RUN npm install --no-cache && \
     npm run build
-
-
 
 
 
@@ -34,7 +32,9 @@ RUN pip install --no-cache-dir \
     -r alpaca_client/requirements.txt \
     -r alpaca_server/requirements.txt
 
-COPY --from=node-builder /annotation /alpaca/annotation
+
+COPY --from=node-builder /annotation/server /alpaca/annotation/server
+COPY annotation annotation
 COPY alpaca_client alpaca_client
 COPY alpaca_server alpaca_server
 
