@@ -12,7 +12,7 @@ alpaca-serving-start &
 echo "Initializing database"
 # python manage.py wait_for_db
 python manage.py migrate
-python manage.py create_roles
+# python manage.py create_roles
 
 echo "Creating admin"
 if [[ -n "${ADMIN_USERNAME}" ]] && [[ -n "${ADMIN_PASSWORD}" ]] && [[ -n "${ADMIN_EMAIL}" ]]; then
