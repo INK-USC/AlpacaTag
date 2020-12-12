@@ -60,6 +60,6 @@ ENV DEBUG=True
 
 EXPOSE 8000
 ENTRYPOINT ["/bin/bash", "-c", '\
-    echo \'import os; from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(os.environ["ADMIN_USERNAME"], os.environ["ADMIN_EMAIL"], os.environ["ADMIN_PASSWORD"])\' | python manage.py shell && \
+    echo "import os; from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(os.environ[\"ADMIN_USERNAME\"], os.environ[\"ADMIN_EMAIL\"], os.environ[\"ADMIN_PASSWORD\"])" | python manage.py shell && \
     alpaca-serving-start & \
     python manage.py runserver 0.0.0.0:8000']
