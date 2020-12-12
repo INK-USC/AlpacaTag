@@ -1,5 +1,5 @@
 # create superuser from env
-echo 'import os; from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(os.environ[\"ADMIN_USERNAME\"], os.environ[\"ADMIN_EMAIL\"], os.environ[\"ADMIN_PASSWORD\"])' | python manage.py shell
+echo 'import os; from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(os.environ["ADMIN_USERNAME"], os.environ["ADMIN_EMAIL"], os.environ["ADMIN_PASSWORD"])' | python manage.py shell
 
 # start model serving
 alpaca-serving-start &
