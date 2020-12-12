@@ -10,7 +10,7 @@ alpaca-serving-start &
 # if [[ ! -d "app/staticfiles" ]]; then python app/manage.py collectstatic --noinput; fi
 
 echo "Initializing database"
-python manage.py wait_for_db
+# python manage.py wait_for_db
 python manage.py migrate
 python manage.py create_roles
 
