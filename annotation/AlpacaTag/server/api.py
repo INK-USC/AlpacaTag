@@ -334,7 +334,7 @@ class ConnectToServer(APIView):
     def get(self, request, *args, **kwargs):
         global alpaca_client
         try:
-            from alpaca_serving_client import AlpacaClient
+            from alpaca_serving_client.client import AlpacaClient
             alpaca_client = AlpacaClient()
             response = {'connection': True}
         except TimeoutError:
