@@ -16,7 +16,7 @@ python manage.py migrate
 
 echo "Creating admin"
 if [[ -n "${ADMIN_USERNAME}" ]] && [[ -n "${ADMIN_PASSWORD}" ]] && [[ -n "${ADMIN_EMAIL}" ]]; then
-  python manage.py create_admin \
+  python manage.py createsuperuser \
     --username "${ADMIN_USERNAME}" \
     --password "${ADMIN_PASSWORD}" \
     --email "${ADMIN_EMAIL}" \
