@@ -1,9 +1,9 @@
-from .active_learning import *
-from .preprocessing import *
-from .trainer import *
-from .utils import *
-from .models import *
-from .tagger import *
+from alpaca_model.pytorchAPI.active_learning import Acquisition
+from alpaca_model.pytorchAPI.preprocessing import IndexTransformer
+from alpaca_model.pytorchAPI.trainer import Trainer
+from alpaca_model.pytorchAPI.models import CNN_BiLSTM_CRF
+from alpaca_model.pytorchAPI.tagger import Tagger
+from alpaca_model.pytorchAPI.utils import get_glove_embeddings, prepare_dataset
 import torch
 
 GLOVE_EMBEDDING_SIZE = 100

@@ -1,7 +1,7 @@
-from .preprocessing import IndexTransformer
-from .trainer import Trainer
-from .utils import filter_embeddings, load_data_and_labels, load_glove, prepare_dataset
-from .models import CNN_BiLSTM_CRF
+from alpaca_model.pytorchAPI.preprocessing import IndexTransformer
+from alpaca_model.pytorchAPI.trainer import Trainer
+from alpaca_model.pytorchAPI.utils import filter_embeddings, load_data_and_labels, load_glove, prepare_dataset
+from alpaca_model.pytorchAPI.models import CNN_BiLSTM_CRF
 import torch
 
 p = IndexTransformer(initial_vocab=None, use_char=True)

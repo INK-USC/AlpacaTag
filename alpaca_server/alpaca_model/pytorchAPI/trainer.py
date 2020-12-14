@@ -7,7 +7,7 @@ import numpy as np
 np.random.seed(0)
 import torch
 import torch.nn as nn
-from .utils import *
+from .utils import create_batches
 
 
 class Trainer(object):
