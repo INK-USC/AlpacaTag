@@ -5,7 +5,7 @@ import numpy as np
 from collections import Counter
 import time
 from scipy import stats
-from ..utils import *
+from ..utils import create_batches
 import pandas as pd
 
 class Acquisition(object):

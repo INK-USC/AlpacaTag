@@ -1,7 +1,7 @@
-from preprocessing import *
-from trainer import *
-from utils import *
-from models import *
+from .preprocessing import IndexTransformer
+from .trainer import Trainer
+from .utils import filter_embeddings, load_data_and_labels, load_glove, prepare_dataset
+from .models import CNN_BiLSTM_CRF
 import torch
 
 p = IndexTransformer(initial_vocab=None, use_char=True)
