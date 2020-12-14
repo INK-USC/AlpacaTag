@@ -37,7 +37,6 @@ RUN npm install --no-cache && \
 
 
 
-
 FROM final
 
 WORKDIR /alpaca
@@ -53,13 +52,15 @@ RUN pip install --no-cache-dir \
 
 WORKDIR /alpaca/annotation/AlpacaTag
 
-
 ENV ADMIN_USERNAME=admin
 ENV ADMIN_PASSWORD=password
 ENV ADMIN_EMAIL=admin@example.com
+
+ENV DATABASE_URL=sqlite:////data/doccano.db
+ENV ALLOW_SIGNUP=False
 ENV DEBUG=True
 
-# creates admin
+# create django admin/migrations, start alpaca-serving, start django
 COPY startup.sh startup.sh
 EXPOSE 8000
 ENTRYPOINT ["/bin/bash", "startup.sh"]

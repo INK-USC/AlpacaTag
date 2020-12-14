@@ -4,6 +4,7 @@
 set -o errexit
 
 # start model serving in background
+echo "Starting alpaca-serving"
 alpaca-serving-start &
 
 # echo "Making staticfiles"
