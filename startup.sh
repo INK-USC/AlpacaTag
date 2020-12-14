@@ -15,14 +15,14 @@ echo "Initializing database $DATABASE_URL"
 python manage.py migrate
 # python manage.py create_roles
 
-echo "Creating admin"
-if [[ -n "${ADMIN_USERNAME}" ]] && [[ -n "${ADMIN_PASSWORD}" ]] && [[ -n "${ADMIN_EMAIL}" ]]; then
-  DJANGO_SUPERUSER_PASSWORD=$ADMIN_PASSWORD python manage.py createsuperuser \
-    --username "${ADMIN_USERNAME}" \
-    --email "${ADMIN_EMAIL}" \
-    --noinput \
-  || true
-fi
+# echo "Creating admin"
+# if [[ -n "${ADMIN_USERNAME}" ]] && [[ -n "${ADMIN_PASSWORD}" ]] && [[ -n "${ADMIN_EMAIL}" ]]; then
+#   DJANGO_SUPERUSER_PASSWORD=$ADMIN_PASSWORD python manage.py createsuperuser \
+#     --username "${ADMIN_USERNAME}" \
+#     --email "${ADMIN_EMAIL}" \
+#     --noinput \
+#   || true
+# fi
 
 echo "Starting django"
 python manage.py runserver "0.0.0.0:${PORT:-8000}"
