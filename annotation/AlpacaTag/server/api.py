@@ -19,7 +19,7 @@ import spacy
 from spacy.tokens import Doc
 
 import time
-from alpaca_serving_client import *
+from alpaca_serving_client.client import AlpacaClient
 alpaca_client = None
 
 class WhitespaceTokenizer(object):
@@ -334,7 +334,6 @@ class ConnectToServer(APIView):
     def get(self, request, *args, **kwargs):
         global alpaca_client
         try:
-            from alpaca_serving_client.client import AlpacaClient
             alpaca_client = AlpacaClient()
             response = {'connection': True}
         except TimeoutError:
