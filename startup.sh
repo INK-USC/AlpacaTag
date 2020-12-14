@@ -16,7 +16,7 @@ python manage.py migrate
 
 echo "Creating admin"
 if [[ -n "${ADMIN_USERNAME}" ]] && [[ -n "${ADMIN_PASSWORD}" ]] && [[ -n "${ADMIN_EMAIL}" ]]; then
-  DJANGO_SUPERUSER_PASSWORD=ADMIN_PASSWORD python manage.py createsuperuser \
+  DJANGO_SUPERUSER_PASSWORD=$ADMIN_PASSWORD python manage.py createsuperuser \
     --username "${ADMIN_USERNAME}" \
     --email "${ADMIN_EMAIL}" \
     --noinput \
