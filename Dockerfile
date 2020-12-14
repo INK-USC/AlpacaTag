@@ -56,7 +56,7 @@ ENV ADMIN_USERNAME=admin
 ENV ADMIN_PASSWORD=password
 ENV ADMIN_EMAIL=admin@example.com
 
-ENV DATABASE_URL=sqlite:////data/doccano.db
+ENV DATABASE_URL=sqlite:////db.sqlite3
 ENV ALLOW_SIGNUP=False
 ENV DEBUG=True
 
