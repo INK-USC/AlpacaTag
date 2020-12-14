@@ -3,7 +3,7 @@ from alpaca_model.pytorchAPI.preprocessing import IndexTransformer
 from alpaca_model.pytorchAPI.trainer import Trainer
 from alpaca_model.pytorchAPI.models import CNN_BiLSTM_CRF
 from alpaca_model.pytorchAPI.tagger import Tagger
-from alpaca_model.pytorchAPI.utils import get_glove_embeddings, prepare_dataset
+from alpaca_model.pytorchAPI.utils import get_Bert_embeddings, prepare_dataset
 import torch
 
 GLOVE_EMBEDDING_SIZE = 100
@@ -77,10 +77,10 @@ class SequenceTaggingModel(object):
         self.p = IndexTransformer.load(p_path)
 
         # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
-        embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
-        # embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
+        embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
                                     self.word_embedding_dim,
                                     self.word_lstm_size,
