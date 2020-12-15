@@ -9,9 +9,6 @@ alpaca-serving-start &
 
 sleep 3 && echo '\n\n'
 
-# echo "Making staticfiles"
-# if [[ ! -d "app/staticfiles" ]]; then python app/manage.py collectstatic --noinput; fi
-
 echo "Running migrations on '$DATABASE_URL'"
 python manage.py migrate
 
