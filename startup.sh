@@ -3,6 +3,8 @@
 # https://github.com/doccano/doccano/blob/v1.0.5/tools/run.sh
 set -o errexit
 
+pip install allennlp
+
 # start model serving in background
 echo "Starting alpaca-serving"
 alpaca-serving-start &
