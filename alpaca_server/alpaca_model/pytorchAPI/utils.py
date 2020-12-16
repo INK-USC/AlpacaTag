@@ -1,4 +1,3 @@
-from collections import Counter
 import numpy as np
 import copy
 import random
@@ -172,7 +171,7 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
 
 
 def get_Distilbert_embeddings(vocab, dim):
-    from sentence_tranformers import SentenceTransformer
+    from sentence_transformers import SentenceTransformer
 
     sentence_transformer = SentenceTransformer("distilbert-multilingual-nli-stsb-quora-ranking")
     _embeddings = np.array(sentence_transformer.encode(list(vocab.keys()), show_progress_bar=False))
