@@ -1,3 +1,4 @@
+from collections import Counter  # imported in pytorchAPI
 import numpy as np
 import copy
 import random
