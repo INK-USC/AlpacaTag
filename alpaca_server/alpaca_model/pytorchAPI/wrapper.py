@@ -3,9 +3,10 @@ from alpaca_model.pytorchAPI.preprocessing import IndexTransformer
 from alpaca_model.pytorchAPI.trainer import Trainer
 from alpaca_model.pytorchAPI.models import CNN_BiLSTM_CRF
 from alpaca_model.pytorchAPI.tagger import Tagger
-from alpaca_model.pytorchAPI.utils import get_Elmo_embeddings, prepare_dataset
+from alpaca_model.pytorchAPI.utils import get_Distilbert_embeddings, prepare_dataset
 import torch
 
+DISTILBERT_EMBEDDING_SIZE = 768
 GLOVE_EMBEDDING_SIZE = 100
 ELMO_EMBEDDING_SIZE = 768
 GPT_EMBEDDING_SIZE = 1536
@@ -14,7 +15,7 @@ BERT_EMBEDDING_SIZE = 3072
 class SequenceTaggingModel(object):
 
     def __init__(self,
-                 word_embedding_dim=100,
+                 word_embedding_dim=DISTILBERT_EMBEDDING_SIZE,
                  char_embedding_dim=25,
                  word_lstm_size=100,
                  char_lstm_size=25,
@@ -76,11 +77,12 @@ class SequenceTaggingModel(object):
         m_path = model_name + '.pt'
         self.p = IndexTransformer.load(p_path)
 
-        # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
+        embeddings = get_Distilbert_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
-        # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
+        # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
-        embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
+        # embeddings = get_Bert_embeddings()(self.p._word_vocab.vocab, self.word_embedding_dim)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
                                     self.word_embedding_dim,
                                     self.word_lstm_size,
@@ -101,11 +103,12 @@ class SequenceTaggingModel(object):
         self.p.label_fit(predefined_label)
         self.p.word_fit(x_train)
 
-        embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, ELMO_EMBEDDING_SIZE)
+        embeddings = get_Distilbert_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = get_Elmo_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = get_glove_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         # embeddings = filter_embeddings(self.embeddings, self.p._word_vocab.vocab, self.word_embedding_dim)
-        # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, GPT_EMBEDDING_SIZE)
-        # embeddings = get_Bert_embeddings(self.p._word_vocab.vocab, BERT_EMBEDDING_SIZE)
+        # embeddings = get_GPT_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
+        # embeddings = get_Bert_embeddings(self.p._word_vocab.vocab, self.word_embedding_dim)
         self.model = CNN_BiLSTM_CRF(self.p.word_vocab_size,
                                     self.word_embedding_dim,
                                     self.word_lstm_size,

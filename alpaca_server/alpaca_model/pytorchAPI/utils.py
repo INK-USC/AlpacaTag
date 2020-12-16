@@ -171,6 +171,15 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
         )
 
 
+def get_Distilbert_embeddings(vocab, dim):
+    from sentence_tranformers import SentenceTransformer
+
+    sentence_transformer = SentenceTransformer("distilbert-multilingual-nli-stsb-quora-ranking")
+    _embeddings = np.array(sentence_transformer.encode(list(vocab.keys()), show_progress_bar=False))
+    assert _embeddings.shape[1] == dim, f"Bad word_embedding_dim set: {dim} (found {_embeddings.shape[1]})"
+    return _embeddings
+
+
 def get_Bert_embeddings(vocab, dim):
     from flair.embeddings import BertEmbeddings
     from flair.data import Sentence
