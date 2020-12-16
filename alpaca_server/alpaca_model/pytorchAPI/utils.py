@@ -185,7 +185,10 @@ def get_Bert_embeddings(vocab, dim):
 
     embedding.embed(sentence)
     for token in sentence:
-        _embeddings[vocab[token.text]] = token.embedding
+        try:
+            _embeddings[vocab[token.text]] = token.embedding
+        except KeyError:
+            log.warning(f'Bad token {token.text} for Bert embedding')
 
     return _embeddings
 
