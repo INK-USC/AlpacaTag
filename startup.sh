@@ -7,7 +7,7 @@ set -o errexit
 echo "Starting alpaca-serving"
 alpaca-serving-start &
 
-sleep 3 && echo '\n\n'
+sleep 3 && echo -e '\n\n'
 
 echo "Running migrations on '$DATABASE_URL'"
 python manage.py migrate
