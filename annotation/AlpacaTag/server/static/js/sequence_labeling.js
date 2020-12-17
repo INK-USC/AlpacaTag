@@ -48,14 +48,14 @@ Vue.component('annotator', {
         const preSelectionRange = range.cloneRange();
         preSelectionRange.selectNodeContents(this.$el);
         preSelectionRange.setEnd(range.startContainer, range.startOffset);
-        start = preSelectionRange.toString().length;
+        start = preSelectionRange.toString().length - 20;
         end = start + range.toString().length;
       } else if (document.selection && document.selection.type !== 'Control') {
         const selectedTextRange = document.selection.createRange();
         const preSelectionTextRange = document.body.createTextRange();
         preSelectionTextRange.moveToElementText(this.$el);
         preSelectionTextRange.setEndPoint('EndToStart', selectedTextRange);
-        start = preSelectionTextRange.text.length;
+        start = preSelectionTextRange.text.length - 20;
         end = start + selectedTextRange.text.length;
       }
       this.startOffset = start;
