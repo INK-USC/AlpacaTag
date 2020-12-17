@@ -16,7 +16,16 @@ Vue.use(require('vue-shortkey'), {
 Vue.filter('simpleShortcut', simpleShortcut);
 
 Vue.component('annotator', {
-  template: '<div @click="setSelectedRange"><span class="text-sequence" v-for="r in chunks" v-if="id2label[r.label]" v-bind:class="{tag: id2label[r.label].text_color}" v-bind:style="{ color: id2label[r.label].text_color, backgroundColor: id2label[r.label].background_color, textDecoration: id2label[r.label].text_decoration}">{{ text.slice(r.start_offset, r.end_offset) }}<button class="delete is-small" v-if="id2label[r.label].text_color" @click="removeLabel(r)"></button></span></div>',
+  template: '<div @click="setSelectedRange">\
+                    <span class="text-sequence"\
+                         v-for="r in chunks"\
+                         v-if="id2label[r.label]"\
+                         v-bind:class="{tag: id2label[r.label].text_color}"\
+                         v-bind:style="{ color: id2label[r.label].text_color, backgroundColor: id2label[r.label].background_color, textDecoration: id2label[r.label].text_decoration}"\
+                    >{{ text.slice(r.start_offset, r.end_offset) }}<button class="delete is-small"\
+                                         v-if="id2label[r.label].text_color"\
+                                         @click="removeLabel(r)"></button></span>\
+               </div>',
   props: {
     labels: Array, // [{id: Integer, color: String, text: String}]
     text: String,
