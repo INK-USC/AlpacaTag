@@ -21,8 +21,7 @@ Vue.component('annotator', {
                          v-for="r in chunks"\
                          v-if="id2label[r.label]"\
                          v-bind:class="{tag: id2label[r.label].text_color}"\
-                         v-bind:style="{ color: id2label[r.label].text_color, backgroundColor: id2label[r.label].background_color, textDecoration: id2label[r.label].text_decoration}"\
-                    >{{ text.slice(r.start_offset, r.end_offset) }}<button class="delete is-small"\
+                         v-bind:style="{ color: id2label[r.label].text_color, backgroundColor: id2label[r.label].background_color, textDecoration: id2label[r.label].text_decoration}">{{ text.slice(r.start_offset, r.end_offset) }}<button class="delete is-small"\
                                          v-if="id2label[r.label].text_color"\
                                          @click="removeLabel(r)"></button></span>\
                </div>',
@@ -48,14 +47,14 @@ Vue.component('annotator', {
         const preSelectionRange = range.cloneRange();
         preSelectionRange.selectNodeContents(this.$el);
         preSelectionRange.setEnd(range.startContainer, range.startOffset);
-        start = preSelectionRange.toString().length - 20;
+        start = preSelectionRange.toString().length;
         end = start + range.toString().length;
       } else if (document.selection && document.selection.type !== 'Control') {
         const selectedTextRange = document.selection.createRange();
         const preSelectionTextRange = document.body.createTextRange();
         preSelectionTextRange.moveToElementText(this.$el);
         preSelectionTextRange.setEndPoint('EndToStart', selectedTextRange);
-        start = preSelectionTextRange.text.length - 20;
+        start = preSelectionTextRange.text.length;
         end = start + selectedTextRange.text.length;
       }
       this.startOffset = start;
