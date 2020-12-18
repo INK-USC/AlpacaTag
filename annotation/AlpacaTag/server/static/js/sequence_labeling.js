@@ -16,8 +16,7 @@ Vue.use(require('vue-shortkey'), {
 Vue.filter('simpleShortcut', simpleShortcut);
 
 Vue.component('annotator', {
-  template: '<div @click="setSelectedRange">\
-                    <span class="text-sequence"\
+  template: '<div @click="setSelectedRange"><span class="text-sequence"\
                          v-for="r in chunks"\
                          v-if="id2label[r.label]"\
                          v-bind:class="{tag: id2label[r.label].text_color}"\
