@@ -11,5 +11,4 @@ alpaca_client/dist
 alpaca_server/alpaca_serving_client.egg-info
 alpaca_server/build
 alpaca_server/dist
-annotation/AlpacaTag/db.sqlite3
-annotation/AlpacaTag/db.sqlite3
+.env
