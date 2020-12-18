@@ -17,7 +17,9 @@ COPY requirements.txt requirements.txt
 COPY alpaca_client/requirements.txt alpaca_client/requirements.txt
 COPY alpaca_server/requirements.txt alpaca_server/requirements.txt
 
-# Fetch small torch - for GPU support use runtime image hub.docker.com/r/pytorch/pytorch
+# 1 fetch small torch - for GPU support use a runtime image from hub.docker.com/r/pytorch/pytorch
+# 2 install requirements for both django and model server
+# 3 download spacy and distilbert data
 RUN pip install --no-cache-dir \
     torch==1.7.1+cpu \
     -f https://download.pytorch.org/whl/torch_stable.html && \
