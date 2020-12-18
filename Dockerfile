@@ -2,7 +2,7 @@ FROM python:3.6-slim-buster as final
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    libicu-dev \
+    cmake \
     git \
     htop \
     tmux \
@@ -16,11 +16,17 @@ WORKDIR /alpaca
 COPY requirements.txt requirements.txt
 COPY alpaca_client/requirements.txt alpaca_client/requirements.txt
 COPY alpaca_server/requirements.txt alpaca_server/requirements.txt
+
+# Fetch small torch - for GPU support use runtime image hub.docker.com/r/pytorch/pytorch
 RUN pip install --no-cache-dir \
+    torch==1.7.1+cpu \
+    -f https://download.pytorch.org/whl/torch_stable.html && \
+    pip install --no-cache-dir \
     -r requirements.txt \
     -r alpaca_client/requirements.txt \
     -r alpaca_server/requirements.txt && \
-    python -m spacy download en_core_web_sm
+    python -m spacy download en_core_web_sm && \
+    python -c 'from sentence_transformers import SentenceTransformer; SentenceTransformer("distilbert-multilingual-nli-stsb-quora-ranking")'
 
 
 
