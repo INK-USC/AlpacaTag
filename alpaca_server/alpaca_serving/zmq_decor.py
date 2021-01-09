@@ -1,7 +1,6 @@
 from contextlib import ExitStack
 from zmq.decorators import _Decorator
 
-__all__ = ['multi_socket']
 
 from functools import wraps
 import zmq

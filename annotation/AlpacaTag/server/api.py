@@ -19,7 +19,7 @@ import spacy
 from spacy.tokens import Doc
 
 import time
-from alpaca_serving.client import *
+from alpaca_serving_client.client import AlpacaClient
 alpaca_client = None
 
 class WhitespaceTokenizer(object):

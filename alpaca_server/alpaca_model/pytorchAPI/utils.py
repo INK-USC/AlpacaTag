@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter  # imported in pytorchAPI
 import numpy as np
 import copy
 import random
@@ -171,6 +171,15 @@ def cached_path(url_or_filename: str, cache_dir: Path) -> Path:
         )
 
 
+def get_Distilbert_embeddings(vocab, dim):
+    from sentence_transformers import SentenceTransformer
+
+    sentence_transformer = SentenceTransformer("distilbert-multilingual-nli-stsb-quora-ranking")
+    _embeddings = np.array(sentence_transformer.encode(list(vocab.keys()), show_progress_bar=False))
+    assert _embeddings.shape[1] == dim, f"Bad word_embedding_dim set: {dim} (found {_embeddings.shape[1]})"
+    return _embeddings
+
+
 def get_Bert_embeddings(vocab, dim):
     from flair.embeddings import BertEmbeddings
     from flair.data import Sentence
@@ -185,7 +194,10 @@ def get_Bert_embeddings(vocab, dim):
 
     embedding.embed(sentence)
     for token in sentence:
-        _embeddings[vocab[token.text]] = token.embedding
+        try:
+            _embeddings[vocab[token.text]] = token.embedding
+        except KeyError:
+            log.warning(f'Bad token {token.text} for Bert embedding')
 
     return _embeddings
 

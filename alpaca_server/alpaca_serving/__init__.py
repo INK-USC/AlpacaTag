@@ -14,12 +14,11 @@ import zmq.decorators as zmqd
 from termcolor import colored
 from zmq.utils import jsonapi
 
-from alpaca_serving.helper import *
+from alpaca_serving.helper import set_logger, send_test, auto_bind
 from alpaca_serving.httpproxy import HTTPProxy
 from alpaca_serving.zmq_decor import multi_socket
-from alpaca_model.pytorchAPI import SequenceTaggingModel
+from alpaca_model.pytorchAPI.wrapper import SequenceTaggingModel
 
-__all__ = ['__version__']
 __version__ = '1.0.1'
 
 class ServerCmd:
@@ -433,30 +432,30 @@ class AlpacaWorker(Process):
                         if os.path.isfile(os.path.join('.','model'+self.modelid+'.pre')) and os.path.isfile(os.path.join('.','model'+self.modelid+'.pt')):
                             self.model.load('model'+self.modelid)
                             logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
-                            helper.send_test(outputs, client_id, b'Model Loaded', ServerCmd.load)
+                            send_test(outputs, client_id, b'Model Loaded', ServerCmd.load)
                             logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
                         else:
                             logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
-                            helper.send_test(outputs, client_id, b'Model Initiated', msg_type)
+                            send_test(outputs, client_id, b'Model Initiated', msg_type)
                             logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
 
                     elif msg_type == ServerCmd.online_initiate:
                         self.model.online_word_build(msg[0],msg[1]) # whole unlabeled training sentences / predefined_labels
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
-                        helper.send_test(outputs, client_id, b'Online word build completed', msg_type)
+                        send_test(outputs, client_id, b'Online word build completed', msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
 
                     elif msg_type == ServerCmd.online_learning:
                         self.model.online_learning(msg[0], msg[1], msg[2], msg[3])
                         self.model.save('model'+self.modelid)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
-                        helper.send_test(outputs, client_id, b'Online learning completed', msg_type)
+                        send_test(outputs, client_id, b'Online learning completed', msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
 
                     elif msg_type == ServerCmd.predict:
                         analyzed_result = self.model.analyze(msg)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, 1, client_id))
-                        helper.send_test(outputs, client_id, jsonapi.dumps(analyzed_result), msg_type)
+                        send_test(outputs, client_id, jsonapi.dumps(analyzed_result), msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (1, client_id))
 
                     elif msg_type == ServerCmd.active_learning:
@@ -468,7 +467,7 @@ class AlpacaWorker(Process):
                             'scores': json_scores,
                         }
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg[0]), client_id))
-                        helper.send_test(outputs, client_id, jsonapi.dumps(active_data), msg_type)
+                        send_test(outputs, client_id, jsonapi.dumps(active_data), msg_type)
                         logger.info('job done\tsize: %s\tclient: %s' % (len(msg[0]), client_id))
 
 

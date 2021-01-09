@@ -5,9 +5,9 @@ Preprocessors.
 import re
 
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.externals import joblib
+import joblib
 import six
-from .utils import *
+from alpaca_model.pytorchAPI.utils import Counter, START_TAG, STOP_TAG
 
 def normalize_number(text):
     return re.sub(r'[0-9０１２３４５６７８９]', r'0', text)
