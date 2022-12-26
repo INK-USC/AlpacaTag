@@ -1,6 +1,7 @@
 FROM python:3.6-slim-buster as final
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential\
     gcc \
     cmake \
     git \
