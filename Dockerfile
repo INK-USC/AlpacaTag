@@ -69,6 +69,7 @@ ENV ADMIN_EMAIL=admin@example.com
 ENV DATABASE_URL=sqlite:////db.sqlite3
 ENV ALLOW_SIGNUP=False
 ENV DEBUG=True
+ENV SECRET_KEY teste
 
 # create django admin/migrations, start alpaca-serving, start django
 COPY startup.sh startup.sh
