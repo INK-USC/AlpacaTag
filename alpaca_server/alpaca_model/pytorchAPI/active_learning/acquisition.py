@@ -62,6 +62,7 @@ class Acquisition(object):
             wordslen = data['wordslen']
             charslen = data['charslen']
             sort_info = data['sort_info']
+            inverse_sort = np.asarray(sort_info).argsort()
 
             score = model.decode(words, chars, caps, wordslen, charslen, mask, usecuda = self.usecuda,
                                  score_only = True)
