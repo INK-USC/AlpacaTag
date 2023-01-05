@@ -35,7 +35,8 @@ class Acquisition(object):
             scores = np.array(scores)
             norm_scores = scores/wordslen
             assert len(norm_scores) == len(batch_x)
-            probscores.extend(list(norm_scores[wordslen.argsort()[::-1]]))
+            reverse_idx = wordslen.argsort()[::-1].argsort()
+            probscores.extend(list(norm_scores[reverse_idx]))
 
         assert len(new_datapoints) == len(probscores)
         probs[new_datapoints] = np.array(probscores)

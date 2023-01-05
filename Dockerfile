@@ -1,6 +1,7 @@
 FROM python:3.6-slim-buster as final
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential\
     gcc \
     cmake \
     git \
@@ -17,9 +18,12 @@ COPY requirements.txt requirements.txt
 COPY alpaca_client/requirements.txt alpaca_client/requirements.txt
 COPY alpaca_server/requirements.txt alpaca_server/requirements.txt
 
+# increases pip timemout limit to avoid errors downloading pytorch
 # 1 fetch small torch - for GPU support use a runtime image from hub.docker.com/r/pytorch/pytorch
 # 2 install requirements for both django and model server
 # 3 download spacy and distilbert data
+ENV PIP_DEFAULT_TIMEOUT 100
+
 RUN pip install --no-cache-dir \
     torch==1.7.1+cpu \
     -f https://download.pytorch.org/whl/torch_stable.html && \
@@ -41,8 +45,6 @@ WORKDIR /annotation/server
 
 RUN npm install --no-cache && \
     npm run build
-
-
 
 
 FROM final
@@ -67,6 +69,7 @@ ENV ADMIN_EMAIL=admin@example.com
 ENV DATABASE_URL=sqlite:////db.sqlite3
 ENV ALLOW_SIGNUP=False
 ENV DEBUG=True
+ENV SECRET_KEY teste
 
 # create django admin/migrations, start alpaca-serving, start django
 COPY startup.sh startup.sh
